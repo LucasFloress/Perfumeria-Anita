@@ -2,7 +2,6 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PerfumeriaAnita.Data;
 
@@ -16,73 +15,133 @@ namespace PerfumeriaAnita.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.0")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
-
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
 
             modelBuilder.Entity("PerfumeriaAnita.Models.Alerta", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("Fecha")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("Leida")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Mensaje")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("ProductoId")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Tipo")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ProductoId");
+
                     b.ToTable("Alertas");
+                });
+
+            modelBuilder.Entity("PerfumeriaAnita.Models.Categoria", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Activo")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Descripcion")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nombre")
+                        .IsUnique();
+
+                    b.ToTable("Categorias");
+                });
+
+            modelBuilder.Entity("PerfumeriaAnita.Models.DetalleVenta", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Cantidad")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("PrecioUnitario")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ProductoId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("VentaId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductoId");
+
+                    b.HasIndex("VentaId");
+
+                    b.ToTable("DetalleVentas");
                 });
 
             modelBuilder.Entity("PerfumeriaAnita.Models.Producto", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool?>("Activo")
-                        .HasColumnType("bit");
+                        .HasColumnType("INTEGER");
 
-                    b.Property<string>("Categoria")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("CategoriaId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("CodigoBarras")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
 
                     b.Property<byte[]>("Imagen")
-                        .HasColumnType("varbinary(max)");
+                        .HasColumnType("BLOB");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<decimal>("Precio")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int?>("ProductoId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Stock")
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProductoId");
+                    b.HasIndex("CategoriaId");
+
+                    b.HasIndex("CodigoBarras")
+                        .IsUnique();
 
                     b.ToTable("Productos");
                 });
@@ -91,26 +150,27 @@ namespace PerfumeriaAnita.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Contraseña")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("FechaRegistro")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Rol")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -121,73 +181,93 @@ namespace PerfumeriaAnita.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("INTEGER");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("TEXT");
 
-                    b.Property<int>("Cantidad")
-                        .HasColumnType("int");
+                    b.Property<string>("NombreVendedor")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("FechaVenta")
-                        .HasColumnType("datetime2");
-
-                    b.Property<decimal>("PrecioUnitario")
+                    b.Property<decimal>("Total")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("ProductoId")
-                        .HasColumnType("int");
+                    b.Property<int?>("UserId")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("int");
+                    b.Property<int?>("UsuarioId")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProductoId");
-
-                    b.HasIndex("UsuarioId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Ventas");
                 });
 
-            modelBuilder.Entity("PerfumeriaAnita.Models.Producto", b =>
-                {
-                    b.HasOne("PerfumeriaAnita.Models.Alerta", null)
-                        .WithMany("Productos")
-                        .HasForeignKey("ProductoId");
-                });
-
-            modelBuilder.Entity("PerfumeriaAnita.Models.Venta", b =>
+            modelBuilder.Entity("PerfumeriaAnita.Models.Alerta", b =>
                 {
                     b.HasOne("PerfumeriaAnita.Models.Producto", "Producto")
-                        .WithMany("Ventas")
+                        .WithMany()
+                        .HasForeignKey("ProductoId");
+
+                    b.Navigation("Producto");
+                });
+
+            modelBuilder.Entity("PerfumeriaAnita.Models.DetalleVenta", b =>
+                {
+                    b.HasOne("PerfumeriaAnita.Models.Producto", "Producto")
+                        .WithMany("DetallesVenta")
                         .HasForeignKey("ProductoId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PerfumeriaAnita.Models.User", "Usuario")
-                        .WithMany("Ventas")
-                        .HasForeignKey("UsuarioId")
+                    b.HasOne("PerfumeriaAnita.Models.Venta", "Venta")
+                        .WithMany("Detalles")
+                        .HasForeignKey("VentaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Producto");
 
-                    b.Navigation("Usuario");
+                    b.Navigation("Venta");
                 });
 
-            modelBuilder.Entity("PerfumeriaAnita.Models.Alerta", b =>
+            modelBuilder.Entity("PerfumeriaAnita.Models.Producto", b =>
+                {
+                    b.HasOne("PerfumeriaAnita.Models.Categoria", "Categoria")
+                        .WithMany("Productos")
+                        .HasForeignKey("CategoriaId");
+
+                    b.Navigation("Categoria");
+                });
+
+            modelBuilder.Entity("PerfumeriaAnita.Models.Venta", b =>
+                {
+                    b.HasOne("PerfumeriaAnita.Models.User", null)
+                        .WithMany("Ventas")
+                        .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("PerfumeriaAnita.Models.Categoria", b =>
                 {
                     b.Navigation("Productos");
                 });
 
             modelBuilder.Entity("PerfumeriaAnita.Models.Producto", b =>
                 {
-                    b.Navigation("Ventas");
+                    b.Navigation("DetallesVenta");
                 });
 
             modelBuilder.Entity("PerfumeriaAnita.Models.User", b =>
                 {
                     b.Navigation("Ventas");
+                });
+
+            modelBuilder.Entity("PerfumeriaAnita.Models.Venta", b =>
+                {
+                    b.Navigation("Detalles");
                 });
 #pragma warning restore 612, 618
         }

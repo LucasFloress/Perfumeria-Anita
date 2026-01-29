@@ -21,6 +21,7 @@ namespace PerfumeriaAnita.Models
         public string Email {get;set;} = null!;
 
         public string Rol {get;set;} = "Vendedor";
+        public DateTime FechaRegistro {get;set;} = DateTime.Now;
 
         /* ------------ Relaciones ---------------*/
         // Un usuario puede realizar muchas ventas

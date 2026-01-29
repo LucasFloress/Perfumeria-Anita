@@ -17,10 +17,16 @@ namespace PerfumeriaAnita.Models
         [Required]
         public DateTime Fecha {get;set;} = DateTime.Now;
     
+        [StringLength(50)]
+        public string Tipo { get; set; } = "Info"; // "Info", "Warning", "Error"
+
+        public bool Leida {get;set;} = true;
+
+
         /*------------ Relaciones ---------------*/
         // Saber qué producto generó la alerta
         public int? ProductoId {get;set;}
         [ForeignKey("ProductoId")]
-        public virtual ICollection<Producto> Productos {get;set;}= new List<Producto>();
+        public virtual Producto? Producto {get;set;}
     }   
 }
