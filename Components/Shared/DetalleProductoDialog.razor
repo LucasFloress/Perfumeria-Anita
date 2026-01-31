@@ -1,0 +1,86 @@
+@using PerfumeriaAnita.Models
+@using MudBlazor 
+
+<MudDialog>
+    <DialogContent>
+        @if (Producto != null)
+        {
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudText Typo="Typo.h5">@Producto.Nombre</MudText>
+                    <MudDivider Class="my-3"/>
+                </MudItem>
+
+                @if (Producto.Imagen != null)
+                {
+                    <MudItem xs="12" Class="d-flex justify-center mb-4">
+                        <MudImage Src="@GetImageSource()" Alt="@Producto.Nombre" Height="200" ObjectFit="ObjectFit.Contain" />
+                    </MudItem>
+                }
+
+                <MudItem xs="6">
+                    <MudText Typo="Typo.caption">Código</MudText>
+                    <MudText><b>@Producto.CodigoBarras</b></MudText>
+                </MudItem>
+
+                <MudItem xs="6">
+                    <MudText Typo="Typo.caption">Categoría</MudText>
+                    <MudChip T="string" Size="Size.Small" Color="Color.Info">
+                        @(Producto.Categoria?.Nombre ?? "Sin categoría")
+                    </MudChip>
+                </MudItem>
+
+                <MudItem xs="6">
+                    <MudText Typo="Typo.caption">Precio</MudText>
+                    <MudText Typo="Typo.h6" Color="Color.Success">$@Producto.Precio.ToString("N2")</MudText>
+                </MudItem>
+
+                <MudItem xs="6">
+                    <MudText Typo="Typo.caption">Stock</MudText>
+                    <MudChip T="string" Size="Size.Small" Color="@ObtenerColorStock(Producto.Stock)">
+                        @Producto.Stock u.
+                    </MudChip>
+                </MudItem>
+                
+                <MudItem xs="6">
+                    <MudText Typo="Typo.caption">Estado</MudText>
+                    <MudChip T="string" Size="Size.Small" Color="@(Producto.Activo == true ? Color.Success : Color.Default)">
+                         @(Producto.Activo == true ? "Activo" : "Inactivo")
+                    </MudChip>
+                </MudItem>
+
+            </MudGrid>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="Cerrar">Cerrar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    // CAMBIO CLAVE: Usamos "MudBlazor.MudDialogInstance" completo
+    [CascadingParameter]
+    MudBlazor.MudDialogInstance MudDialogRef { get; set; } = default!;
+
+    [Parameter]
+    public Producto? Producto { get; set; }
+
+    private void Cerrar() => MudDialogRef.Close(DialogResult.Ok(true));
+
+    private Color ObtenerColorStock(int stock)
+    {
+        if (stock == 0) return Color.Error;
+        if (stock <= 5) return Color.Warning;
+        return Color.Success;
+    }
+
+    private string GetImageSource()
+    {
+        if (Producto?.Imagen != null)
+        {
+            var base64 = Convert.ToBase64String(Producto.Imagen);
+            return $"data:image/jpeg;base64,{base64}";
+        }
+        return string.Empty;
+    }
+}

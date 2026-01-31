@@ -6,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 /* --- 1. Configurar la BD --- */
 builder.Services.AddDbContext<PerfumeriaAnita.Data.AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 /* --- 2. Configurar MudBlazor --- */
 builder.Services.AddMudServices();
@@ -17,7 +17,7 @@ builder.Services.AddRazorComponents()
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// --- 3. Configurar los pipelines de los HTTPS Request ---
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);

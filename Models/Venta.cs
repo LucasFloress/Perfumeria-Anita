@@ -11,25 +11,21 @@ namespace PerfumeriaAnita.Models
         public int Id { get; set; }
 
         [Required]
-        public int ProductoId { get; set; }
+        public DateTime Fecha { get; set; } = DateTime.Now;
 
         [Required]
-        public int Cantidad { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Total { get; set; }
 
-        [Required]
-        public decimal PrecioUnitario { get; set; }
-
-        [Required]
-        public DateTime FechaVenta { get; set; }
-
-        /* ------------ Relaciones ---------------*/
-        [ForeignKey("ProductoId")]
-        public virtual Producto Producto { get; set; } = null!;
-    
-        // Relación con Usuario (Vendedor)
-        [ForeignKey("Usuario")]
-        public int UsuarioId { get; set; } // La clave foránea
+        // Opcional: si implementas usuarios
+        public int? UsuarioId { get; set; }
         
-        public virtual User? Usuario { get; set; } // La navegación
+        public string MetodoPago {get; set;} = "Efectivo"; // VALOR POR DEFAULT
+
+        [StringLength(100)]
+        public string? NombreVendedor { get; set; }
+
+        // Relación: Una venta tiene muchos detalles
+        public virtual ICollection<DetalleVenta> Detalles { get; set; } = new List<DetalleVenta>();
     }
 }
