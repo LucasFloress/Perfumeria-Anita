@@ -20,6 +20,8 @@ namespace PerfumeriaAnita.Models
         // Opcional: si implementas usuarios
         public int? UsuarioId { get; set; }
         
+        public string MetodoPago {get; set;} = "Efectivo"; // VALOR POR DEFAULT
+
         [StringLength(100)]
         public string? NombreVendedor { get; set; }
 

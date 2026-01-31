@@ -1,125 +1,231 @@
 @page "/productos"
-@using Microsoft.EntityFrameworkCore
 @using PerfumeriaAnita.Models
 @using PerfumeriaAnita.Data
+@using Microsoft.EntityFrameworkCore
 @inject AppDbContext Contexto
 @inject NavigationManager Navegador
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
 
 <MudText Typo="Typo.h4" GutterBottom="true">
-    <MudIcon Icon="@Icons.Material.Filled.Inventory"/> Productos
+    <MudIcon Icon="@Icons.Material.Filled.Inventory"/> Gestión de Productos
 </MudText>
 
+<!-- Botón para crear nuevo producto -->
 <MudButton Variant="Variant.Filled" 
-        Color="Color.Primary"
-        StartIcon="@Icons.Material.Filled.Add"
-        Href="/productos/crear"
-        Class="mb-4">
+           Color="Color.Primary"
+           StartIcon="@Icons.Material.Filled.Add"
+           Href="/productos/crear"
+           Class="mb-4">
     Nuevo Producto
 </MudButton>
 
-<MudTable Items="@productos" 
-        Loading="@cargando"
-        Dense="true" 
-        Hover="true"
-        Filter="new Func<Producto, bool>(FiltrarProducto)">
-    
-    <ToolBarContent>
-        <MudText Typo="Typo.h6">Listado de Productos</MudText>
-        <MudSpacer/>
-        <MudTextField @bind-Value="textoBusqueda" 
-                    Placeholder="Buscar..." 
-                    Adornment="Adornment.Start"
-                    AdornmentIcon="@Icons.Material.Filled.Search"
-                    IconSize="Size.Medium"
-                    Immediate="true"/>
-    </ToolBarContent>
-
-    <HeaderContent>
-        <MudTh>Código</MudTh>
-        <MudTh>Nombre</MudTh>
-        <MudTh>Categoría</MudTh>
-        <MudTh>Precio</MudTh>
-        <MudTh>Stock</MudTh>
-        <MudTh>Estado</MudTh>
-        <MudTh>Acciones</MudTh>
-    </HeaderContent>
-
-    <RowTemplate>
-        <MudTd DataLabel="Código">
-            <code>@context.CodigoBarras</code>
-        </MudTd>
-        <MudTd DataLabel="Nombre">
-            <strong>@context.Nombre</strong>
-        </MudTd>
-        <MudTd DataLabel="Categoría">
-            @if (context.Categoria != null)
-            {
-                <MudChip T="string" Size="Size.Small" Color="Color.Info">
-                    @context.Categoria.Nombre
-                </MudChip>
-            }
-            else
-            {
-                <MudText Typo="Typo.body2" Color="Color.Default">-</MudText>
-            }
-        </MudTd>
-        <MudTd DataLabel="Precio">
-            <strong>$@context.Precio.ToString("N2")</strong>
-        </MudTd>
-        <MudTd DataLabel="Stock">
-            <MudChip T="string" Size="Size.Small" 
-                     Color="@ObtenerColorStock(context.Stock)">
-                @context.Stock
-            </MudChip>
-        </MudTd>
-        <MudTd DataLabel="Estado">
-            <MudChip T="string" Size="Size.Small" 
-                    Color="@(context.Activo == true ? Color.Success : Color.Default)">
-                @(context.Activo == true ? "Activo" : "Inactivo")
-            </MudChip>
-        </MudTd>
-        <MudTd DataLabel="Acciones">
-            <MudIconButton Icon="@Icons.Material.Filled.Edit" 
-                           Size="Size.Small"
-                           Color="Color.Primary"
-                           Href="@($"/productos/editar/{context.Id}")"/>
+<!-- Tabla de productos -->
+<MudPaper Class="pa-4">
+    <MudTable Items="@productos" 
+              Loading="@cargando"
+              Dense="true" 
+              Hover="true"
+              Filter="new Func<Producto, bool>(FiltrarProducto)"
+              @bind-SelectedItem="productoSeleccionado">
+        
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Listado de Productos</MudText>
+            <MudSpacer/>
             
-            <MudIconButton Icon="@Icons.Material.Filled.Delete" 
-                           Size="Size.Small"
-                           Color="Color.Error"
-                           OnClick="@(() => EliminarProducto(context.Id))"/>
-        </MudTd>
-    </RowTemplate>
+            <!-- Buscador -->
+            <MudTextField @bind-Value="textoBusqueda" 
+                          Placeholder="Buscar por nombre o código..." 
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          IconSize="Size.Medium"
+                          Immediate="true"
+                          Class="mr-4"/>
+            
+            <!-- Filtro por categoría -->
+            <MudSelect T="int?" 
+                       @bind-Value="filtroCategoria" 
+                       Label="Filtrar por categoría" 
+                       Clearable="true"
+                       Variant="Variant.Outlined"
+                       Dense="true"
+                       Style="min-width: 200px;">
+                @foreach (var cat in categorias)
+                {
+                    <MudSelectItem Value="@((int?)cat.Id)">@cat.Nombre</MudSelectItem>
+                }
+            </MudSelect>
+        </ToolBarContent>
 
-    <NoRecordsContent>
-        <MudText>No hay productos registrados</MudText>
-    </NoRecordsContent>
-</MudTable>
+        <HeaderContent>
+            <MudTh>Código</MudTh>
+            <MudTh>Nombre</MudTh>
+            <MudTh>Categoría</MudTh>
+            <MudTh>Precio</MudTh>
+            <MudTh>Stock</MudTh>
+            <MudTh>Estado</MudTh>
+            <MudTh>Acciones</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd DataLabel="Código">
+                <MudText Typo="Typo.body2">
+                    <code>@context.CodigoBarras</code>
+                </MudText>
+            </MudTd>
+            <MudTd DataLabel="Nombre">
+                <MudText Typo="Typo.body1">
+                    <strong>@context.Nombre</strong>
+                </MudText>
+            </MudTd>
+            <MudTd DataLabel="Categoría">
+                @if (context.Categoria != null)
+                {
+                    <MudChip T="string" Size="Size.Small" Color="Color.Info">
+                        @context.Categoria.Nombre
+                    </MudChip>
+                }
+                else
+                {
+                    <MudText Typo="Typo.body2" Color="Color.Default">Sin categoría</MudText>
+                }
+            </MudTd>
+            <MudTd DataLabel="Precio">
+                <MudText Typo="Typo.body1">
+                    <strong>$@context.Precio.ToString("N2")</strong>
+                </MudText>
+            </MudTd>
+            <MudTd DataLabel="Stock">
+                <MudChip T="string" Size="Size.Small" 
+                         Color="@ObtenerColorStock(context.Stock)">
+                    @context.Stock unidades
+                </MudChip>
+            </MudTd>
+            <MudTd DataLabel="Estado">
+                <MudChip T="string" Size="Size.Small" 
+                         Color="@(context.Activo == true ? Color.Success : Color.Default)">
+                    @(context.Activo == true ? "Activo" : "Inactivo")
+                </MudChip>
+            </MudTd>
+            <MudTd DataLabel="Acciones">
+                <MudTooltip Text="Ver detalles">
+                    <MudIconButton Icon="@Icons.Material.Filled.Visibility" 
+                                   Size="Size.Small"
+                                   Color="Color.Info"
+                                   OnClick="@(() => VerDetalles(context))"/>
+                </MudTooltip>
+
+                <MudTooltip Text="Editar">
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" 
+                                   Size="Size.Small"
+                                   Color="Color.Primary"
+                                   Href="@($"/productos/editar/{context.Id}")"/>
+                </MudTooltip>
+                
+                @if (context.Activo == true)
+                {
+                    <MudTooltip Text="Desactivar">
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" 
+                                       Size="Size.Small"
+                                       Color="Color.Error"
+                                       OnClick="@(() => ConfirmarDesactivar(context))"/>
+                    </MudTooltip>
+                }
+                else
+                {
+                    <MudTooltip Text="Activar">
+                        <MudIconButton Icon="@Icons.Material.Filled.CheckCircle" 
+                                       Size="Size.Small"
+                                       Color="Color.Success"
+                                       OnClick="@(() => ActivarProducto(context))"/>
+                    </MudTooltip>
+                }
+            </MudTd>
+        </RowTemplate>
+
+        <NoRecordsContent>
+            <MudText>No hay productos registrados</MudText>
+        </NoRecordsContent>
+        
+        <LoadingContent>
+            <MudText>Cargando productos...</MudText>
+        </LoadingContent>
+    </MudTable>
+</MudPaper>
+
+<!-- Información de totales -->
+<MudGrid Class="mt-4">
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Class="pa-4">
+            <MudText Typo="Typo.subtitle2">Total Productos</MudText>
+            <MudText Typo="Typo.h5">@productos.Count</MudText>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Class="pa-4">
+            <MudText Typo="Typo.subtitle2">Productos Activos</MudText>
+            <MudText Typo="Typo.h5" Color="Color.Success">
+                @productos.Count(p => p.Activo == true)
+            </MudText>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Class="pa-4">
+            <MudText Typo="Typo.subtitle2">Sin Stock</MudText>
+            <MudText Typo="Typo.h5" Color="Color.Error">
+                @productos.Count(p => p.Stock == 0)
+            </MudText>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Class="pa-4">
+            <MudText Typo="Typo.subtitle2">Stock Bajo (≤5)</MudText>
+            <MudText Typo="Typo.h5" Color="Color.Warning">
+                @productos.Count(p => p.Stock > 0 && p.Stock <= 5)
+            </MudText>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
 
 @code {
     private List<Producto> productos = new();
+    private List<Categoria> categorias = new();
+    private Producto? productoSeleccionado;
     private bool cargando = true;
     private string textoBusqueda = string.Empty;
+    private int? filtroCategoria = null;
 
     protected override async Task OnInitializedAsync()
     {
-        await CargarProductos();
+        await CargarDatos();
     }
 
-    private async Task CargarProductos()
+    private async Task CargarDatos()
     {
         cargando = true;
-        // El Include requiere "using Microsoft.EntityFrameworkCore" arriba
+        
+        // Cargar productos con sus categorías
         productos = await Contexto.Productos
             .Include(p => p.Categoria)
             .OrderBy(p => p.Nombre)
             .ToListAsync();
+        
+        // Cargar categorías para el filtro
+        categorias = await Contexto.Categorias
+            .Where(c => c.Activo == true)
+            .OrderBy(c => c.Nombre)
+            .ToListAsync();
+        
         cargando = false;
     }
 
     private bool FiltrarProducto(Producto producto)
     {
+        // Filtro por categoría
+        if (filtroCategoria.HasValue && producto.CategoriaId != filtroCategoria.Value)
+            return false;
+
+        // Filtro por texto de búsqueda
         if (string.IsNullOrWhiteSpace(textoBusqueda))
             return true;
 
@@ -139,17 +245,66 @@
         return Color.Success;
     }
 
-    private async Task EliminarProducto(int id)
+    private async Task ConfirmarDesactivar(Producto producto)
     {
-        var producto = await Contexto.Productos.FindAsync(id);
-        if (producto != null)
+        bool? resultado = await DialogService.ShowMessageBox(
+            "Confirmar desactivación",
+            $"¿Está seguro que desea desactivar el producto '{producto.Nombre}'?",
+            yesText: "Sí, desactivar", 
+            cancelText: "Cancelar");
+
+        if (resultado == true)
         {
-            // Soft delete (desactivar en vez de borrar)
+            await DesactivarProducto(producto);
+        }
+    }
+
+    private async Task DesactivarProducto(Producto producto)
+    {
+        try
+        {
             producto.Activo = false;
             await Contexto.SaveChangesAsync();
             
-            Snackbar.Add("Producto desactivado", Severity.Info);
-            await CargarProductos();
+            Snackbar.Add($"Producto '{producto.Nombre}' desactivado", Severity.Info);
+            await CargarDatos();
         }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error al desactivar: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task ActivarProducto(Producto producto)
+    {
+        try
+        {
+            producto.Activo = true;
+            await Contexto.SaveChangesAsync();
+            
+            Snackbar.Add($"Producto '{producto.Nombre}' activado", Severity.Success);
+            await CargarDatos();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error al activar: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task VerDetalles(Producto producto)
+    {
+        var parametros = new DialogParameters
+        {
+            { "Producto", producto }
+        };
+
+        var opciones = new DialogOptions 
+        { 
+            CloseOnEscapeKey = true,
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true
+        };
+
+        await DialogService.ShowAsync<DetalleProductoDialog>("Detalles del Producto", parametros, opciones);
     }
 }

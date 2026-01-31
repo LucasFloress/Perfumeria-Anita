@@ -186,6 +186,10 @@ namespace PerfumeriaAnita.Migrations
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("MetodoPago")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("NombreVendedor")
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");

@@ -1,0 +1,177 @@
+@page "/productos/editar/{Id:int}"
+@using PerfumeriaAnita.Models
+@using PerfumeriaAnita.Data
+@using Microsoft.EntityFrameworkCore
+@inject AppDbContext Contexto
+@inject NavigationManager Navegador
+@inject ISnackbar Snackbar
+
+<MudText Typo="Typo.h4" GutterBottom="true">Editar Producto</MudText>
+
+<!-- Validador -->
+@if (cargando)
+{
+    <MudProgressCircular Indeterminate="true" />
+}
+else if (producto == null)
+{
+    <MudAlert Severity="Severity.Error">Producto no encontrado</MudAlert>
+}
+else
+{
+    <EditForm Model="@producto" OnValidSubmit="ActualizarProducto">
+        <DataAnnotationsValidator/> 
+
+        <MudCard>
+            <MudCardContent>
+                <!-- Nombre del Producto -->
+                <MudTextField   Label="Nombre del Producto" 
+                                @bind-Value="producto.Nombre" 
+                                For="@(() => producto.Nombre)"
+                                Variant="Variant.Outlined"
+                                Margin="Margin.Dense"/>
+
+                <!-- Código de Barras -->
+                <MudTextField   Label="Código de Barras" 
+                                @bind-Value="producto.CodigoBarras" 
+                                For="@(() => producto.CodigoBarras)"
+                                Variant="Variant.Outlined"
+                                Margin="Margin.Dense"
+                                HelperText="No puede repetirse con otro producto"/>
+
+                <!-- Categoría -->
+                <MudSelect T="int?" 
+                            @bind-Value="producto.CategoriaId"
+                            Label="Categoría"
+                            Variant="Variant.Outlined"
+                            Margin="Margin.Dense"
+                            Clearable="true">
+                    @foreach (var cat in categorias)
+                    {
+                        <MudSelectItem Value="@((int?)cat.Id)">@cat.Nombre</MudSelectItem>
+                    }
+                </MudSelect>
+
+                <!-- Precio -->
+                <MudNumericField Label="Precio del Producto" 
+                                    @bind-Value="producto.Precio" 
+                                    For="@(() => producto.Precio)"
+                                    Variant="Variant.Outlined"
+                                    Margin="Margin.Dense"
+                                    Format="N2"
+                                    Adornment="Adornment.Start"
+                                    AdornmentText="$"
+                                    Min="0.01m"/>
+
+                <!-- Stock -->
+                <MudNumericField Label="Stock Actual" 
+                                    @bind-Value="producto.Stock" 
+                                    For="@(() => producto.Stock)"
+                                    Variant="Variant.Outlined"
+                                    Margin="Margin.Dense"
+                                    Adornment="Adornment.End"
+                                    AdornmentText="unidades"
+                                    Min="0"/>
+
+                <!-- Producto Activo -->
+                <MudSwitch T="bool?" @bind-Value="producto.Activo" 
+                            Label="Producto Activo" 
+                            Color="Color.Success"
+                            Class="mt-3"/>
+            </MudCardContent>
+
+            <MudCardActions>
+                <MudButton ButtonType="ButtonType.Submit" 
+                            Variant="Variant.Filled" 
+                            Color="Color.Primary" 
+                            StartIcon="@Icons.Material.Filled.Save"
+                            Class="ml-auto">
+                    Actualizar Producto
+                </MudButton>
+                
+                <MudButton Variant="Variant.Text" 
+                            Color="Color.Default"
+                            OnClick="Cancelar"
+                            StartIcon="@Icons.Material.Filled.Cancel">
+                    Cancelar
+                </MudButton>
+            </MudCardActions>
+        </MudCard>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Producto? producto;
+    private List<Categoria> categorias = new();
+    private bool cargando = true;
+    private string? codigoOriginal;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        cargando = true;
+
+        // Cargar el producto a editar
+        producto = await Contexto.Productos
+            .Include(p => p.Categoria)
+            .FirstOrDefaultAsync(p => p.Id == Id);
+
+        // Guardar código original para validación
+        if (producto != null)
+        {
+            codigoOriginal = producto.CodigoBarras;
+        }
+
+        // Cargar categorías
+        categorias = await Contexto.Categorias
+            .Where(c => c.Activo == true)
+            .OrderBy(c => c.Nombre)
+            .ToListAsync();
+
+        cargando = false;
+    }
+
+    private async Task ActualizarProducto()
+    {
+        if (producto == null) return;
+
+        try
+        {
+            // Validar código de barras único (si cambió)
+            if (producto.CodigoBarras != codigoOriginal)
+            {
+                var codigoExiste = await Contexto.Productos
+                    .AnyAsync(p => p.CodigoBarras == producto.CodigoBarras && p.Id != Id);
+
+                if (codigoExiste)
+                {
+                    Snackbar.Add("Ya existe otro producto con ese código de barras", Severity.Error);
+                    return;
+                }
+            }
+
+            // Actualizar en la base de datos
+            Contexto.Productos.Update(producto);
+            await Contexto.SaveChangesAsync();
+
+            Snackbar.Add("¡Producto actualizado exitosamente!", Severity.Success);
+            Navegador.NavigateTo("/productos");
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error al actualizar: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private void Cancelar()
+    {
+        Navegador.NavigateTo("/productos");
+    }
+}

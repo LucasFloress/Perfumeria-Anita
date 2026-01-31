@@ -1,0 +1,76 @@
+@page "/dashboard"
+@using PerfumeriaAnita.Components.Layout
+@layout EmptyLayout
+
+<link href="css/dashboard.css" rel="stylesheet" />
+
+<div class="dashboard-container">
+    
+    <aside class="sidebar">
+        <div class="logo">
+            <span>🌸 Perfumería Anita</span>
+        </div>
+        <nav class="nav-menu">
+            <a class="nav-item active">Panel Principal</a>
+            <a href="/productos" class="nav-item">Inventario</a>
+            <a class="nav-item">Ventas</a>
+            <a class="nav-item">Configuración</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <h2>Panel de Control</h2>
+            <div class="user-info">Usuario: <strong>Admin</strong></div>
+        </header>
+
+        <div class="content-body">
+            
+            <div class="card">
+                <h3>🔍 Venta Rápida</h3>
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Buscar producto..." />
+                    <button class="btn btn-primary">Buscar</button>
+                </div>
+
+                <div style="margin-top: 20px; border: 1px solid #eee; padding: 15px; border-radius: 8px;">
+                    <h2 style="margin:0;">@nombreEjemplo</h2>
+                    <h3 style="color: green;">$@precioEjemplo</h3>
+                    <p>Stock Disponible: <strong>@stockEjemplo</strong></p>
+                    
+                    <div style="display:flex; gap:10px; margin-top:10px;">
+                        <input type="number" value="1" style="width: 60px; padding: 5px;" />
+                        <button class="btn btn-success">Confirmar Venta</button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                
+                <div class="card">
+                    <h3>⚠️ Alertas de Stock</h3>
+                    <div class="alert-item">Perfume Channel N5 (Quedan 2)</div>
+                    <div class="alert-item">Crema Dove (Quedan 1)</div>
+                    <div class="alert-item">Jabón Rexona (Quedan 4)</div>
+                </div>
+
+                <div class="card">
+                    <h3>📈 Resumen Hoy</h3>
+                    <div style="text-align:center; padding: 20px;">
+                        <span style="color:#666">Total Vendido</span>
+                        <h1 style="color: rebeccapurple; font-size: 3rem; margin: 10px 0;">$15,200</h1>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+</div>
+
+@code {
+    // SOLO VARIABLES DE EJEMPLO PARA QUE EL HTML NO DE ERROR
+    // NO HAY LÓGICA DE NEGOCIO AQUÍ
+    private string nombreEjemplo = "Perfume Carolina Herrera 100ml";
+    private decimal precioEjemplo = 125000.00m;
+    private int stockEjemplo = 12;
+}
