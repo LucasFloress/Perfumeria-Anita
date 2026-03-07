@@ -45,7 +45,7 @@
                 <MudItem xs="6">
                     <MudText Typo="Typo.caption">Estado</MudText>
                     <MudChip T="string" Size="Size.Small" Color="@(Producto.Activo == true ? Color.Success : Color.Default)">
-                         @(Producto.Activo == true ? "Activo" : "Inactivo")
+                            @(Producto.Activo == true ? "Activo" : "Inactivo")
                     </MudChip>
                 </MudItem>
 
@@ -58,9 +58,8 @@
 </MudDialog>
 
 @code {
-    // CAMBIO CLAVE: Usamos "MudBlazor.MudDialogInstance" completo
     [CascadingParameter]
-    MudBlazor.MudDialogInstance MudDialogRef { get; set; } = default!;
+    MudDialogInstance MudDialogRef { get; set; } = default!;
 
     [Parameter]
     public Producto? Producto { get; set; }

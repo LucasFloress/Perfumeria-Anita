@@ -13,7 +13,11 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PerfumeriaAnita")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+<<<<<<< HEAD
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d2ccea2eb5fb332c3445f1b7fd86b9fc7a2753be")]
+=======
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bc740661ccfd05f7722233f52aaf1589a50b1f6c")]
+>>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
 [assembly: System.Reflection.AssemblyProductAttribute("PerfumeriaAnita")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PerfumeriaAnita")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

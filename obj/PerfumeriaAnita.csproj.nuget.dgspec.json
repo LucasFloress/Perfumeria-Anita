@@ -1,31 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Usuario\\Desktop\\Progra\\Perfumeria-Anita\\PerfumeriaAnita.csproj": {}
+    "F:\\Lenguajes Programacion\\PerfumeriaAnita\\PerfumeriaAnita\\PerfumeriaAnita.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Usuario\\Desktop\\Progra\\Perfumeria-Anita\\PerfumeriaAnita.csproj": {
+    "F:\\Lenguajes Programacion\\PerfumeriaAnita\\PerfumeriaAnita\\PerfumeriaAnita.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Usuario\\Desktop\\Progra\\Perfumeria-Anita\\PerfumeriaAnita.csproj",
+        "projectUniqueName": "F:\\Lenguajes Programacion\\PerfumeriaAnita\\PerfumeriaAnita\\PerfumeriaAnita.csproj",
         "projectName": "PerfumeriaAnita",
-        "projectPath": "C:\\Users\\Usuario\\Desktop\\Progra\\Perfumeria-Anita\\PerfumeriaAnita.csproj",
-        "packagesPath": "C:\\Users\\Usuario\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Usuario\\Desktop\\Progra\\Perfumeria-Anita\\obj\\",
+        "projectPath": "F:\\Lenguajes Programacion\\PerfumeriaAnita\\PerfumeriaAnita\\PerfumeriaAnita.csproj",
+        "packagesPath": "C:\\Users\\flore\\.nuget\\packages\\",
+        "outputPath": "F:\\Lenguajes Programacion\\PerfumeriaAnita\\PerfumeriaAnita\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Usuario\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\flore\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -44,7 +38,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "10.0.100"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net9.0": {
@@ -76,24 +70,6 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[9.0.11, 9.0.11]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Host.win-x64",
-              "version": "[9.0.11, 9.0.11]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[9.0.11, 9.0.11]"
-            },
-            {
-              "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[9.0.11, 9.0.11]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
@@ -102,7 +78,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.101/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

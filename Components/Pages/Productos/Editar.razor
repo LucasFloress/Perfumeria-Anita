@@ -25,27 +25,27 @@ else
         <MudCard>
             <MudCardContent>
                 <!-- Nombre del Producto -->
-                <MudTextField Label="Nombre del Producto" 
-                              @bind-Value="producto.Nombre" 
-                              For="@(() => producto.Nombre)"
-                              Variant="Variant.Outlined"
-                              Margin="Margin.Dense"/>
+                <MudTextField   Label="Nombre del Producto" 
+                                @bind-Value="producto.Nombre" 
+                                For="@(() => producto.Nombre)"
+                                Variant="Variant.Outlined"
+                                Margin="Margin.Dense"/>
 
                 <!-- Código de Barras -->
-                <MudTextField Label="Código de Barras" 
-                              @bind-Value="producto.CodigoBarras" 
-                              For="@(() => producto.CodigoBarras)"
-                              Variant="Variant.Outlined"
-                              Margin="Margin.Dense"
-                              HelperText="No puede repetirse con otro producto"/>
+                <MudTextField   Label="Código de Barras" 
+                                @bind-Value="producto.CodigoBarras" 
+                                For="@(() => producto.CodigoBarras)"
+                                Variant="Variant.Outlined"
+                                Margin="Margin.Dense"
+                                HelperText="No puede repetirse con otro producto"/>
 
                 <!-- Categoría -->
                 <MudSelect T="int?" 
-                           @bind-Value="producto.CategoriaId"
-                           Label="Categoría"
-                           Variant="Variant.Outlined"
-                           Margin="Margin.Dense"
-                           Clearable="true">
+                            @bind-Value="producto.CategoriaId"
+                            Label="Categoría"
+                            Variant="Variant.Outlined"
+                            Margin="Margin.Dense"
+                            Clearable="true">
                     @foreach (var cat in categorias)
                     {
                         <MudSelectItem Value="@((int?)cat.Id)">@cat.Nombre</MudSelectItem>
@@ -54,24 +54,24 @@ else
 
                 <!-- Precio -->
                 <MudNumericField Label="Precio del Producto" 
-                                 @bind-Value="producto.Precio" 
-                                 For="@(() => producto.Precio)"
-                                 Variant="Variant.Outlined"
-                                 Margin="Margin.Dense"
-                                 Format="N2"
-                                 Adornment="Adornment.Start"
-                                 AdornmentText="$"
-                                 Min="0.01m"/>
+                                    @bind-Value="producto.Precio" 
+                                    For="@(() => producto.Precio)"
+                                    Variant="Variant.Outlined"
+                                    Margin="Margin.Dense"
+                                    Format="N2"
+                                    Adornment="Adornment.Start"
+                                    AdornmentText="$"
+                                    Min="0.01m"/>
 
                 <!-- Stock -->
                 <MudNumericField Label="Stock Actual" 
-                                 @bind-Value="producto.Stock" 
-                                 For="@(() => producto.Stock)"
-                                 Variant="Variant.Outlined"
-                                 Margin="Margin.Dense"
-                                 Adornment="Adornment.End"
-                                 AdornmentText="unidades"
-                                 Min="0"/>
+                                    @bind-Value="producto.Stock" 
+                                    For="@(() => producto.Stock)"
+                                    Variant="Variant.Outlined"
+                                    Margin="Margin.Dense"
+                                    Adornment="Adornment.End"
+                                    AdornmentText="unidades"
+                                    Min="0"/>
 
                 <!-- Producto Activo -->
                 <MudSwitch T="bool?" @bind-Value="producto.Activo" Color="Color.Success" Label="Activo" />
@@ -79,17 +79,17 @@ else
 
             <MudCardActions>
                 <MudButton ButtonType="ButtonType.Submit" 
-                           Variant="Variant.Filled" 
-                           Color="Color.Primary" 
-                           StartIcon="@Icons.Material.Filled.Save"
-                           Class="ml-auto">
+                            Variant="Variant.Filled" 
+                            Color="Color.Primary" 
+                            StartIcon="@Icons.Material.Filled.Save"
+                            Class="ml-auto">
                     Actualizar Producto
                 </MudButton>
                 
                 <MudButton Variant="Variant.Text" 
-                           Color="Color.Default"
-                           OnClick="Cancelar"
-                           StartIcon="@Icons.Material.Filled.Cancel">
+                            Color="Color.Default"
+                            OnClick="Cancelar"
+                            StartIcon="@Icons.Material.Filled.Cancel">
                     Cancelar
                 </MudButton>
             </MudCardActions>

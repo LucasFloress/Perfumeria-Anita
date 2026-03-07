@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* /Components/Layout/MainLayout.razor.rz.scp.css */
+=======
+/* _content/PerfumeriaAnita/Components/Layout/MainLayout.razor.rz.scp.css */
+>>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
 .page[b-doj3s4kx4z] {
     position: relative;
     display: flex;
@@ -97,7 +101,11 @@ main[b-doj3s4kx4z] {
         right: 0.75rem;
         top: 0.5rem;
     }
+<<<<<<< HEAD
 /* /Components/Layout/NavMenu.razor.rz.scp.css */
+=======
+/* _content/PerfumeriaAnita/Components/Layout/NavMenu.razor.rz.scp.css */
+>>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
 .navbar-toggler[b-ea2kbjnsz8] {
     appearance: none;
     cursor: pointer;
@@ -203,6 +211,7 @@ main[b-doj3s4kx4z] {
         overflow-y: auto;
     }
 }
+<<<<<<< HEAD
 /* /Components/Pages/Productos/Index.razor.rz.scp.css */
 /* Estilos para la página de productos */
 
@@ -216,3 +225,5 @@ main[b-doj3s4kx4z] {
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     border: 1px solid #e9ecef;
 }
+=======
+>>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
