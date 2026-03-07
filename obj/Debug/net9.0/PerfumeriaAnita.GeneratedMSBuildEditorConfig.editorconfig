@@ -1,7 +1,7 @@
 is_global = true
 build_property.MudDebugAnalyzer = 
 build_property.MudAllowedAttributePattern = 
-build_property.MudAllowedAttributeList = 
+build_property.MudIllegalParameters = 
 build_property.TargetFramework = net9.0
 build_property.TargetFramework = net9.0
 build_property.TargetPlatformMinVersion = 
@@ -61,10 +61,6 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQcm9kdWN0b3NcRWRpdGFyLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Usuario/Desktop/Progra/Perfumeria-Anita/Components/Pages/Productos/Index.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQcm9kdWN0b3NcSW5kZXgucmF6b3I=
-build_metadata.AdditionalFiles.CssScope = 
-
 [C:/Users/Usuario/Desktop/Progra/Perfumeria-Anita/Components/Pages/Weather.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xXZWF0aGVyLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
@@ -88,3 +84,7 @@ build_metadata.AdditionalFiles.CssScope = b-doj3s4kx4z
 [C:/Users/Usuario/Desktop/Progra/Perfumeria-Anita/Components/Layout/NavMenu.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcTmF2TWVudS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = b-ea2kbjnsz8
+
+[C:/Users/Usuario/Desktop/Progra/Perfumeria-Anita/Components/Pages/Productos/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQcm9kdWN0b3NcSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-xol3ma133l

@@ -7,25 +7,64 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
-<MudText Typo="Typo.h4" GutterBottom="true">
-    <MudIcon Icon="@Icons.Material.Filled.Inventory"/> Gestión de Productos
-</MudText>
+<div class="contenedor-principal">
+    
+    <div class="d-flex justify-space-between align-center mb-6">
+        <MudText Typo="Typo.h4" GutterBottom="false">
+            <MudIcon Icon="@Icons.Material.Filled.Inventory" Class="mr-2"/> Gestión de Productos
+        </MudText>
 
-<!-- Botón para crear nuevo producto -->
-<MudButton Variant="Variant.Filled" 
-           Color="Color.Primary"
-           StartIcon="@Icons.Material.Filled.Add"
-           Href="/productos/crear"
-           Class="mb-4">
-    Nuevo Producto
-</MudButton>
+        <MudDrawer @bind-Open="_drawerOpen" Elevation="2" ClipMode="DrawerClipMode.Always">
+            <NavMenu />
+        </MudDrawer>
 
-<!-- Tabla de productos -->
-<MudPaper Class="pa-4">
+        <MudButton Variant="Variant.Filled" 
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   Href="/productos/crear">
+            Nuevo Producto
+        </MudButton>
+    </div>
+
+    <MudGrid Class="mb-6">
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Class="pa-4 tarjeta-resumen" Elevation="2">
+                <MudText Typo="Typo.subtitle2" Color="Color.Default">Total Productos</MudText>
+                <MudText Typo="Typo.h4">@productos.Count</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Class="pa-4 tarjeta-resumen" Elevation="2">
+                <MudText Typo="Typo.subtitle2" Color="Color.Default">Productos Activos</MudText>
+                <MudText Typo="Typo.h4" Color="Color.Success">
+                    @productos.Count(p => p.Activo == true)
+                </MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Class="pa-4 tarjeta-resumen" Elevation="2">
+                <MudText Typo="Typo.subtitle2" Color="Color.Default">Sin Stock</MudText>
+                <MudText Typo="Typo.h4" Color="Color.Error">
+                    @productos.Count(p => p.Stock == 0)
+                </MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Class="pa-4 tarjeta-resumen" Elevation="2">
+                <MudText Typo="Typo.subtitle2" Color="Color.Default">Stock Bajo (≤5)</MudText>
+                <MudText Typo="Typo.h4" Color="Color.Warning">
+                    @productos.Count(p => p.Stock > 0 && p.Stock <= 5)
+                </MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+
     <MudTable Items="@productos" 
               Loading="@cargando"
-              Dense="true" 
+              Dense="false" 
               Hover="true"
+              Elevation="0"
+              Class="tabla-productos"
               Filter="new Func<Producto, bool>(FiltrarProducto)"
               @bind-SelectedItem="productoSeleccionado">
         
@@ -33,22 +72,22 @@
             <MudText Typo="Typo.h6">Listado de Productos</MudText>
             <MudSpacer/>
             
-            <!-- Buscador -->
             <MudTextField @bind-Value="textoBusqueda" 
                           Placeholder="Buscar por nombre o código..." 
                           Adornment="Adornment.Start"
                           AdornmentIcon="@Icons.Material.Filled.Search"
                           IconSize="Size.Medium"
                           Immediate="true"
+                          Variant="Variant.Outlined"
+                          Margin="Margin.Dense"
                           Class="mr-4"/>
             
-            <!-- Filtro por categoría -->
             <MudSelect T="int?" 
                        @bind-Value="filtroCategoria" 
-                       Label="Filtrar por categoría" 
+                       Label="Categoría" 
                        Clearable="true"
                        Variant="Variant.Outlined"
-                       Dense="true"
+                       Margin="Margin.Dense"
                        Style="min-width: 200px;">
                 @foreach (var cat in categorias)
                 {
@@ -68,77 +107,39 @@
         </HeaderContent>
 
         <RowTemplate>
-            <MudTd DataLabel="Código">
-                <MudText Typo="Typo.body2">
-                    <code>@context.CodigoBarras</code>
-                </MudText>
-            </MudTd>
-            <MudTd DataLabel="Nombre">
-                <MudText Typo="Typo.body1">
-                    <strong>@context.Nombre</strong>
-                </MudText>
-            </MudTd>
+            <MudTd DataLabel="Código"><code>@context.CodigoBarras</code></MudTd>
+            <MudTd DataLabel="Nombre"><strong>@context.Nombre</strong></MudTd>
             <MudTd DataLabel="Categoría">
                 @if (context.Categoria != null)
                 {
-                    <MudChip T="string" Size="Size.Small" Color="Color.Info">
-                        @context.Categoria.Nombre
-                    </MudChip>
+                    <MudChip T="string" Size="Size.Small" Color="Color.Info">@context.Categoria.Nombre</MudChip>
                 }
                 else
                 {
                     <MudText Typo="Typo.body2" Color="Color.Default">Sin categoría</MudText>
                 }
             </MudTd>
-            <MudTd DataLabel="Precio">
-                <MudText Typo="Typo.body1">
-                    <strong>$@context.Precio.ToString("N2")</strong>
-                </MudText>
-            </MudTd>
+            <MudTd DataLabel="Precio"><strong>$@context.Precio.ToString("N2")</strong></MudTd>
             <MudTd DataLabel="Stock">
-                <MudChip T="string" Size="Size.Small" 
-                         Color="@ObtenerColorStock(context.Stock)">
-                    @context.Stock unidades
+                <MudChip T="string" Size="Size.Small" Color="@ObtenerColorStock(context.Stock)">
+                    @context.Stock un.
                 </MudChip>
             </MudTd>
             <MudTd DataLabel="Estado">
-                <MudChip T="string" Size="Size.Small" 
-                         Color="@(context.Activo == true ? Color.Success : Color.Default)">
+                <MudChip T="string" Size="Size.Small" Color="@(context.Activo == true ? Color.Success : Color.Default)">
                     @(context.Activo == true ? "Activo" : "Inactivo")
                 </MudChip>
             </MudTd>
             <MudTd DataLabel="Acciones">
-                <MudTooltip Text="Ver detalles">
-                    <MudIconButton Icon="@Icons.Material.Filled.Visibility" 
-                                   Size="Size.Small"
-                                   Color="Color.Info"
-                                   OnClick="@(() => VerDetalles(context))"/>
-                </MudTooltip>
-
-                <MudTooltip Text="Editar">
-                    <MudIconButton Icon="@Icons.Material.Filled.Edit" 
-                                   Size="Size.Small"
-                                   Color="Color.Primary"
-                                   Href="@($"/productos/editar/{context.Id}")"/>
-                </MudTooltip>
-                
+                <MudTooltip Text="Ver detalles"><MudIconButton Icon="@Icons.Material.Filled.Visibility" Size="Size.Small" Color="Color.Info" OnClick="@(() => VerDetalles(context))"/></MudTooltip>
+                <MudTooltip Text="Editar"><MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Primary" Href="@($"/productos/editar/{context.Id}")"/></MudTooltip>
                 @if (context.Activo == true)
                 {
-                    <MudTooltip Text="Desactivar">
-                        <MudIconButton Icon="@Icons.Material.Filled.Delete" 
-                                       Size="Size.Small"
-                                       Color="Color.Error"
-                                       OnClick="@(() => ConfirmarDesactivar(context))"/>
-                    </MudTooltip>
+                    <MudTooltip Text="Desactivar"><MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="@(() => ConfirmarDesactivar(context))"/></MudTooltip>
                 }
                 else
                 {
-                    <MudTooltip Text="Activar">
-                        <MudIconButton Icon="@Icons.Material.Filled.CheckCircle" 
-                                       Size="Size.Small"
-                                       Color="Color.Success"
-                                       OnClick="@(() => ActivarProducto(context))"/>
-                    </MudTooltip>
+                    <MudTooltip Text="Activar"><MudIconButton Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Small" Color="Color.Success" OnClick="@(() => ActivarProducto(context))"/></MudTooltip>
                 }
             </MudTd>
         </RowTemplate>
@@ -146,46 +147,11 @@
         <NoRecordsContent>
             <MudText>No hay productos registrados</MudText>
         </NoRecordsContent>
-        
         <LoadingContent>
             <MudText>Cargando productos...</MudText>
         </LoadingContent>
     </MudTable>
-</MudPaper>
-
-<!-- Información de totales -->
-<MudGrid Class="mt-4">
-    <MudItem xs="12" sm="6" md="3">
-        <MudPaper Class="pa-4">
-            <MudText Typo="Typo.subtitle2">Total Productos</MudText>
-            <MudText Typo="Typo.h5">@productos.Count</MudText>
-        </MudPaper>
-    </MudItem>
-    <MudItem xs="12" sm="6" md="3">
-        <MudPaper Class="pa-4">
-            <MudText Typo="Typo.subtitle2">Productos Activos</MudText>
-            <MudText Typo="Typo.h5" Color="Color.Success">
-                @productos.Count(p => p.Activo == true)
-            </MudText>
-        </MudPaper>
-    </MudItem>
-    <MudItem xs="12" sm="6" md="3">
-        <MudPaper Class="pa-4">
-            <MudText Typo="Typo.subtitle2">Sin Stock</MudText>
-            <MudText Typo="Typo.h5" Color="Color.Error">
-                @productos.Count(p => p.Stock == 0)
-            </MudText>
-        </MudPaper>
-    </MudItem>
-    <MudItem xs="12" sm="6" md="3">
-        <MudPaper Class="pa-4">
-            <MudText Typo="Typo.subtitle2">Stock Bajo (≤5)</MudText>
-            <MudText Typo="Typo.h5" Color="Color.Warning">
-                @productos.Count(p => p.Stock > 0 && p.Stock <= 5)
-            </MudText>
-        </MudPaper>
-    </MudItem>
-</MudGrid>
+</div>
 
 @code {
     private List<Producto> productos = new();

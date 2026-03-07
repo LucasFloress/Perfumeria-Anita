@@ -74,10 +74,7 @@ else
                                  Min="0"/>
 
                 <!-- Producto Activo -->
-                <MudSwitch T="bool?" @bind-Checked="producto.Activo" 
-                           Label="Producto Activo" 
-                           Color="Color.Success"
-                           Class="mt-3"/>
+                <MudSwitch T="bool?" @bind-Value="producto.Activo" Color="Color.Success" Label="Activo" />
             </MudCardContent>
 
             <MudCardActions>
