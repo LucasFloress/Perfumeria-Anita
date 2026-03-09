@@ -3452,19 +3452,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\flore\\.nuget\\packages\\": {}
+    "/home/vscode/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "F:\\Lenguajes Programacion\\PerfumeriaAnita\\PerfumeriaAnita\\PerfumeriaAnita.csproj",
+      "projectUniqueName": "/workspaces/Perfumeria-Anita/PerfumeriaAnita.csproj",
       "projectName": "PerfumeriaAnita",
-      "projectPath": "F:\\Lenguajes Programacion\\PerfumeriaAnita\\PerfumeriaAnita\\PerfumeriaAnita.csproj",
-      "packagesPath": "C:\\Users\\flore\\.nuget\\packages\\",
-      "outputPath": "F:\\Lenguajes Programacion\\PerfumeriaAnita\\PerfumeriaAnita\\obj\\",
+      "projectPath": "/workspaces/Perfumeria-Anita/PerfumeriaAnita.csproj",
+      "packagesPath": "/home/vscode/.nuget/packages/",
+      "outputPath": "/workspaces/Perfumeria-Anita/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\flore\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "/home/vscode/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
@@ -3528,7 +3528,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/9.0.311/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

@@ -24,8 +24,6 @@
           }
         }
       },
-<<<<<<< HEAD
-=======
       "Microsoft.AspNetCore.Authorization/8.0.6": {
         "dependencies": {
           "Microsoft.AspNetCore.Metadata": "8.0.6",
@@ -56,7 +54,6 @@
         }
       },
       "Microsoft.AspNetCore.Metadata/8.0.6": {},
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
       "Microsoft.Bcl.AsyncInterfaces/7.0.0": {
         "runtime": {
           "lib/netstandard2.1/Microsoft.Bcl.AsyncInterfaces.dll": {
@@ -65,10 +62,7 @@
           }
         }
       },
-<<<<<<< HEAD
-=======
       "Microsoft.Build.Framework/17.8.3": {},
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
       "Microsoft.Build.Locator/1.7.8": {
         "runtime": {
           "lib/net6.0/Microsoft.Build.Locator.dll": {
@@ -77,9 +71,6 @@
           }
         }
       },
-<<<<<<< HEAD
-      "Microsoft.CodeAnalysis.Common/4.8.0": {
-=======
       "Microsoft.CodeAnalysis.Analyzers/3.3.4": {},
       "Microsoft.CodeAnalysis.Common/4.8.0": {
         "dependencies": {
@@ -88,7 +79,6 @@
           "System.Reflection.Metadata": "7.0.0",
           "System.Runtime.CompilerServices.Unsafe": "6.0.0"
         },
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
         "runtime": {
           "lib/net7.0/Microsoft.CodeAnalysis.dll": {
             "assemblyVersion": "4.8.0.0",
@@ -249,13 +239,9 @@
           "Humanizer.Core": "2.14.1",
           "Microsoft.Bcl.AsyncInterfaces": "7.0.0",
           "Microsoft.CodeAnalysis.Common": "4.8.0",
-<<<<<<< HEAD
-          "System.Composition": "7.0.0"
-=======
           "System.Composition": "7.0.0",
           "System.IO.Pipelines": "8.0.0",
           "System.Threading.Channels": "7.0.0"
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
         },
         "runtime": {
           "lib/net7.0/Microsoft.CodeAnalysis.Workspaces.dll": {
@@ -307,15 +293,10 @@
       },
       "Microsoft.CodeAnalysis.Workspaces.MSBuild/4.8.0": {
         "dependencies": {
-<<<<<<< HEAD
-          "Microsoft.CodeAnalysis.Common": "4.8.0",
-          "Microsoft.CodeAnalysis.Workspaces.Common": "4.8.0"
-=======
           "Microsoft.Build.Framework": "17.8.3",
           "Microsoft.CodeAnalysis.Common": "4.8.0",
           "Microsoft.CodeAnalysis.Workspaces.Common": "4.8.0",
           "System.Text.Json": "9.0.0"
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
         },
         "runtime": {
           "lib/net7.0/Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.dll": {
@@ -382,14 +363,10 @@
       },
       "Microsoft.EntityFrameworkCore/9.0.0": {
         "dependencies": {
-<<<<<<< HEAD
-          "Microsoft.EntityFrameworkCore.Abstractions": "9.0.0"
-=======
           "Microsoft.EntityFrameworkCore.Abstractions": "9.0.0",
           "Microsoft.EntityFrameworkCore.Analyzers": "9.0.0",
           "Microsoft.Extensions.Caching.Memory": "9.0.0",
           "Microsoft.Extensions.Logging": "9.0.0"
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
         },
         "runtime": {
           "lib/net8.0/Microsoft.EntityFrameworkCore.dll": {
@@ -406,33 +383,22 @@
           }
         }
       },
-<<<<<<< HEAD
-      "Microsoft.EntityFrameworkCore.Design/9.0.0": {
-        "dependencies": {
-          "Humanizer.Core": "2.14.1",
-=======
       "Microsoft.EntityFrameworkCore.Analyzers/9.0.0": {},
       "Microsoft.EntityFrameworkCore.Design/9.0.0": {
         "dependencies": {
           "Humanizer.Core": "2.14.1",
           "Microsoft.Build.Framework": "17.8.3",
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
           "Microsoft.Build.Locator": "1.7.8",
           "Microsoft.CodeAnalysis.CSharp": "4.8.0",
           "Microsoft.CodeAnalysis.CSharp.Workspaces": "4.8.0",
           "Microsoft.CodeAnalysis.Workspaces.MSBuild": "4.8.0",
           "Microsoft.EntityFrameworkCore.Relational": "9.0.0",
-<<<<<<< HEAD
-          "Microsoft.Extensions.DependencyModel": "9.0.0",
-          "Mono.TextTemplating": "3.0.0"
-=======
           "Microsoft.Extensions.Caching.Memory": "9.0.0",
           "Microsoft.Extensions.Configuration.Abstractions": "9.0.0",
           "Microsoft.Extensions.DependencyModel": "9.0.0",
           "Microsoft.Extensions.Logging": "9.0.0",
           "Mono.TextTemplating": "3.0.0",
           "System.Text.Json": "9.0.0"
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
         },
         "runtime": {
           "lib/net8.0/Microsoft.EntityFrameworkCore.Design.dll": {
@@ -443,14 +409,10 @@
       },
       "Microsoft.EntityFrameworkCore.Relational/9.0.0": {
         "dependencies": {
-<<<<<<< HEAD
-          "Microsoft.EntityFrameworkCore": "9.0.0"
-=======
           "Microsoft.EntityFrameworkCore": "9.0.0",
           "Microsoft.Extensions.Caching.Memory": "9.0.0",
           "Microsoft.Extensions.Configuration.Abstractions": "9.0.0",
           "Microsoft.Extensions.Logging": "9.0.0"
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
         },
         "runtime": {
           "lib/net8.0/Microsoft.EntityFrameworkCore.Relational.dll": {
@@ -462,11 +424,6 @@
       "Microsoft.EntityFrameworkCore.Sqlite/9.0.0": {
         "dependencies": {
           "Microsoft.EntityFrameworkCore.Sqlite.Core": "9.0.0",
-<<<<<<< HEAD
-          "Microsoft.Extensions.DependencyModel": "9.0.0",
-          "SQLitePCLRaw.bundle_e_sqlite3": "2.1.10",
-          "SQLitePCLRaw.core": "2.1.10"
-=======
           "Microsoft.Extensions.Caching.Memory": "9.0.0",
           "Microsoft.Extensions.Configuration.Abstractions": "9.0.0",
           "Microsoft.Extensions.DependencyModel": "9.0.0",
@@ -474,24 +431,18 @@
           "SQLitePCLRaw.bundle_e_sqlite3": "2.1.10",
           "SQLitePCLRaw.core": "2.1.10",
           "System.Text.Json": "9.0.0"
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
         }
       },
       "Microsoft.EntityFrameworkCore.Sqlite.Core/9.0.0": {
         "dependencies": {
           "Microsoft.Data.Sqlite.Core": "9.0.0",
           "Microsoft.EntityFrameworkCore.Relational": "9.0.0",
-<<<<<<< HEAD
-          "Microsoft.Extensions.DependencyModel": "9.0.0",
-          "SQLitePCLRaw.core": "2.1.10"
-=======
           "Microsoft.Extensions.Caching.Memory": "9.0.0",
           "Microsoft.Extensions.Configuration.Abstractions": "9.0.0",
           "Microsoft.Extensions.DependencyModel": "9.0.0",
           "Microsoft.Extensions.Logging": "9.0.0",
           "SQLitePCLRaw.core": "2.1.10",
           "System.Text.Json": "9.0.0"
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
         },
         "runtime": {
           "lib/net8.0/Microsoft.EntityFrameworkCore.Sqlite.dll": {
@@ -505,8 +456,6 @@
           "Microsoft.EntityFrameworkCore.Design": "9.0.0"
         }
       },
-<<<<<<< HEAD
-=======
       "Microsoft.Extensions.Caching.Abstractions/9.0.0": {
         "dependencies": {
           "Microsoft.Extensions.Primitives": "9.0.0"
@@ -532,7 +481,6 @@
         }
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions/9.0.0": {},
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
       "Microsoft.Extensions.DependencyModel/9.0.0": {
         "runtime": {
           "lib/net9.0/Microsoft.Extensions.DependencyModel.dll": {
@@ -541,8 +489,6 @@
           }
         }
       },
-<<<<<<< HEAD
-=======
       "Microsoft.Extensions.Localization/8.0.6": {
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.0",
@@ -572,7 +518,6 @@
       },
       "Microsoft.Extensions.Primitives/9.0.0": {},
       "Microsoft.JSInterop/8.0.6": {},
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
       "Mono.TextTemplating/3.0.0": {
         "dependencies": {
           "System.CodeDom": "6.0.0"
@@ -585,14 +530,11 @@
         }
       },
       "MudBlazor/7.0.0": {
-<<<<<<< HEAD
-=======
         "dependencies": {
           "Microsoft.AspNetCore.Components": "8.0.6",
           "Microsoft.AspNetCore.Components.Web": "8.0.6",
           "Microsoft.Extensions.Localization": "8.0.6"
         },
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
         "runtime": {
           "lib/net8.0/MudBlazor.dll": {
             "assemblyVersion": "7.0.0.0",
@@ -613,12 +555,9 @@
         }
       },
       "SQLitePCLRaw.core/2.1.10": {
-<<<<<<< HEAD
-=======
         "dependencies": {
           "System.Memory": "4.5.3"
         },
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
         "runtime": {
           "lib/netstandard2.0/SQLitePCLRaw.core.dll": {
             "assemblyVersion": "2.1.10.2445",
@@ -754,10 +693,7 @@
           }
         }
       },
-<<<<<<< HEAD
-=======
       "System.Collections.Immutable/7.0.0": {},
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
       "System.Composition/7.0.0": {
         "dependencies": {
           "System.Composition.AttributedModel": "7.0.0",
@@ -817,9 +753,6 @@
             "fileVersion": "7.0.22.51805"
           }
         }
-<<<<<<< HEAD
-      }
-=======
       },
       "System.IO.Pipelines/8.0.0": {},
       "System.Memory/4.5.3": {},
@@ -831,7 +764,6 @@
       "System.Runtime.CompilerServices.Unsafe/6.0.0": {},
       "System.Text.Json/9.0.0": {},
       "System.Threading.Channels/7.0.0": {}
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
     }
   },
   "libraries": {
@@ -847,8 +779,6 @@
       "path": "humanizer.core/2.14.1",
       "hashPath": "humanizer.core.2.14.1.nupkg.sha512"
     },
-<<<<<<< HEAD
-=======
     "Microsoft.AspNetCore.Authorization/8.0.6": {
       "type": "package",
       "serviceable": true,
@@ -891,7 +821,6 @@
       "path": "microsoft.aspnetcore.metadata/8.0.6",
       "hashPath": "microsoft.aspnetcore.metadata.8.0.6.nupkg.sha512"
     },
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
     "Microsoft.Bcl.AsyncInterfaces/7.0.0": {
       "type": "package",
       "serviceable": true,
@@ -899,8 +828,6 @@
       "path": "microsoft.bcl.asyncinterfaces/7.0.0",
       "hashPath": "microsoft.bcl.asyncinterfaces.7.0.0.nupkg.sha512"
     },
-<<<<<<< HEAD
-=======
     "Microsoft.Build.Framework/17.8.3": {
       "type": "package",
       "serviceable": true,
@@ -908,7 +835,6 @@
       "path": "microsoft.build.framework/17.8.3",
       "hashPath": "microsoft.build.framework.17.8.3.nupkg.sha512"
     },
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
     "Microsoft.Build.Locator/1.7.8": {
       "type": "package",
       "serviceable": true,
@@ -916,8 +842,6 @@
       "path": "microsoft.build.locator/1.7.8",
       "hashPath": "microsoft.build.locator.1.7.8.nupkg.sha512"
     },
-<<<<<<< HEAD
-=======
     "Microsoft.CodeAnalysis.Analyzers/3.3.4": {
       "type": "package",
       "serviceable": true,
@@ -925,7 +849,6 @@
       "path": "microsoft.codeanalysis.analyzers/3.3.4",
       "hashPath": "microsoft.codeanalysis.analyzers.3.3.4.nupkg.sha512"
     },
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
     "Microsoft.CodeAnalysis.Common/4.8.0": {
       "type": "package",
       "serviceable": true,
@@ -982,8 +905,6 @@
       "path": "microsoft.entityframeworkcore.abstractions/9.0.0",
       "hashPath": "microsoft.entityframeworkcore.abstractions.9.0.0.nupkg.sha512"
     },
-<<<<<<< HEAD
-=======
     "Microsoft.EntityFrameworkCore.Analyzers/9.0.0": {
       "type": "package",
       "serviceable": true,
@@ -991,7 +912,6 @@
       "path": "microsoft.entityframeworkcore.analyzers/9.0.0",
       "hashPath": "microsoft.entityframeworkcore.analyzers.9.0.0.nupkg.sha512"
     },
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
     "Microsoft.EntityFrameworkCore.Design/9.0.0": {
       "type": "package",
       "serviceable": true,
@@ -1027,8 +947,6 @@
       "path": "microsoft.entityframeworkcore.tools/9.0.0",
       "hashPath": "microsoft.entityframeworkcore.tools.9.0.0.nupkg.sha512"
     },
-<<<<<<< HEAD
-=======
     "Microsoft.Extensions.Caching.Abstractions/9.0.0": {
       "type": "package",
       "serviceable": true,
@@ -1064,7 +982,6 @@
       "path": "microsoft.extensions.dependencyinjection.abstractions/9.0.0",
       "hashPath": "microsoft.extensions.dependencyinjection.abstractions.9.0.0.nupkg.sha512"
     },
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
     "Microsoft.Extensions.DependencyModel/9.0.0": {
       "type": "package",
       "serviceable": true,
@@ -1072,8 +989,6 @@
       "path": "microsoft.extensions.dependencymodel/9.0.0",
       "hashPath": "microsoft.extensions.dependencymodel.9.0.0.nupkg.sha512"
     },
-<<<<<<< HEAD
-=======
     "Microsoft.Extensions.Localization/8.0.6": {
       "type": "package",
       "serviceable": true,
@@ -1123,7 +1038,6 @@
       "path": "microsoft.jsinterop/8.0.6",
       "hashPath": "microsoft.jsinterop.8.0.6.nupkg.sha512"
     },
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
     "Mono.TextTemplating/3.0.0": {
       "type": "package",
       "serviceable": true,
@@ -1173,8 +1087,6 @@
       "path": "system.codedom/6.0.0",
       "hashPath": "system.codedom.6.0.0.nupkg.sha512"
     },
-<<<<<<< HEAD
-=======
     "System.Collections.Immutable/7.0.0": {
       "type": "package",
       "serviceable": true,
@@ -1182,7 +1094,6 @@
       "path": "system.collections.immutable/7.0.0",
       "hashPath": "system.collections.immutable.7.0.0.nupkg.sha512"
     },
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
     "System.Composition/7.0.0": {
       "type": "package",
       "serviceable": true,
@@ -1224,8 +1135,6 @@
       "sha512": "sha512-ZK0KNPfbtxVceTwh+oHNGUOYV2WNOHReX2AXipuvkURC7s/jPwoWfsu3SnDBDgofqbiWr96geofdQ2erm/KTHg==",
       "path": "system.composition.typedparts/7.0.0",
       "hashPath": "system.composition.typedparts.7.0.0.nupkg.sha512"
-<<<<<<< HEAD
-=======
     },
     "System.IO.Pipelines/8.0.0": {
       "type": "package",
@@ -1268,7 +1177,6 @@
       "sha512": "sha512-qmeeYNROMsONF6ndEZcIQ+VxR4Q/TX/7uIVLJqtwIWL7dDWeh0l1UIqgo4wYyjG//5lUNhwkLDSFl+pAWO6oiA==",
       "path": "system.threading.channels/7.0.0",
       "hashPath": "system.threading.channels.7.0.0.nupkg.sha512"
->>>>>>> 327c372625b9aeee3ace273c4beaf5e9e92ff253
     }
   }
 }
