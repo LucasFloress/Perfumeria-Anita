@@ -1,0 +1,194 @@
+@using PerfumeriaAnita.Models
+
+@if (EstaAbierto)
+{
+    <div class="modal-backdrop" @onclick="CerrarModal"></div>
+
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+
+        <!-- ── Header ── -->
+        <div class="modal-header">
+            <div class="modal-header-left">
+                <div class="modal-icon">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                </div>
+                <div>
+                    <h2 id="modal-title" class="modal-title">Todos los Productos Vendidos</h2>
+                    <p class="modal-subtitle">@VentasFiltradas.Count resultados encontrados</p>
+                </div>
+            </div>
+            <button class="modal-close" @onclick="CerrarModal" aria-label="Cerrar">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <!-- ── Filtros ── -->
+        <div class="modal-filters">
+            <div class="filter-search-wrapper">
+                <span class="material-symbols-outlined filter-search-icon">search</span>
+                <input class="filter-search-input"
+                       type="text"
+                       placeholder="Buscar producto..."
+                       value="@TextoBusqueda"
+                       @oninput="e => { TextoBusqueda = e.Value?.ToString() ?? string.Empty; }" />
+                @if (!string.IsNullOrEmpty(TextoBusqueda))
+                {
+                    <button class="filter-clear-btn" @onclick="LimpiarBusqueda">
+                        <span class="material-symbols-outlined">cancel</span>
+                    </button>
+                }
+            </div>
+
+            <div class="filter-pills">
+                @foreach (var metodo in MetodosDePago)
+                {
+                    <button class="filter-pill @(FiltroMetodo == metodo ? "filter-pill-active" : "")"
+                            @onclick="() => SeleccionarFiltro(metodo)">
+                        @metodo
+                    </button>
+                }
+            </div>
+        </div>
+
+        <!-- ── Tabla ── -->
+        <div class="modal-table-wrapper">
+            @if (VentasFiltradas.Count == 0)
+            {
+                <div class="modal-empty">
+                    <span class="material-symbols-outlined modal-empty-icon">search_off</span>
+                    <p class="modal-empty-text">No se encontraron ventas</p>
+                    <button class="modal-empty-reset" @onclick="LimpiarFiltros">Limpiar filtros</button>
+                </div>
+            }
+            else
+            {
+                <table class="ventas-table modal-table">
+                    <thead>
+                        <tr>
+                            <th>ID Venta</th>
+                            <th>Producto</th>
+                            <th @onclick='() => OrdenarPor("Fecha")' class="th-sortable">
+                                Fecha y Hora
+                                <span class="sort-icon material-symbols-outlined">
+                                    @(OrdenColumna == "Fecha" ? (OrdenAscendente ? "arrow_upward" : "arrow_downward") : "unfold_more")
+                                </span>
+                            </th>
+                            <th>Cantidad</th>
+                            <th @onclick='() => OrdenarPor("Precio")' class="th-sortable">
+                                Precio
+                                <span class="sort-icon material-symbols-outlined">
+                                    @(OrdenColumna == "Precio" ? (OrdenAscendente ? "arrow_upward" : "arrow_downward") : "unfold_more")
+                                </span>
+                            </th>
+                            <th>Método de Pago</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var venta in VentasFiltradas)
+                        {
+                            <tr>
+                                <td class="td-id">#@venta.Id.ToString("D5")</td>
+                                <td>
+                                    <div class="td-producto">
+                                        <div class="icon-box">
+                                            <span class="material-symbols-outlined">sanitizer</span>
+                                        </div>
+                                        <span class="producto-nombre">
+                                            @(venta.Detalles.FirstOrDefault()?.Producto?.Nombre ?? "Producto")
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="td-fecha">
+                                    <span class="fecha-date">@venta.Fecha.ToString("dd/MM/yyyy")</span>
+                                    <span class="fecha-time">@venta.Fecha.ToString("HH:mm")</span>
+                                </td>
+                                <td class="td-cantidad">@venta.Detalles.Sum(d => d.Cantidad)</td>
+                                <td class="td-precio">$@venta.Total.ToString("N0")</td>
+                                <td>
+                                    <span class="badge-pago @BadgePago(venta.MetodoPago)">@venta.MetodoPago</span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+
+        <!-- ── Footer ── -->
+        <div class="modal-footer">
+            <span class="modal-footer-count">
+                <span class="material-symbols-outlined">bar_chart</span>
+                @VentasFiltradas.Count ventas
+            </span>
+            <div class="modal-footer-totals">
+                <span class="footer-total-label">Total filtrado:</span>
+                <span class="footer-total-amount">$@VentasFiltradas.Sum(v => v.Total).ToString("N0")</span>
+            </div>
+        </div>
+
+    </div>
+}
+
+@code {
+    [Parameter] public List<Venta> Ventas      { get; set; } = new();
+    [Parameter] public EventCallback OnCerrar  { get; set; }
+
+    private string TextoBusqueda   = "";
+    private string FiltroMetodo    = "Todos";
+    private string OrdenColumna    = "Fecha";
+    private bool   OrdenAscendente = false;
+    private bool EstaAbierto = false;
+    public void AbrirModal() => EstaAbierto = true;
+
+    private async Task CerrarModal() => await OnCerrar.InvokeAsync();
+
+    private List<string> MetodosDePago => new[] { "Todos" }
+        .Concat(Ventas.Select(v => v.MetodoPago).Distinct())
+        .ToList();
+
+    private List<Venta> VentasFiltradas
+    {
+        get
+        {
+            var r = Ventas.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(TextoBusqueda))
+                r = r.Where(v => v.Detalles
+                    .Any(d => d.Producto?.Nombre
+                        .Contains(TextoBusqueda, StringComparison.OrdinalIgnoreCase) ?? false));
+
+            if (FiltroMetodo != "Todos")
+                r = r.Where(v => v.MetodoPago == FiltroMetodo);
+
+            r = OrdenColumna switch
+            {
+                "Precio" => OrdenAscendente ? r.OrderBy(v => v.Total) : r.OrderByDescending(v => v.Total),
+                _        => OrdenAscendente ? r.OrderBy(v => v.Fecha) : r.OrderByDescending(v => v.Fecha),
+            };
+
+            return r.ToList();
+        }
+    }
+
+    private string BadgePago(string metodo) => metodo switch
+    {
+        "Mercado Pago"  => "badge-blue",
+        "Transferencia" => "badge-purple",
+        _               => "badge-green"
+    };
+
+    private void LimpiarBusqueda() { TextoBusqueda = ""; }
+    private void LimpiarFiltros()  { TextoBusqueda = ""; FiltroMetodo = "Todos"; }
+    private void SeleccionarFiltro(string metodo) => FiltroMetodo = metodo;
+
+    private void OrdenarPor(string columna)
+    {
+        if (OrdenColumna == columna)
+            OrdenAscendente = !OrdenAscendente;
+        else
+        {
+            OrdenColumna    = columna;
+            OrdenAscendente = true;
+        }
+    }
+}

@@ -1,0 +1,211 @@
+@page "/ventas"
+@using PerfumeriaAnita.Models
+
+<PageTitle>Ventas - Perfumería Anita</PageTitle>
+
+<div class="ventas-container">
+
+    <header class="page-header">
+        <h2 class="page-title">Dashboard de Ventas</h2>
+        <p class="page-subtitle">Bienvenida de nuevo, @AdminFirstName. Aquí tienes el resumen de hoy.</p>
+    </header>
+
+    <!-- ── Métricas + Distribución ── -->
+    <div class="metrics-grid">
+        <div class="card card-ventas-hoy">
+            <div class="card-header-flex">
+                <span class="card-label">Ventas Hoy</span>
+                <div class="badge-hoy">Hoy</div>
+            </div>
+            <div class="metric-value">@VentasHoy</div>
+            <p class="metric-desc">Transacciones exitosas</p>
+        </div>
+
+        <div class="card card-distribucion">
+            <h3 class="card-title-sm mobile-only">Distribución de Ventas</h3>
+            <div class="chart-wrapper">
+                <svg class="donut-chart" viewBox="0 0 192 192">
+                    <circle class="donut-bg" cx="96" cy="96" fill="transparent" r="80" />
+                    <circle class="donut-segment segment-primary" cx="96" cy="96" fill="transparent" r="80" stroke-dasharray="502" stroke-dashoffset="150" />
+                    <circle class="donut-segment segment-indigo"  cx="96" cy="96" fill="transparent" r="80" stroke-dasharray="502" stroke-dashoffset="350" />
+                    <circle class="donut-segment segment-gray"    cx="96" cy="96" fill="transparent" r="80" stroke-dasharray="502" stroke-dashoffset="450" />
+                </svg>
+                <div class="chart-center-info">
+                    <span class="chart-percentage">100%</span>
+                    <span class="chart-total-label">Total</span>
+                </div>
+            </div>
+            <div class="legend-container">
+                <h3 class="card-title desktop-only">Distribución de Ventas</h3>
+                @foreach (var item in DistribucionVentas)
+                {
+                    <div class="legend-row">
+                        <div class="legend-label-group">
+                            <div class="legend-dot" style="background-color: @item.Color"></div>
+                            <span class="legend-name">@item.MetodoPago</span>
+                        </div>
+                        <span class="legend-value">@item.Porcentaje%</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Tabla de productos ── -->
+    <div class="card table-card">
+        <div class="table-header">
+            <h3 class="card-title">Productos Vendidos</h3>
+            <button class="link-ver-todo" @onclick="() => modalTabla.AbrirModal()">Ver todo</button>
+        </div>
+        <div class="table-responsive">
+            <table class="ventas-table">
+                <thead>
+                    <tr>
+                        <th>ID Venta</th>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio</th>
+                        <th>Método de Pago</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var venta in ProductosVendidos)
+                    {
+                        <tr>
+                            <td class="td-id">#@venta.Id.ToString("D5")</td>
+                            <td>
+                                <div class="td-producto">
+                                    <div class="icon-box">
+                                        <span class="material-symbols-outlined">sanitizer</span>
+                                    </div>
+                                    <span class="producto-nombre">
+                                        @(venta.Detalles.FirstOrDefault()?.Producto?.Nombre ?? "Producto")
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="td-cantidad">@venta.Detalles.Sum(d => d.Cantidad)</td>
+                            <td class="td-precio">$@venta.Total.ToString("N0")</td>
+                            <td>
+                                <span class="badge-pago @BadgePago(venta.MetodoPago)">@venta.MetodoPago</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ── Resumen semanal ── -->
+    <div class="summary-card">
+        <div class="summary-left">
+            <div class="summary-icon">
+                <span class="material-symbols-outlined">receipt_long</span>
+            </div>
+            <div class="summary-titles">
+                <h4 class="summary-main-title">Resumen Total de la Semana</h4>
+                <p class="summary-sub">Cierre parcial calculado a las @HoraCierre</p>
+            </div>
+        </div>
+        <div class="summary-right">
+            <div class="summary-metric">
+                <p class="summary-label">Total Bruto</p>
+                <p class="summary-amount">$@TotalBruto.ToString("N0")</p>
+            </div>
+            <div class="summary-metric">
+                <p class="summary-label">Impuestos</p>
+                <p class="summary-amount">$@Impuestos.ToString("N0")</p>
+            </div>
+            <div class="summary-metric">
+                <p class="summary-label">Neto Estimado</p>
+                <p class="summary-amount text-emerald">$@NetoEstimado.ToString("N0")</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Modal (fuera del flujo visual) ── -->
+    <TablaVentasModal @ref="modalTabla" Ventas="ProductosVendidos" />
+</div>
+
+@code {
+    // ─── Admin ────────────────────────────────────────────────────
+    private string AdminName      = "Ana María";
+    private string AdminFirstName => AdminName.Split(' ')[0];
+
+    // ─── Métricas calculadas ──────────────────────────────────────
+    private int     VentasHoy    => ProductosVendidos.Count;
+    private string  HoraCierre   = "18:30hs";
+    private decimal TotalBruto   => ProductosVendidos.Sum(v => v.Total);
+    private decimal Impuestos    => Math.Round(TotalBruto * 0.21m, 0);
+    private decimal NetoEstimado => TotalBruto - Impuestos;
+
+    // ─── Referencia al modal ──────────────────────────────────────
+    private TablaVentasModal modalTabla = default!;
+
+    // ─── Distribución de ventas ───────────────────────────────────
+    private List<DistribucionItem> DistribucionVentas = new()
+    {
+        new DistribucionItem { MetodoPago = "Efectivo",      Porcentaje = 45, Color = "#e91e63" },
+        new DistribucionItem { MetodoPago = "Mercado Pago",  Porcentaje = 35, Color = "#818cf8" },
+        new DistribucionItem { MetodoPago = "Transferencia", Porcentaje = 20, Color = "#94a3b8" },
+    };
+
+    // ─── Helper badge ─────────────────────────────────────────────
+    private string BadgePago(string metodo) => metodo switch
+    {
+        "Mercado Pago"  => "badge-blue",
+        "Transferencia" => "badge-purple",
+        _               => "badge-green"
+    };
+
+    // ─── Datos de ejemplo ─────────────────────────────────────────
+    // TODO: reemplazar con llamada a DbContext cuando EF esté configurado:
+    // ProductosVendidos = await Db.Ventas.Include(v => v.Detalles)
+    //     .ThenInclude(d => d.Producto).OrderByDescending(v => v.Fecha).ToListAsync();
+    private List<Venta> ProductosVendidos = new()
+    {
+        new Venta
+        {
+            Id = 4812, Fecha = new DateTime(2025, 3, 10, 14, 32, 0),
+            Total = 125000, MetodoPago = "Mercado Pago", NombreVendedor = "Ana María",
+            Detalles = new List<DetalleVenta>
+            {
+                new DetalleVenta { Id = 1, VentaId = 4812, ProductoId = 1, Cantidad = 1, PrecioUnitario = 125000 }
+            }
+        },
+        new Venta
+        {
+            Id = 4811, Fecha = new DateTime(2025, 3, 10, 13, 15, 0),
+            Total = 8400, MetodoPago = "Efectivo", NombreVendedor = "Ana María",
+            Detalles = new List<DetalleVenta>
+            {
+                new DetalleVenta { Id = 2, VentaId = 4811, ProductoId = 2, Cantidad = 4, PrecioUnitario = 2100 }
+            }
+        },
+        new Venta
+        {
+            Id = 4810, Fecha = new DateTime(2025, 3, 10, 11, 48, 0),
+            Total = 15600, MetodoPago = "Transferencia", NombreVendedor = "Ana María",
+            Detalles = new List<DetalleVenta>
+            {
+                new DetalleVenta { Id = 3, VentaId = 4810, ProductoId = 3, Cantidad = 2, PrecioUnitario = 7800 }
+            }
+        },
+        new Venta
+        {
+            Id = 4809, Fecha = new DateTime(2025, 3, 10, 10, 5, 0),
+            Total = 3200, MetodoPago = "Efectivo", NombreVendedor = "Ana María",
+            Detalles = new List<DetalleVenta>
+            {
+                new DetalleVenta { Id = 4, VentaId = 4809, ProductoId = 4, Cantidad = 1, PrecioUnitario = 3200 }
+            }
+        },
+    };
+
+    // ─── Modelo auxiliar (solo para el donut, no toca la BD) ──────
+    public class DistribucionItem
+    {
+        public string MetodoPago { get; set; } = "";
+        public int    Porcentaje { get; set; }
+        public string Color      { get; set; } = "";
+    }
+}

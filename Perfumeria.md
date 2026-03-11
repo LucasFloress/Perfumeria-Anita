@@ -34,4 +34,6 @@ Comandos Perfumeria Anita:
 
 	Remove-Item -Recurse -Force bin
 
+	rm -rf bin obj (Linux)
+
 	Remove-Item -Recurse -Force obj
