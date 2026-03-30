@@ -35,6 +35,10 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9BcHAucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
+[/workspaces/Perfumeria-Anita/Components/ConfirmarEliminarModal.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9Db25maXJtYXJFbGltaW5hck1vZGFsLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
 [/workspaces/Perfumeria-Anita/Components/Layout/EmptyLayout.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9MYXlvdXQvRW1wdHlMYXlvdXQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
@@ -69,6 +73,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [/workspaces/Perfumeria-Anita/Components/Pages/Weather.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9XZWF0aGVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/workspaces/Perfumeria-Anita/Components/ProductoFormModal.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9Qcm9kdWN0b0Zvcm1Nb2RhbC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [/workspaces/Perfumeria-Anita/Components/Routes.razor]

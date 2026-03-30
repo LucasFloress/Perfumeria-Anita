@@ -40,5 +40,18 @@ namespace PerfumeriaAnita.Models
         // Solo dejamos la relación con los detalles (Así es correcto)
         public virtual ICollection<DetalleVenta>? DetallesVenta { get; set; } = new List<DetalleVenta>();
         // End of class Producto
+
+        public void ReducirStock(int cantidad)
+        {
+            // ¿Cómo armarías este IF para defender tu stock?
+            if ( cantidad > Stock )
+            {   
+                // Así es como se "grita" un error en C#
+                throw new InvalidOperationException("Stock insuficiente");
+            }
+
+            // Si pasamos el IF (todo está legal), restamos el stock
+            Stock = Stock - cantidad;
+        }
     }
 }

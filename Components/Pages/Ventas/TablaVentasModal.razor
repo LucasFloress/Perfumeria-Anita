@@ -138,9 +138,18 @@
     private string OrdenColumna    = "Fecha";
     private bool   OrdenAscendente = false;
     private bool EstaAbierto = false;
-    public void AbrirModal() => EstaAbierto = true;
+    
+    public void AbrirModal()
+    {
+        EstaAbierto = true;
+        StateHasChanged();
+    }
 
-    private async Task CerrarModal() => await OnCerrar.InvokeAsync();
+    private void CerrarModal()
+    {
+        EstaAbierto = false;
+        StateHasChanged();
+    }
 
     private List<string> MetodosDePago => new[] { "Todos" }
         .Concat(Ventas.Select(v => v.MetodoPago).Distinct())

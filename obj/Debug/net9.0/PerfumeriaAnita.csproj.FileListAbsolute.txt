@@ -136,7 +136,6 @@
 /workspaces/Perfumeria-Anita/obj/Debug/net9.0/scopedcss/projectbundle/PerfumeriaAnita.bundle.scp.css
 /workspaces/Perfumeria-Anita/obj/Debug/net9.0/compressed/tzxjg6is5z-0rh0cu0fdu.gz
 /workspaces/Perfumeria-Anita/obj/Debug/net9.0/compressed/0wz98yz2xy-c7n34qrw04.gz
-/workspaces/Perfumeria-Anita/obj/Debug/net9.0/compressed/jjxngu9nzc-w7mf952350.gz
 /workspaces/Perfumeria-Anita/obj/Debug/net9.0/compressed/bvner1ost6-tt9by0rwy9.gz
 /workspaces/Perfumeria-Anita/obj/Debug/net9.0/compressed/dniz1f08bl-bqjiyaj88i.gz
 /workspaces/Perfumeria-Anita/obj/Debug/net9.0/compressed/9d5vtsjcl3-c2jlpeoesf.gz
@@ -194,5 +193,6 @@
 /workspaces/Perfumeria-Anita/obj/Debug/net9.0/ref/PerfumeriaAnita.dll
 /workspaces/Perfumeria-Anita/obj/Debug/net9.0/scopedcss/Components/Pages/Ventas/Index.razor.rz.scp.css
 /workspaces/Perfumeria-Anita/obj/Debug/net9.0/scopedcss/Components/Pages/Ventas/TablaVentasModal.razor.rz.scp.css
+/workspaces/Perfumeria-Anita/obj/Debug/net9.0/compressed/jjxngu9nzc-b7b2gs3g6f.gz
 /workspaces/Perfumeria-Anita/obj/Debug/net9.0/compressed/ji3zagijks-2wph1kpr4l.gz
 /workspaces/Perfumeria-Anita/obj/Debug/net9.0/compressed/yenccn8zbh-2wph1kpr4l.gz

@@ -1,6 +1,9 @@
 @page "/inventario"
+@rendermode InteractiveServer
 @using PerfumeriaAnita.Models
-
+@using PerfumeriaAnita.Data
+@using Microsoft.EntityFrameworkCore
+@inject AppDbContext Contexto
 <PageTitle>Inventario - Perfumería Anita</PageTitle>
 
 <div class="inventario-wrapper">
@@ -62,7 +65,7 @@
                         <option value="@est">@est</option>
                     }
                 </select>
-                <button class="btn-nuevo" @onclick="NuevoProducto">+ Nuevo Producto</button>
+                <button class="btn-nuevo" @onclick="AbrirCrear">➕ Nuevo Producto</button>
             </div>
         </div>
 
@@ -141,8 +144,8 @@
                             </td>
                             <td>
                                 <div class="acciones-cell">
-                                    <button class="btn-accion btn-editar" @onclick="() => EditarProducto(producto)">✏️</button>
-                                    <button class="btn-accion btn-eliminar" @onclick="() => EliminarProducto(producto)">🗑️</button>
+                                    <button class="btn-accion btn-editar" @onclick="() => AbrirEditar(producto)">✏️</button>
+                                    <button class="btn-accion btn-borrar" @onclick="() => AbrirEliminar(producto)">🗑️</button>
                                 </div>
                             </td>
                         </tr>
@@ -174,11 +177,17 @@
     </div>
 </div>
 
-@using Microsoft.EntityFrameworkCore
-@inject PerfumeriaAnita.Data.AppDbContext Contexto
+    <ProductoFormModal
+    Visible="_modalFormVisible"
+    Producto="_productoSeleccionado"
+    OnGuardado="RefrescarProductos"
+    OnCerrar="CerrarModales" />
 
-@using Microsoft.EntityFrameworkCore
-@inject PerfumeriaAnita.Data.AppDbContext Contexto
+<ConfirmarEliminarModal
+    Visible="_modalEliminarVisible"
+    NombreProducto="_productoSeleccionado.Nombre"
+    OnConfirmar="EliminarConfirmado"
+    OnCancelar="CerrarModales" />
 
 @code {
     // ── Datos de la Base de Datos ──────────────────────────
@@ -356,6 +365,71 @@
     {
         _timerEscaner?.Dispose();
         _timerFeedback?.Dispose();
+    }
+
+    // --- Estado de los modales ---
+    private bool _modalFormVisible = false;
+    private bool _modalEliminarVisible = false;
+    private Producto _productoSeleccionado = new();
+
+    private void AbrirCrear()
+    {
+        _productoSeleccionado = new Producto { Activo = true };
+        _modalFormVisible = true;
+    }
+
+    private void AbrirEditar(Producto p)
+    {
+        // Clonamos el objeto para no mutar la lista mientras se edita
+        _productoSeleccionado = new Producto
+        {
+            Id = p.Id,
+            Nombre = p.Nombre,
+            CodigoBarras = p.CodigoBarras,
+            CategoriaId = p.CategoriaId,
+            Precio = p.Precio,
+            Stock = p.Stock,
+            Activo = p.Activo,
+            Imagen = p.Imagen
+        };
+        _modalFormVisible = true;
+    }
+
+    private void AbrirEliminar(Producto p)
+    {
+        _productoSeleccionado = p;
+        _modalEliminarVisible = true;
+    }
+
+    private void CerrarModales()
+    {
+        _modalFormVisible = false;
+        _modalEliminarVisible = false;
+    }
+
+    private async Task RefrescarProductos()
+    {
+        CerrarModales();
+
+        // Recarga real desde la BD
+        TodosLosProductos = await Contexto.Productos
+            .Include(p => p.Categoria)
+            .OrderBy(p => p.Nombre)
+            .ToListAsync();
+
+        GenerarAlertas();
+        AplicarFiltros();
+    }
+
+    private async Task EliminarConfirmado()
+    {
+        var p = await Contexto.Productos.FindAsync(_productoSeleccionado.Id);
+        if (p != null)
+        {
+            Contexto.Productos.Remove(p);
+            await Contexto.SaveChangesAsync();
+        }
+        await RefrescarProductos();
     }
 
     // ── Clase Modelo para Alertas ──────────────────────────

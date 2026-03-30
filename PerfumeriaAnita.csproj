@@ -14,5 +14,9 @@
     </PackageReference>
     <PackageReference Include="MudBlazor" Version="7.0.0" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="PerfumeriaAnita.Tests\**" />
+    <Content Remove="PerfumeriaAnita.Tests\**" />
+  </ItemGroup>
 
 </Project>
