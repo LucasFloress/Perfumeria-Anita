@@ -64,7 +64,7 @@
                     <label>
                         <input type="checkbox"
                                checked="@(Producto.Activo == true)"
-                               @onchange="@(e => Producto.Activo = (bool)e.Value)" />
+                               @onchange="@(e => Producto.Activo = (bool)(e.Value ?? false))" />
                         Producto activo
                     </label>
                 </div>

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
 using PerfumeriaAnita.Components;
 using PerfumeriaAnita.Data;
+using PerfumeriaAnita.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,9 @@ builder.Services.AddMudServices();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddScoped<IProductoService, ProductoService>();
+builder.Services.AddScoped<IVentaService, VentaService>();
 
 var app = builder.Build();
 

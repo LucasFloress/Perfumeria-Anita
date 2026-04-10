@@ -1,212 +1,190 @@
 @page "/ventas"
-@using PerfumeriaAnita.Models
 @rendermode InteractiveServer
+@using PerfumeriaAnita.Models
+@using PerfumeriaAnita.Services
+@inject IVentaService VentaService
 
-<PageTitle>Ventas - Perfumería Anita</PageTitle>
-
-<div class="ventas-container">
-
-    <header class="page-header">
-        <h2 class="page-title">Dashboard de Ventas</h2>
-        <p class="page-subtitle">Bienvenida de nuevo, @AdminFirstName. Aquí tienes el resumen de hoy.</p>
+<div class="ventas-container" style="padding: 20px; background-color: #f8f9fa; min-height: 100vh;">
+    
+    <header style="margin-bottom: 30px;">
+        <h2 style="color: #333; margin: 0;">📊 Reporte de Ventas</h2>
+        <p style="color: #666; margin: 5px 0 0 0;">Historial detallado y métricas de rendimiento diario.</p>
     </header>
 
-    <!-- ── Métricas + Distribución ── -->
-    <div class="metrics-grid">
-        <div class="card card-ventas-hoy">
-            <div class="card-header-flex">
-                <span class="card-label">Ventas Hoy</span>
-                <div class="badge-hoy">Hoy</div>
-            </div>
-            <div class="metric-value">@VentasHoy</div>
-            <p class="metric-desc">Transacciones exitosas</p>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 20px;">
+        
+        <div class="metric-card" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-left: 5px solid #7b1fa2;">
+            <span style="color: #888; font-size: 0.9rem; font-weight: 600;">VENTAS HOY</span>
+            <h2 style="margin: 10px 0; color: #333;">@VentasHoy</h2>
+            <span style="color: #7b1fa2; font-size: 0.8rem;">📦 Operaciones procesadas</span>
         </div>
 
-        <div class="card card-distribucion">
-            <h3 class="card-title-sm mobile-only">Distribución de Ventas</h3>
-            <div class="chart-wrapper">
-                <svg class="donut-chart" viewBox="0 0 192 192">
-                    <circle class="donut-bg" cx="96" cy="96" fill="transparent" r="80" />
-                    <circle class="donut-segment segment-primary" cx="96" cy="96" fill="transparent" r="80" stroke-dasharray="502" stroke-dashoffset="150" />
-                    <circle class="donut-segment segment-indigo"  cx="96" cy="96" fill="transparent" r="80" stroke-dasharray="502" stroke-dashoffset="350" />
-                    <circle class="donut-segment segment-gray"    cx="96" cy="96" fill="transparent" r="80" stroke-dasharray="502" stroke-dashoffset="450" />
-                </svg>
-                <div class="chart-center-info">
-                    <span class="chart-percentage">100%</span>
-                    <span class="chart-total-label">Total</span>
-                </div>
-            </div>
-            <div class="legend-container">
-                <h3 class="card-title desktop-only">Distribución de Ventas</h3>
-                @foreach (var item in DistribucionVentas)
-                {
-                    <div class="legend-row">
-                        <div class="legend-label-group">
-                            <div class="legend-dot" style="background-color: @item.Color"></div>
-                            <span class="legend-name">@item.MetodoPago</span>
-                        </div>
-                        <span class="legend-value">@item.Porcentaje%</span>
-                    </div>
-                }
-            </div>
+        <div class="metric-card" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-left: 5px solid #2e7d32;">
+            <span style="color: #888; font-size: 0.9rem; font-weight: 600;">TOTAL BRUTO</span>
+            <h2 style="margin: 10px 0; color: #2e7d32;">$@TotalBruto.ToString("N2")</h2>
+            <span style="color: #4caf50; font-size: 0.8rem;">📈 Ingreso total acumulado</span>
+        </div>
+
+        <div class="metric-card" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-left: 5px solid #ef6c00;">
+            <span style="color: #888; font-size: 0.9rem; font-weight: 600;">ESTIMADO NETO (-IVA)</span>
+            <h2 style="margin: 10px 0; color: #ef6c00;">$@NetoEstimado.ToString("N2")</h2>
+            <span style="color: #ff9800; font-size: 0.8rem;">⚖️ Neto aprox. después de imp.</span>
         </div>
     </div>
 
-    <!-- ── Tabla de productos ── -->
-    <div class="card table-card">
-        <div class="table-header">
-            <h3 class="card-title">Productos Vendidos</h3>
-            <button class="link-ver-todo" @onclick="() => modalTabla.AbrirModal()">Ver todo</button>
+    <div style="background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 20px; margin-bottom: 30px;">
+        <h3 style="margin: 0 0 15px 0; color: #444; font-size: 1.1rem;">💳 Ingresos por Método de Pago</h3>
+        
+        @if (!DistribucionVentas.Any())
+        {
+            <p style="color: #888; margin: 0; font-size: 0.9rem;">No hay datos suficientes para mostrar la distribución.</p>
+        }
+        else
+        {
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                @foreach (var item in DistribucionVentas)
+                {
+                    <div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9rem;">
+                            <span style="font-weight: 600; color: #333;">@item.MetodoPago</span>
+                            <span style="color: #666;">$@item.TotalMonto.ToString("N0") <strong>(@item.Porcentaje%)</strong></span>
+                        </div>
+                        <div style="width: 100%; background-color: #eee; border-radius: 10px; height: 10px; overflow: hidden;">
+                            <div style="width: @item.Porcentaje%; background-color: @item.Color; height: 100%; border-radius: 10px; transition: width 0.5s ease;"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <div style="background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden;">
+        <div style="padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; color: #444;">🛒 Transacciones Recientes</h3>
+            <button @onclick="CargarDatos" style="background: #f0e0f8; border: none; padding: 8px 15px; border-radius: 6px; color: #7b1fa2; cursor: pointer; font-weight: 600;">
+                🔄 Actualizar
+            </button>
         </div>
-        <div class="table-responsive">
-            <table class="ventas-table">
+
+        @if (ProductosVendidos == null)
+        {
+            <div style="padding: 40px; text-align: center; color: #888;">Cargando ventas...</div>
+        }
+        else if (!ProductosVendidos.Any())
+        {
+            <div style="padding: 40px; text-align: center; color: #888;">
+                <p>Aún no se han registrado ventas hoy.</p>
+                <a href="/dashboard" style="color: #7b1fa2; text-decoration: none; font-weight: bold;">Ir al Dashboard para vender</a>
+            </div>
+        }
+        else
+        {
+            <table style="width: 100%; border-collapse: collapse;">
                 <thead>
-                    <tr>
-                        <th>ID Venta</th>
-                        <th>Producto</th>
-                        <th>Cantidad</th>
-                        <th>Precio</th>
-                        <th>Método de Pago</th>
+                    <tr style="background: #fafafa; text-align: left;">
+                        <th style="padding: 15px; color: #888; font-size: 0.85rem;">ID VENTA</th>
+                        <th style="padding: 15px; color: #888; font-size: 0.85rem;">PRODUCTO / RESUMEN</th>
+                        <th style="padding: 15px; color: #888; font-size: 0.85rem;">CANT.</th>
+                        <th style="padding: 15px; color: #888; font-size: 0.85rem;">TOTAL</th>
+                        <th style="padding: 15px; color: #888; font-size: 0.85rem;">MÉTODO</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var venta in ProductosVendidos)
                     {
-                        <tr>
-                            <td class="td-id">#@venta.Id.ToString("D5")</td>
-                            <td>
-                                <div class="td-producto">
-                                    <div class="icon-box">
-                                        <span class="material-symbols-outlined">sanitizer</span>
-                                    </div>
-                                    <span class="producto-nombre">
-                                        @(venta.Detalles.FirstOrDefault()?.Producto?.Nombre ?? "Producto")
-                                    </span>
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 15px; font-family: monospace; color: #7b1fa2; font-weight: bold;">@venta.IdVenta</td>
+                            <td style="padding: 15px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span class="material-icons" style="color: #aaa;">@venta.Icono</span>
+                                    <span style="font-weight: 500; color: #333;">@venta.NombreProducto</span>
                                 </div>
                             </td>
-                            <td class="td-cantidad">@venta.Detalles.Sum(d => d.Cantidad)</td>
-                            <td class="td-precio">$@venta.Total.ToString("N0")</td>
-                            <td>
-                                <span class="badge-pago @BadgePago(venta.MetodoPago)">@venta.MetodoPago</span>
+                            <td style="padding: 15px;"><span style="background: #f5f5f5; padding: 4px 10px; border-radius: 20px; font-size: 0.85rem;">x @venta.Cantidad</span></td>
+                            <td style="padding: 15px; font-weight: bold; color: #2e7d32;">$@venta.Precio.ToString("N2")</td>
+                            <td style="padding: 15px;">
+                                <span style="font-size: 0.75rem; padding: 4px 10px; border-radius: 6px; font-weight: 600; background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9;">
+                                    @venta.MetodoPago
+                                </span>
                             </td>
                         </tr>
                     }
                 </tbody>
             </table>
-        </div>
+        }
     </div>
-
-    <!-- ── Resumen semanal ── -->
-    <div class="summary-card">
-        <div class="summary-left">
-            <div class="summary-icon">
-                <span class="material-symbols-outlined">receipt_long</span>
-            </div>
-            <div class="summary-titles">
-                <h4 class="summary-main-title">Resumen Total de la Semana</h4>
-                <p class="summary-sub">Cierre parcial calculado a las @HoraCierre</p>
-            </div>
-        </div>
-        <div class="summary-right">
-            <div class="summary-metric">
-                <p class="summary-label">Total Bruto</p>
-                <p class="summary-amount">$@TotalBruto.ToString("N0")</p>
-            </div>
-            <div class="summary-metric">
-                <p class="summary-label">Impuestos</p>
-                <p class="summary-amount">$@Impuestos.ToString("N0")</p>
-            </div>
-            <div class="summary-metric">
-                <p class="summary-label">Neto Estimado</p>
-                <p class="summary-amount text-emerald">$@NetoEstimado.ToString("N0")</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- ── Modal (fuera del flujo visual) ── -->
-    <TablaVentasModal @ref="modalTabla" Ventas="ProductosVendidos" />
 </div>
 
 @code {
-    // ─── Admin ────────────────────────────────────────────────────
-    private string AdminName      = "Ana María";
-    private string AdminFirstName => AdminName.Split(' ')[0];
+    private int VentasHoy = 0;
+    private decimal TotalBruto = 0m;
+    private decimal NetoEstimado => TotalBruto / 1.21m; // Ejemplo quitando IVA (21%)
+    
+    private List<RegistroVentaDto> ProductosVendidos = new();
+    private List<DistribucionItem> DistribucionVentas = new();
 
-    // ─── Métricas calculadas ──────────────────────────────────────
-    private int     VentasHoy    => ProductosVendidos.Count;
-    private string  HoraCierre   = "18:30hs";
-    private decimal TotalBruto   => ProductosVendidos.Sum(v => v.Total);
-    private decimal Impuestos    => Math.Round(TotalBruto * 0.21m, 0);
-    private decimal NetoEstimado => TotalBruto - Impuestos;
-
-    // ─── Referencia al modal ──────────────────────────────────────
-    private TablaVentasModal modalTabla = default!;
-
-    // ─── Distribución de ventas ───────────────────────────────────
-    private List<DistribucionItem> DistribucionVentas = new()
+    protected override async Task OnInitializedAsync()
     {
-        new DistribucionItem { MetodoPago = "Efectivo",      Porcentaje = 45, Color = "#e91e63" },
-        new DistribucionItem { MetodoPago = "Mercado Pago",  Porcentaje = 35, Color = "#818cf8" },
-        new DistribucionItem { MetodoPago = "Transferencia", Porcentaje = 20, Color = "#94a3b8" },
-    };
+        await CargarDatos();
+    }
 
-    // ─── Helper badge ─────────────────────────────────────────────
-    private string BadgePago(string metodo) => metodo switch
+    private async Task CargarDatos()
     {
-        "Mercado Pago"  => "badge-blue",
-        "Transferencia" => "badge-purple",
-        _               => "badge-green"
-    };
+        // 1. Pedimos totales
+        var resumen = await VentaService.GetResumenHoyAsync();
+        VentasHoy = resumen.CantidadVentas;
+        TotalBruto = resumen.TotalVendido;
 
-    // ─── Datos de ejemplo ─────────────────────────────────────────
-    // TODO: reemplazar con llamada a DbContext cuando EF esté configurado:
-    // ProductosVendidos = await Db.Ventas.Include(v => v.Detalles)
-    //     .ThenInclude(d => d.Producto).OrderByDescending(v => v.Fecha).ToListAsync();
-    private List<Venta> ProductosVendidos = new()
-    {
-        new Venta
-        {
-            Id = 4812, Fecha = new DateTime(2025, 3, 10, 14, 32, 0),
-            Total = 125000, MetodoPago = "Mercado Pago", NombreVendedor = "Ana María",
-            Detalles = new List<DetalleVenta>
-            {
-                new DetalleVenta { Id = 1, VentaId = 4812, ProductoId = 1, Cantidad = 1, PrecioUnitario = 125000 }
-            }
-        },
-        new Venta
-        {
-            Id = 4811, Fecha = new DateTime(2025, 3, 10, 13, 15, 0),
-            Total = 8400, MetodoPago = "Efectivo", NombreVendedor = "Ana María",
-            Detalles = new List<DetalleVenta>
-            {
-                new DetalleVenta { Id = 2, VentaId = 4811, ProductoId = 2, Cantidad = 4, PrecioUnitario = 2100 }
-            }
-        },
-        new Venta
-        {
-            Id = 4810, Fecha = new DateTime(2025, 3, 10, 11, 48, 0),
-            Total = 15600, MetodoPago = "Transferencia", NombreVendedor = "Ana María",
-            Detalles = new List<DetalleVenta>
-            {
-                new DetalleVenta { Id = 3, VentaId = 4810, ProductoId = 3, Cantidad = 2, PrecioUnitario = 7800 }
-            }
-        },
-        new Venta
-        {
-            Id = 4809, Fecha = new DateTime(2025, 3, 10, 10, 5, 0),
-            Total = 3200, MetodoPago = "Efectivo", NombreVendedor = "Ana María",
-            Detalles = new List<DetalleVenta>
-            {
-                new DetalleVenta { Id = 4, VentaId = 4809, ProductoId = 4, Cantidad = 1, PrecioUnitario = 3200 }
-            }
-        },
-    };
+        // 2. Pedimos historial
+        ProductosVendidos = await VentaService.GetUltimasVentasAsync();
+        
+        // 3. Calculamos la distribución de pagos REAL
+        CalcularDistribucionPagos();
 
-    // ─── Modelo auxiliar (solo para el donut, no toca la BD) ──────
-    public class DistribucionItem
+        StateHasChanged();
+    }
+
+    private void CalcularDistribucionPagos()
     {
-        public string MetodoPago { get; set; } = "";
-        public int    Porcentaje { get; set; }
-        public string Color      { get; set; } = "";
+        if (TotalBruto == 0 || !ProductosVendidos.Any())
+        {
+            DistribucionVentas = new();
+            return;
+        }
+
+        // Agrupamos las ventas por "MetodoPago" y sumamos cuánta plata ingresó por cada uno
+        DistribucionVentas = ProductosVendidos
+            .GroupBy(v => v.MetodoPago)
+            .Select(grupo => new DistribucionItem
+            {
+                MetodoPago = grupo.Key,
+                TotalMonto = grupo.Sum(v => v.Precio),
+                // Regla de 3 simple para sacar el porcentaje
+                Porcentaje = (int)Math.Round((grupo.Sum(v => v.Precio) / TotalBruto) * 100),
+                Color = AsignarColorMetodo(grupo.Key)
+            })
+            .OrderByDescending(d => d.Porcentaje) // Ordenamos del más usado al menos usado
+            .ToList();
+    }
+
+    private string AsignarColorMetodo(string metodo)
+    {
+        // Le asignamos el color corporativo según el método
+        return metodo.ToLower() switch
+        {
+            "efectivo" => "#16a34a",         // Verde billete
+            "mercado pago" => "#009ee3",     // Azul MP
+            "transferencia" => "#818cf8",    // Violeta/Indigo banco
+            _ => "#9e9e9e"                   // Gris por defecto
+        };
+    }
+
+    // Molde para las barritas
+    public class DistribucionItem 
+    { 
+        public string MetodoPago { get; set; } = ""; 
+        public decimal TotalMonto { get; set; }
+        public int Porcentaje { get; set; } 
+        public string Color { get; set; } = ""; 
     }
 }

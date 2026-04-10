@@ -1,0 +1,123 @@
+/* ────────────────────────────────────────────────────
+   VENTA RÁPIDA — estilos adicionales para dashboard.css
+   Pegá este bloque al final de tu dashboard.css existente
+   ──────────────────────────────────────────────────── */
+
+/* Buscador: botón limpiar dentro del input */
+.search-box {
+    position: relative;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.btn-clear {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #aaa;
+    font-size: 1rem;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.2s;
+}
+.btn-clear:hover { color: #e53935; }
+
+/* Dropdown de sugerencias */
+.sugerencias-dropdown {
+    border: 1px solid #e0d0e8;
+    border-radius: 8px;
+    margin-top: 6px;
+    background: #fff;
+    box-shadow: 0 4px 16px rgba(123,31,162,0.08);
+    overflow: hidden;
+    z-index: 100;
+}
+
+.sugerencia-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-bottom: 1px solid #f5eef8;
+}
+.sugerencia-item:last-child { border-bottom: none; }
+.sugerencia-item:hover { background: #f5eef8; }
+.sugerencia-item.sin-stock { opacity: 0.55; cursor: not-allowed; pointer-events: none; }
+
+.sug-nombre { font-weight: 500; color: #333; }
+.sug-detalle { font-size: 0.85rem; color: #888; }
+
+/* Sin resultados */
+.sin-resultados {
+    margin-top: 8px;
+    padding: 10px 14px;
+    color: #999;
+    font-size: 0.9rem;
+    background: #fafafa;
+    border-radius: 6px;
+    border: 1px dashed #ddd;
+}
+
+/* Panel del producto seleccionado */
+.producto-seleccionado {
+    margin-top: 16px;
+    border: 1px solid #e0d0e8;
+    padding: 16px;
+    border-radius: 10px;
+    background: #fdf8ff;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Botones +/− de cantidad */
+.btn-cant {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid #c8a8d8;
+    background: #fff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+}
+.btn-cant:hover:not(:disabled) { background: #f0e0f8; border-color: #9c27b0; }
+.btn-cant:disabled { opacity: 0.35; cursor: default; }
+
+/* Input de cantidad */
+.input-cantidad {
+    width: 56px;
+    height: 32px;
+    text-align: center;
+    border: 1px solid #c8a8d8;
+    border-radius: 6px;
+    font-size: 1rem;
+    padding: 0 4px;
+}
+.input-cantidad::-webkit-inner-spin-button,
+.input-cantidad::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+/* Toast de resultado de venta */
+.toast-venta {
+    margin-top: 14px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    animation: fadeIn 0.25s ease;
+}
+.toast-ok    { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+.toast-error { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
