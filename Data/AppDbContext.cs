@@ -17,6 +17,7 @@ namespace PerfumeriaAnita.Data
         public DbSet<Alerta> Alertas {get;set;}
         public DbSet<Categoria> Categorias {get;set;}
         public DbSet<DetalleVenta> DetalleVentas {get;set;}
+        public DbSet<AppConfig> AppConfigs { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

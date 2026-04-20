@@ -193,6 +193,7 @@
 /workspaces/Perfumeria-Anita/obj/Debug/net9.0/scopedcss/Components/Pages/Ventas/Index.razor.rz.scp.css
 /workspaces/Perfumeria-Anita/obj/Debug/net9.0/scopedcss/Components/Pages/Ventas/TablaVentasModal.razor.rz.scp.css
 /workspaces/Perfumeria-Anita/obj/Debug/net9.0/compressed/jjxngu9nzc-b7b2gs3g6f.gz
-/workspaces/Perfumeria-Anita/obj/Debug/net9.0/compressed/ji3zagijks-2wph1kpr4l.gz
-/workspaces/Perfumeria-Anita/obj/Debug/net9.0/compressed/yenccn8zbh-2wph1kpr4l.gz
 /workspaces/Perfumeria-Anita/obj/Debug/net9.0/compressed/bvner1ost6-5kewygjlgp.gz
+/workspaces/Perfumeria-Anita/obj/Debug/net9.0/scopedcss/Components/Pages/Configuraciones/Configuraciones.razor.rz.scp.css
+/workspaces/Perfumeria-Anita/obj/Debug/net9.0/compressed/ji3zagijks-sx54psckzt.gz
+/workspaces/Perfumeria-Anita/obj/Debug/net9.0/compressed/yenccn8zbh-sx54psckzt.gz

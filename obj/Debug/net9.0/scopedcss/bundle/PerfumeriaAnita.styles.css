@@ -1,3 +1,255 @@
+/* _content/PerfumeriaAnita/Components/Pages/Configuraciones/Configuraciones.razor.rz.scp.css */
+/* ═══════════════════════════════════════════════════
+   Configuraciones.razor.css
+   ═══════════════════════════════════════════════════ */
+
+   .cfg-page[b-o54gzk76m4] {
+    padding: 28px 36px;
+    max-width: 780px;
+}
+
+/* ── Header ───────────────────────────────────────── */
+.cfg-header[b-o54gzk76m4] {
+    margin-bottom: 24px;
+}
+
+.cfg-title[b-o54gzk76m4] {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: #0f172a;
+}
+
+.cfg-sub[b-o54gzk76m4] {
+    font-size: 13px;
+    color: #94a3b8;
+    margin: 0;
+}
+
+/* ── Tabs ─────────────────────────────────────────── */
+.cfg-tabs[b-o54gzk76m4] {
+    display: flex;
+    gap: 0;
+    border-bottom: 1.5px solid #e2e8f0;
+    margin-bottom: 24px;
+}
+
+.cfg-tab[b-o54gzk76m4] {
+    padding: 10px 20px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #64748b;
+    background: none;
+    border: none;
+    border-bottom: 2.5px solid transparent;
+    margin-bottom: -1.5px;
+    cursor: pointer;
+    transition: color .15s, border-color .15s;
+}
+
+.cfg-tab:hover[b-o54gzk76m4] {
+    color: #0f172a;
+}
+
+.cfg-tab-active[b-o54gzk76m4] {
+    font-weight: 600;
+}
+
+/* ── Body ─────────────────────────────────────────── */
+.cfg-body[b-o54gzk76m4] {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.cfg-loading[b-o54gzk76m4] {
+    color: #94a3b8;
+    font-size: 14px;
+    padding: 2rem 0;
+}
+
+/* ── Cards ────────────────────────────────────────── */
+.cfg-card[b-o54gzk76m4] {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.cfg-card-head[b-o54gzk76m4] {
+    padding: 14px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cfg-card-title[b-o54gzk76m4] {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.cfg-card-sub[b-o54gzk76m4] {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+/* ── Filas ────────────────────────────────────────── */
+.cfg-row[b-o54gzk76m4] {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid #f8fafc;
+    gap: 12px;
+}
+
+.cfg-row:last-child[b-o54gzk76m4] {
+    border-bottom: none;
+}
+
+.cfg-label[b-o54gzk76m4] {
+    font-size: 13px;
+    color: #0f172a;
+    font-weight: 500;
+}
+
+.cfg-desc[b-o54gzk76m4] {
+    font-size: 11.5px;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+/* ── Inputs ───────────────────────────────────────── */
+.cfg-input[b-o54gzk76m4] {
+    font-size: 13px;
+    padding: 6px 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+    color: #0f172a;
+    width: 200px;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+    font-family: inherit;
+}
+
+.cfg-input:focus[b-o54gzk76m4] {
+    border-color: #D4537E;
+    box-shadow: 0 0 0 3px rgba(212,83,126,.12);
+}
+
+.cfg-input:disabled[b-o54gzk76m4] {
+    background: #f8fafc;
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+.cfg-select[b-o54gzk76m4] {
+    font-size: 13px;
+    padding: 6px 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+    color: #0f172a;
+    width: 240px;
+    outline: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color .15s;
+}
+
+.cfg-select:focus[b-o54gzk76m4] {
+    border-color: #D4537E;
+    box-shadow: 0 0 0 3px rgba(212,83,126,.12);
+}
+
+/* ── Toggle ───────────────────────────────────────── */
+.cfg-toggle[b-o54gzk76m4] {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    flex-shrink: 0;
+    display: inline-block;
+}
+
+.cfg-toggle input[b-o54gzk76m4] {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.cfg-slider[b-o54gzk76m4] {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #e2e8f0;
+    border-radius: 20px;
+    transition: .2s;
+}
+
+.cfg-slider[b-o54gzk76m4]:before {
+    content: "";
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    left: 3px;
+    top: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: .2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+
+.cfg-toggle input:checked + .cfg-slider[b-o54gzk76m4]:before {
+    transform: translateX(16px);
+}
+
+/* ── Botón guardar ────────────────────────────────── */
+.cfg-btn-save[b-o54gzk76m4] {
+    font-size: 13px;
+    padding: 7px 18px;
+    border-radius: 8px;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: opacity .15s, transform .1s;
+    font-family: inherit;
+}
+
+.cfg-btn-save:hover[b-o54gzk76m4]  { opacity: .88; }
+.cfg-btn-save:active[b-o54gzk76m4] { transform: scale(.97); }
+
+/* ── Swatches ─────────────────────────────────────── */
+.cfg-swatch-row[b-o54gzk76m4] {
+    display: flex;
+    gap: 8px;
+}
+
+.cfg-swatch[b-o54gzk76m4] {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2.5px solid transparent;
+    transition: border-color .15s, transform .1s;
+}
+
+.cfg-swatch:hover[b-o54gzk76m4]       { transform: scale(1.12); }
+.cfg-swatch-sel[b-o54gzk76m4]         { border-color: #0f172a !important; }
+
+/* ── Toast ────────────────────────────────────────── */
+.cfg-toast[b-o54gzk76m4] {
+    font-size: 13px;
+    padding: 10px 16px;
+    border: 1px solid;
+    border-radius: 10px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
 /* _content/PerfumeriaAnita/Components/Pages/Productos/Index.razor.rz.scp.css */
  /* ═══════════════════════════════════════════════
    Inventario.razor.css  —  Perfumería Anita

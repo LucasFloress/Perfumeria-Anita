@@ -19,6 +19,8 @@ builder.Services.AddRazorComponents()
 builder.Services.AddScoped<IProductoService, ProductoService>();
 builder.Services.AddScoped<IVentaService, VentaService>();
 
+builder.Services.AddScoped<IConfigService, ConfigService>();
+
 var app = builder.Build();
 
 /* --- 3. Pipelines HTTP --- */
