@@ -1,0 +1,96 @@
+@using PerfumeriaAnita.Models
+@using PerfumeriaAnita.Services
+@inject IJSRuntime JS
+@inject IProductoService ProductoService
+@implements IAsyncDisposable
+
+<div class="scanner-wrapper" style="margin-bottom: 20px;">
+    @if (mostrarCamara)
+    {
+        <div style="position: relative; border-radius: 12px; overflow: hidden; border: 2px solid #7b1fa2; background: #000;">
+            <div id="interactive" class="viewport" style="width: 100%; height: 280px;"></div>
+            
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70%; height: 80px; border: 2px dashed #4caf50; pointer-events: none; box-shadow: 0 0 0 4000px rgba(0,0,0,0.4);"></div>
+        </div>
+        
+        <button class="btn btn-clear" style="margin-top: 10px; width: 100%; background: #ffebee; color: #c62828; padding: 12px; border-radius: 6px; font-weight: bold; position: relative; transform: none; top: 0; left: 0;" @onclick="DetenerCamara">
+            ⏹ Detener Cámara
+        </button>
+    }
+    else
+    {
+        <button class="btn btn-success" style="width: 100%; padding: 15px; font-size: 1.1rem; border-radius: 8px; display: flex; justify-content: center; align-items: center; gap: 10px; background-color: #7b1fa2; border: none; color: white; cursor: pointer;" @onclick="IniciarCamara">
+            📸 Abrir Cámara Escáner
+        </button>
+    }
+
+    @if (mensajeError != null)
+    {
+        <div class="toast-venta toast-error">
+            ✖ @mensajeError
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public EventCallback<Producto> OnProductoEncontrado { get; set; }
+    
+    private bool mostrarCamara = false;
+    private string? mensajeError;
+    private DotNetObjectReference<BarcodeScanner>? objRef;
+
+    private async Task IniciarCamara()
+    {
+        mostrarCamara = true;
+        mensajeError = null;
+        StateHasChanged();
+        
+        // Pausa para asegurar que el <div id="interactive"> exista en el HTML antes de llamar a JS
+        await Task.Delay(100);
+        
+        objRef = DotNetObjectReference.Create(this);
+        await JS.InvokeVoidAsync("quaggaInterop.startScanner", objRef);
+    }
+
+    private async Task DetenerCamara()
+    {
+        mostrarCamara = false;
+        await JS.InvokeVoidAsync("quaggaInterop.stopScanner");
+        StateHasChanged();
+    }
+
+    // Este método es invocado automáticamente por JavaScript
+    [JSInvokable]
+    public async Task ProcesarCodigoEscaneado(string codigo)
+    {
+        // 1. Apagamos la cámara apenas encontramos un código
+        await DetenerCamara();
+        
+        // 2. Buscamos el producto en SQLite
+        var producto = await ProductoService.BuscarPorCodigoAsync(codigo);
+        
+        if (producto != null)
+        {
+            // 3. Lo pasamos al Dashboard
+            await OnProductoEncontrado.InvokeAsync(producto);
+        }
+        else
+        {
+            mensajeError = $"El código {codigo} no existe en inventario.";
+            StateHasChanged();
+            
+            // Ocultamos el error tras 4 segundos
+            _ = Task.Delay(4000).ContinueWith(_ => InvokeAsync(() => { mensajeError = null; StateHasChanged(); }));
+        }
+    }
+
+    // Nos aseguramos de apagar la cámara si el usuario cambia de página
+    public async ValueTask DisposeAsync()
+    {
+        if (mostrarCamara)
+        {
+            await JS.InvokeVoidAsync("quaggaInterop.stopScanner");
+        }
+        objRef?.Dispose();
+    }
+}

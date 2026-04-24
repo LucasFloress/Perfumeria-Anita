@@ -3,6 +3,7 @@
 @using PerfumeriaAnita.Data
 @using Microsoft.EntityFrameworkCore
 @inject AppDbContext Contexto
+@inject ISnackbar Snackbar
 
 @if (Visible)
 {
@@ -18,18 +19,17 @@
             <DataAnnotationsValidator />
 
             <div class="form-grid">
-
                 @* Nombre *@
                 <div class="form-group full-width">
                     <label>Nombre *</label>
-                    <InputText @bind-Value="Producto.Nombre" class="form-input" placeholder="Ej: Chanel N°5 EDP 100ml" />
+                    <InputText @bind-Value="Producto.Nombre" class="form-input" placeholder="Ej: Chanel N°5" />
                     <ValidationMessage For="@(() => Producto.Nombre)" />
                 </div>
 
                 @* Código de Barras *@
                 <div class="form-group">
                     <label>Código de Barras</label>
-                    <InputText @bind-Value="Producto.CodigoBarras" class="form-input" placeholder="Ej: 7891234567890" />
+                    <InputText @bind-Value="Producto.CodigoBarras" class="form-input" />
                 </div>
 
                 @* Categoría *@
@@ -42,26 +42,21 @@
                             <option value="@cat.Id">@cat.Nombre</option>
                         }
                     </InputSelect>
-                    <ValidationMessage For="@(() => Producto.CategoriaId)" />
                 </div>
 
-                @* Precio *@
+                @* Precio y Stock *@
                 <div class="form-group">
                     <label>Precio *</label>
                     <InputNumber @bind-Value="Producto.Precio" class="form-input" />
-                    <ValidationMessage For="@(() => Producto.Precio)" />
                 </div>
-
-                @* Stock *@
                 <div class="form-group">
                     <label>Stock *</label>
                     <InputNumber @bind-Value="Producto.Stock" class="form-input" />
-                    <ValidationMessage For="@(() => Producto.Stock)" />
                 </div>
 
                 @* Activo *@
                 <div class="form-group checkbox-group">
-                    <label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                         <input type="checkbox"
                                checked="@(Producto.Activo == true)"
                                @onchange="@(e => Producto.Activo = (bool)(e.Value ?? false))" />
@@ -69,7 +64,7 @@
                     </label>
                 </div>
 
-                @* Imagen (opcional) *@
+                @* Imagen *@
                 <div class="form-group full-width">
                     <label>Imagen (opcional)</label>
                     <InputFile OnChange="CargarImagen" accept="image/*" class="form-input" />
@@ -78,7 +73,6 @@
                         <img src="@_imagenPreview" alt="Preview" class="img-preview" />
                     }
                 </div>
-
             </div>
 
             <div class="modal-footer">
@@ -87,7 +81,6 @@
                     @(_guardando ? "Guardando..." : "Guardar")
                 </button>
             </div>
-
         </EditForm>
     </div>
 }
@@ -104,51 +97,48 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        if (Visible && _categorias.Count == 0)
+        if (Visible && !_categorias.Any())
         {
-            _categorias = await Contexto.Categorias
-                .OrderBy(c => c.Nombre)
-                .ToListAsync();
+            _categorias = await Contexto.Categorias.OrderBy(c => c.Nombre).ToListAsync();
         }
 
-        if (Producto.Imagen != null && _imagenPreview == null)
-        {
+        if (Producto.Imagen != null)
             _imagenPreview = $"data:image/jpeg;base64,{Convert.ToBase64String(Producto.Imagen)}";
-        }
     }
 
     private async Task CargarImagen(InputFileChangeEventArgs e)
     {
         var archivo = e.File;
-        const long maxBytes = 2 * 1024 * 1024;
-
-        using var stream = archivo.OpenReadStream(maxBytes);
+        using var stream = archivo.OpenReadStream(2 * 1024 * 1024);
         using var ms = new MemoryStream();
         await stream.CopyToAsync(ms);
-
         Producto.Imagen = ms.ToArray();
-        _imagenPreview = $"data:image/{archivo.ContentType.Split('/')[1]};base64,{Convert.ToBase64String(Producto.Imagen)}";
+        _imagenPreview = $"data:image/png;base64,{Convert.ToBase64String(Producto.Imagen)}";
     }
 
     private async Task Guardar()
     {
         _guardando = true;
+        try
+        {
+            if (Producto.Id == 0)
+                Contexto.Productos.Add(Producto);
+            else
+                Contexto.Productos.Update(Producto);
 
-        if (Producto.Id == 0)
-            Contexto.Productos.Add(Producto);
-        else
-            Contexto.Productos.Update(Producto);
-
-        await Contexto.SaveChangesAsync();
-        _guardando = false;
-        _imagenPreview = null;
-
-        await OnGuardado.InvokeAsync();
+            await Contexto.SaveChangesAsync();
+            Snackbar.Add("¡Guardado!", Severity.Success);
+            await OnGuardado.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _guardando = false;
+        }
     }
 
-    private async Task Cerrar()
-    {
-        _imagenPreview = null;
-        await OnCerrar.InvokeAsync();
-    }
+    private async Task Cerrar() { _imagenPreview = null; await OnCerrar.InvokeAsync(); }
 }

@@ -12,4 +12,25 @@ public interface IProductoService
     /// Devuelve todos los productos con stock menor o igual al umbral indicado.
     /// </summary>
     Task<List<Models.Producto>> GetProductosBajoStockAsync(int umbral = 5);
+
+    /// <summary>
+    /// Busca un producto por su código de barras.
+    /// </summary>
+    Task<Models.Producto?> BuscarPorCodigoAsync(string codigo);
+
+    /// <summary>
+    /// Elimina un producto.
+    /// </summary>
+    Task<bool> EliminarProductoAsync(int id);
+
+    /// <summary>
+    /// Crea un nuevo producto.
+    /// </summary>
+    Task<bool> ExisteCodigoBarrasAsync(string codigoBarras, int idAExcluir);
+
+    /// <summary>
+    /// Obtiene un producto por su ID.
+    /// </summary>
+    Task<Models.Producto?> GetProductoByIdAsync(int id);
+
 }
