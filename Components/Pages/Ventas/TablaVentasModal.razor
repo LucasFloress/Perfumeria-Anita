@@ -1,12 +1,26 @@
 @using PerfumeriaAnita.Models
+@using PerfumeriaAnita.Data
+@using Microsoft.EntityFrameworkCore
+@inject AppDbContext Contexto
 
 @if (EstaAbierto)
 {
+    <style>
+        .modal-icon { color: @_colorPrincipal !important; }
+        .modal-close:hover { color: @_colorPrincipal !important; }
+        .filter-search-input:focus { border-color: @_colorPrincipal !important; }
+        .filter-clear-btn:hover { color: @_colorPrincipal !important; }
+        .filter-pill:hover { border-color: @_colorPrincipal !important; color: @_colorPrincipal !important; }
+        .filter-pill-active { background: @_colorPrincipal !important; border-color: @_colorPrincipal !important; color: #fff !important; }
+        .th-sortable:hover { color: @_colorPrincipal !important; }
+        .modal-empty-reset { color: @_colorPrincipal !important; }
+        .modal-footer-count .material-symbols-outlined { color: @_colorPrincipal !important; }
+    </style>
+
     <div class="modal-backdrop" @onclick="CerrarModal"></div>
 
     <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
 
-        <!-- ── Header ── -->
         <div class="modal-header">
             <div class="modal-header-left">
                 <div class="modal-icon">
@@ -22,7 +36,6 @@
             </button>
         </div>
 
-        <!-- ── Filtros ── -->
         <div class="modal-filters">
             <div class="filter-search-wrapper">
                 <span class="material-symbols-outlined filter-search-icon">search</span>
@@ -50,7 +63,6 @@
             </div>
         </div>
 
-        <!-- ── Tabla ── -->
         <div class="modal-table-wrapper">
             @if (VentasFiltradas.Count == 0)
             {
@@ -114,7 +126,6 @@
             }
         </div>
 
-        <!-- ── Footer ── -->
         <div class="modal-footer">
             <span class="modal-footer-count">
                 <span class="material-symbols-outlined">bar_chart</span>
@@ -130,15 +141,29 @@
 }
 
 @code {
-    [Parameter] public List<Venta> Ventas      { get; set; } = new();
-    [Parameter] public EventCallback OnCerrar  { get; set; }
+    [Parameter] public List<Venta> Ventas { get; set; } = new();
+    [Parameter] public EventCallback OnCerrar { get; set; }
 
-    private string TextoBusqueda   = "";
-    private string FiltroMetodo    = "Todos";
-    private string OrdenColumna    = "Fecha";
-    private bool   OrdenAscendente = false;
+    private string TextoBusqueda = "";
+    private string FiltroMetodo = "Todos";
+    private string OrdenColumna = "Fecha";
+    private bool OrdenAscendente = false;
     private bool EstaAbierto = false;
-    
+
+    // Rosa por defecto para que no se rompa si la base de datos no tiene el dato
+    private string _colorPrincipal = "#e91e63"; 
+
+    protected override async Task OnInitializedAsync()
+    {
+        var configColor = await Contexto.AppConfigs
+            .FirstOrDefaultAsync(c => c.Clave == "tienda.color_principal");
+
+        if (configColor != null && !string.IsNullOrWhiteSpace(configColor.Valor))
+        {
+            _colorPrincipal = configColor.Valor;
+        }
+    }
+
     public void AbrirModal()
     {
         EstaAbierto = true;

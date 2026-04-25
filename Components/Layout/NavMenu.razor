@@ -1,11 +1,55 @@
-﻿<aside class="sidebar">
+﻿@using PerfumeriaAnita.Services
+@using PerfumeriaAnita.Models
+@inject AppConfigState ConfigState
+@implements IDisposable
+
+<aside class="sidebar" style="--color-principal: @ConfigState.ColorPrincipal">
     <div class="logo">
-        <span>🌸 Perfumería Anita</span>
+        @if (!string.IsNullOrEmpty(ConfigState.LogoBase64))
+        {
+            <!-- Logo personalizado subido desde configuraciones -->
+            <img src="@ConfigState.LogoBase64"
+                 alt="Logo @ConfigState.NombreTienda"
+                 class="logo-img" />
+        }
+        else
+        {
+            <!-- Fallback: emoji + nombre cuando no hay logo -->
+            <span class="logo-emoji">🌸</span>
+        }
+        <div class="logo-texto">
+            <span class="logo-nombre">@ConfigState.NombreTienda</span>
+            @if (!string.IsNullOrWhiteSpace(ConfigState.Eslogan))
+            {
+                <span class="logo-eslogan">@ConfigState.Eslogan</span>
+            }
+        </div>
     </div>
+
     <nav class="nav-menu">
-        <a href="/dashboard" class="nav-item active">Panel Principal</a>
-        <a href="/inventario" class="nav-item">Inventario</a>
-        <a href="/ventas" class="nav-item">Ventas</a>
+        <a href="/dashboard"       class="nav-item">Panel Principal</a>
+        <a href="/inventario"      class="nav-item">Inventario</a>
+        <a href="/ventas"          class="nav-item">Ventas</a>
         <a href="/configuraciones" class="nav-item">Configuración</a>
     </nav>
 </aside>
+
+@code {
+    protected override void OnInitialized()
+    {
+        // Suscribirse al evento: cuando cambien configuraciones, re-renderizar
+        ConfigState.OnChange += OnConfigChanged;
+    }
+
+    private void OnConfigChanged()
+    {
+        // InvokeAsync porque el evento puede venir de otro hilo
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        // Desuscribirse para evitar memory leaks
+        ConfigState.OnChange -= OnConfigChanged;
+    }
+}

@@ -1,0 +1,94 @@
+/* ═══════════════════════════════════════════════════
+   NavMenu.razor.css
+   ═══════════════════════════════════════════════════ */
+
+.sidebar[b-jjj50ym744] {
+    width: 220px;
+    background: #fff;
+    border-right: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+    height: 100vh;
+    position: fixed;
+}
+
+/* ── Logo ─────────────────────────────────────────── */
+.logo[b-jjj50ym744] {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 20px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 12px;
+}
+
+.logo-img[b-jjj50ym744] {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.logo-emoji[b-jjj50ym744] {
+    font-size: 28px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.logo-texto[b-jjj50ym744] {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.logo-nombre[b-jjj50ym744] {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Usa el color principal si está disponible via CSS variable */
+    color: var(--color-principal, #0f172a);
+}
+
+.logo-eslogan[b-jjj50ym744] {
+    font-size: 10.5px;
+    color: #94a3b8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 1px;
+}
+
+/* ── Nav items ────────────────────────────────────── */
+.nav-menu[b-jjj50ym744] {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0 10px;
+}
+
+.nav-item[b-jjj50ym744] {
+    display: block;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #64748b;
+    text-decoration: none;
+    transition: background .15s, color .15s;
+}
+
+.nav-item:hover[b-jjj50ym744] {
+    background: #f8fafc;
+    color: #0f172a;
+}
+
+.nav-item.active[b-jjj50ym744] {
+    background: color-mix(in srgb, var(--color-principal, #D4537E) 12%, transparent);
+    color: var(--color-principal, #D4537E);
+    font-weight: 600;
+}

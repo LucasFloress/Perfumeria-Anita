@@ -20,6 +20,7 @@ builder.Services.AddScoped<IProductoService, ProductoService>();
 builder.Services.AddScoped<IVentaService, VentaService>();
 
 builder.Services.AddScoped<IConfigService, ConfigService>();
+builder.Services.AddSingleton<AppConfigState>(); 
 
 var app = builder.Build();
 
@@ -41,6 +42,13 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();
     await DataSeeder.SeedAsync(db);
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var state   = app.Services.GetRequiredService<AppConfigState>();
+    var service = scope.ServiceProvider.GetRequiredService<IConfigService>();
+    await state.InicializarAsync(service);
 }
 
 app.Run();

@@ -3,7 +3,6 @@
 @using PerfumeriaAnita.Components.Layout
 @using PerfumeriaAnita.Models
 @using PerfumeriaAnita.Services
-@layout EmptyLayout
 @inject IProductoService ProductoService
 @inject IVentaService VentaService
 @using PerfumeriaAnita.Components.Scanner
@@ -12,18 +11,6 @@
 
 <div class="dashboard-container">
 
-    <aside class="sidebar">
-        <div class="logo">
-            <span>🌸 Perfumería Anita</span>
-        </div>
-        <nav class="nav-menu">
-            <a class="nav-item active">Panel Principal</a>
-            <a href="/inventario" class="nav-item">Inventario</a>
-            <a href="/ventas" class="nav-item">Ventas</a>
-            <a href="/configuracion" class="nav-item">Configuración</a>
-        </nav>
-    </aside>
-
     <main class="main-content">
         <header class="header">
             <h2>Panel de Control</h2>
@@ -31,7 +18,6 @@
         </header>
 
         <div class="content-body">
-
             <div class="card">
                 <h3>🛒 Punto de Venta</h3>
 
@@ -46,8 +32,9 @@
                     {
                         <button class="btn-clear" @onclick="LimpiarBusqueda" title="Limpiar búsqueda">✕</button>
                     }
-                <BarcodeScanner OnProductoEncontrado="AgregarProductoPorEscaneo" />
                 </div>
+
+                <BarcodeScanner OnProductoEncontrado="AgregarProductoPorEscaneo" />
 
                 @if (sugerencias.Any())
                 {
@@ -392,6 +379,24 @@
         carrito.Remove(item);
     }
 
+    // ─── Agregar Producto por Escaneo ────────────────────────────────────────
+    private void AgregarProductoPorEscaneo(Producto p)
+    {
+        if (p.Stock == 0)
+        {
+            // Mostrar el producto pero no agregar al carrito
+            productoSeleccionado = p;
+            cantidad = 1;
+            mensajeVenta = $"⚠ {p.Nombre} no tiene stock disponible.";
+            ventaExitosa = false;
+            return;
+        }
+
+        productoSeleccionado = p;
+        cantidad = 1;
+        AgregarAlCarrito();
+    }
+
     // ─── Confirmar Todo el Ticket ───────────────────────────────────────────
     private async Task ConfirmarVentaCarrito()
     {
@@ -471,13 +476,4 @@
         }
     }
 
-    // ─── Agregar Producto por Escaneo ────────────────────────────────────────
-    private void AgregarProductoPorEscaneo(Producto p)
-    {
-        productoSeleccionado = p;
-        cantidad = 1;
-        
-        // Aprovechamos la lógica que ya habías armado para agregar productos al ticket
-        AgregarAlCarrito();
-    }
 }

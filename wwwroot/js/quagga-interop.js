@@ -1,5 +1,9 @@
+let scannerActivo = false;
+
 window.quaggaInterop = {
     startScanner: function (dotNetHelper) {
+        if(scannerActivo) return; // Si ya está activo, no lo iniciamos de nuevo
+        
         Quagga.init({
             inputStream: {
                 name: "Live",
@@ -28,10 +32,11 @@ window.quaggaInterop = {
             }
         }, function (err) {
             if (err) {
-                console.error(err);
+                console.error("Error al iniciar el escáner: ", err);
                 return;
             }
             Quagga.start();
+            scannerActivo = true;
         });
 
         Quagga.onDetected(function (result) {
@@ -49,11 +54,15 @@ window.quaggaInterop = {
             }
         });
     },
+
     stopScanner: function () {
+        if(!scannerActivo) return; // Si ya está detenido, no lo detenemos de nuevo
         try {
             Quagga.stop();
+            scannerActivo = false;
         } catch (e) {
-            console.log("Quagga ya estaba detenido.");
+            console.log("Quagga ya estaba detenido.",e);
+            scannerActivo = false;
         }
     }
 };

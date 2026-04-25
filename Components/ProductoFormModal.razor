@@ -122,9 +122,24 @@
         try
         {
             if (Producto.Id == 0)
+            {
+                // Es uno nuevo, lo agregamos normal
                 Contexto.Productos.Add(Producto);
+            }
             else
-                Contexto.Productos.Update(Producto);
+            {
+                // Es una edición. Buscamos el objeto original que EF tiene en su memoria
+                var productoEnMemoria = await Contexto.Productos.FindAsync(Producto.Id);
+                
+                if (productoEnMemoria != null)
+                {
+                    // EF copia automáticamente todos los cambios del "Clon" (Producto) al objeto original
+                    Contexto.Entry(productoEnMemoria).CurrentValues.SetValues(Producto);
+                    
+                    // Asegurarnos de copiar la imagen también si se modificó
+                    productoEnMemoria.Imagen = Producto.Imagen; 
+                }
+            }
 
             await Contexto.SaveChangesAsync();
             Snackbar.Add("¡Guardado!", Severity.Success);
@@ -132,7 +147,8 @@
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+            // Ahora si hay un error, lo verás clarito
+            Snackbar.Add($"Error en BD: {ex.Message}", Severity.Error);
         }
         finally
         {

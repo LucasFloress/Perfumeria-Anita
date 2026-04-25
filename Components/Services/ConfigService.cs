@@ -61,12 +61,10 @@ namespace PerfumeriaAnita.Services
 
         public async Task<Dictionary<string, string>> GetAllAsync()
         {
-            // ToList primero para evitar que ToDictionaryAsync explote con claves duplicadas
             var configs = await _db.AppConfigs
                 .AsNoTracking()
                 .ToListAsync();
 
-            // GroupBy por si hubiera duplicados: nos quedamos con el registro más reciente
             return configs
                 .GroupBy(c => c.Clave)
                 .ToDictionary(
@@ -81,9 +79,10 @@ namespace PerfumeriaAnita.Services
 
             var defaults = new List<AppConfig>
             {
-                new() { Clave = AppConfig.Keys.NombreTienda,      Valor = "Anita",                          Descripcion = "Nombre de la perfumería" },
+                new() { Clave = AppConfig.Keys.NombreTienda,      Valor = "Perfumería Anita",               Descripcion = "Nombre de la perfumería" },
                 new() { Clave = AppConfig.Keys.EsloganTienda,     Valor = "Tu perfume, tu identidad",       Descripcion = "Eslogan visible en la interfaz" },
                 new() { Clave = AppConfig.Keys.ColorPrincipal,    Valor = "#D4537E",                        Descripcion = "Color principal (hex)" },
+                new() { Clave = AppConfig.Keys.LogoBase64,        Valor = "",                               Descripcion = "Logo en base64 (vacío = sin logo)" },
                 new() { Clave = AppConfig.Keys.ZonaHoraria,       Valor = "America/Argentina/Buenos_Aires", Descripcion = "Zona horaria del sistema" },
                 new() { Clave = AppConfig.Keys.FormatoHora,       Valor = "24",                             Descripcion = "Formato de hora: 12 o 24" },
                 new() { Clave = AppConfig.Keys.EmailNotif,        Valor = "anita@perfumeria.com",           Descripcion = "Email receptor de alertas" },

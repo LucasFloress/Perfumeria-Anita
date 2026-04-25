@@ -1,13 +1,16 @@
 @using PerfumeriaAnita.Models
 @using PerfumeriaAnita.Services
+@using PerfumeriaAnita.Data
+@using Microsoft.EntityFrameworkCore
 @inject IJSRuntime JS
 @inject IProductoService ProductoService
+@inject AppDbContext Contexto
 @implements IAsyncDisposable
 
 <div class="scanner-wrapper" style="margin-bottom: 20px;">
     @if (mostrarCamara)
     {
-        <div style="position: relative; border-radius: 12px; overflow: hidden; border: 2px solid #7b1fa2; background: #000;">
+        <div style="position: relative; border-radius: 12px; overflow: hidden; border: 2px solid @_colorPrincipal; background: #000;">
             <div id="interactive" class="viewport" style="width: 100%; height: 280px;"></div>
             
             <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70%; height: 80px; border: 2px dashed #4caf50; pointer-events: none; box-shadow: 0 0 0 4000px rgba(0,0,0,0.4);"></div>
@@ -19,7 +22,7 @@
     }
     else
     {
-        <button class="btn btn-success" style="width: 100%; padding: 15px; font-size: 1.1rem; border-radius: 8px; display: flex; justify-content: center; align-items: center; gap: 10px; background-color: #7b1fa2; border: none; color: white; cursor: pointer;" @onclick="IniciarCamara">
+        <button class="btn btn-success" style="width: 100%; padding: 15px; font-size: 1.1rem; border-radius: 8px; display: flex; justify-content: center; align-items: center; gap: 10px; background-color: @_colorPrincipal; border: none; color: white; cursor: pointer;" @onclick="IniciarCamara">
             📸 Abrir Cámara Escáner
         </button>
     }
@@ -30,6 +33,13 @@
             ✖ @mensajeError
         </div>
     }
+
+    @if (_buscando)
+    {
+        <div style="text-align:center; padding: 8px; color: @_colorPrincipal;">
+            🔄 Buscando producto...
+        </div>
+    }
 </div>
 
 @code {
@@ -38,7 +48,23 @@
     private bool mostrarCamara = false;
     private string? mensajeError;
     private DotNetObjectReference<BarcodeScanner>? objRef;
+    
+    // Variable para guardar el color. Le ponemos el violeta por defecto por si falla la BD
+    private string _colorPrincipal = "#7b1fa2"; 
 
+    protected override async Task OnInitializedAsync()
+    {
+        // Vamos a buscar el color a la base de datos
+        var configColor = await Contexto.AppConfigs
+            .FirstOrDefaultAsync(c => c.Clave == "tienda.color_principal");
+
+        if (configColor != null && !string.IsNullOrWhiteSpace(configColor.Valor))
+        {
+            _colorPrincipal = configColor.Valor;
+        }
+    }
+
+    // ─── Iniciar Cámara ──────────────────────────────────────────────────────
     private async Task IniciarCamara()
     {
         mostrarCamara = true;
@@ -52,6 +78,7 @@
         await JS.InvokeVoidAsync("quaggaInterop.startScanner", objRef);
     }
 
+    // ─── Detener Cámara ──────────────────────────────────────────────────────
     private async Task DetenerCamara()
     {
         mostrarCamara = false;
@@ -59,16 +86,28 @@
         StateHasChanged();
     }
 
+    // ─── Procesar Código Escaneado ──────────────────────────────────────────
+    private bool _buscandoCodigo = false;
+    private bool _buscando = false;
+
     // Este método es invocado automáticamente por JavaScript
     [JSInvokable]
     public async Task ProcesarCodigoEscaneado(string codigo)
     {
+        // Bloqueo: ignoramos duplicados
+        if (_buscandoCodigo) return;
+        _buscandoCodigo = true;
+        _buscando = true;
+        StateHasChanged();
+        
         // 1. Apagamos la cámara apenas encontramos un código
         await DetenerCamara();
         
         // 2. Buscamos el producto en SQLite
         var producto = await ProductoService.BuscarPorCodigoAsync(codigo);
         
+        _buscando = false;
+
         if (producto != null)
         {
             // 3. Lo pasamos al Dashboard
@@ -76,15 +115,20 @@
         }
         else
         {
-            mensajeError = $"El código {codigo} no existe en inventario.";
+             mensajeError = $"El código {codigo} no existe en inventario.";
             StateHasChanged();
-            
-            // Ocultamos el error tras 4 segundos
-            _ = Task.Delay(4000).ContinueWith(_ => InvokeAsync(() => { mensajeError = null; StateHasChanged(); }));
+            _ = Task.Delay(4000).ContinueWith(_ => InvokeAsync(() =>
+            {
+                mensajeError = null;
+                _buscandoCodigo = false; // Resetear recién acá, cuando el error desaparece
+                StateHasChanged();
+            }));
+            return;
         }
+        _buscandoCodigo = false;
     }
 
-    // Nos aseguramos de apagar la cámara si el usuario cambia de página
+    // ─── DisposeAsync ───────────────────────────────────────────────────────
     public async ValueTask DisposeAsync()
     {
         if (mostrarCamara)

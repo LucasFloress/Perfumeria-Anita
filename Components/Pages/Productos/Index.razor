@@ -3,8 +3,29 @@
 @using PerfumeriaAnita.Models
 @using PerfumeriaAnita.Data
 @using Microsoft.EntityFrameworkCore
+@using MudBlazor
 @inject AppDbContext Contexto
+@inject ISnackbar Snackbar
+
 <PageTitle>Inventario - Perfumería Anita</PageTitle>
+
+<style>
+    /* 🎨 Sobrescribimos el violeta por defecto con el color dinámico de la BD */
+    .btn-nuevo { background-color: @_colorPrincipal !important; }
+    .btn-nuevo:hover { filter: brightness(0.85); /* Oscurece el color dinámico al pasar el mouse */ }
+    
+    .input-busqueda:focus { border-color: @_colorPrincipal !important; }
+    .input-busqueda.escaner-activo { border-color: @_colorPrincipal !important; }
+    
+    .feedback-hint { border-color: @_colorPrincipal !important; color: @_colorPrincipal !important; }
+    .text-violeta { color: @_colorPrincipal !important; }
+    
+    .btn-pagina.activa { 
+        background-color: @_colorPrincipal !important; 
+        border-color: @_colorPrincipal !important; 
+    }
+    .link-gestionar { color: @_colorPrincipal !important; }
+</style>
 
 <div class="inventario-wrapper">
 
@@ -14,9 +35,21 @@
             <div class="alertas-header">
                 <span class="alert-icon">⚠️</span>
                 <h2>Alertas de Stock Críticas</h2>
-                <span class="badge-riesgo">3 PRODUCTOS EN RIESGO</span>
+                <!-- FIX: badge dinámico, no hardcodeado -->
+                @if (AlertasStock.Any())
+                {
+                    <span class="badge-riesgo">@AlertasStock.Count PRODUCTO@(AlertasStock.Count != 1 ? "S" : "") EN RIESGO</span>
+                }
+                else
+                {
+                    <span class="badge-ok">✔ TODO EN ORDEN</span>
+                }
             </div>
             <div class="alertas-items">
+                @if (!AlertasStock.Any())
+                {
+                    <p style="color:#888; margin:0; padding: 10px 0;">Sin alertas por el momento</p>
+                }
                 @foreach (var alerta in AlertasStock)
                 {
                     <div class="alerta-item @(alerta.Urgente ? "urgente" : "")">
@@ -69,32 +102,38 @@
             </div>
         </div>
 
-        <!-- 🔍 BARRA DE BÚSQUEDA -->
+        <!-- 🔍 BARRA DE BÚSQUEDA + ESCÁNER -->
         <div class="busqueda-row">
             <div class="busqueda-wrapper">
                 <span class="busqueda-icon">@(ModoEscaner ? "📷" : "🔍")</span>
                 <input
-                @ref="InputBusqueda"
-                class="input-busqueda @(ModoEscaner ? "escaner-activo" : "")"
-                type="text"
-                placeholder="@(ModoEscaner ? "Escanea el código de barras..." : "Buscar por nombre de producto o código...")"
-                value="@TextoBusqueda"
-                @oninput="OnBusquedaInput" />
+                    @ref="InputBusqueda"
+                    class="input-busqueda @(ModoEscaner ? "escaner-activo" : "")"
+                    type="text"
+                    placeholder="@(ModoEscaner ? "Escanea el código de barras..." : "Buscar por nombre de producto o código...")"
+                    value="@TextoBusqueda"
+                    @oninput="OnBusquedaInput" />
             </div>
             @if (!string.IsNullOrEmpty(TextoBusqueda))
             {
                 <button class="btn-limpiar" @onclick="LimpiarBusqueda">✕</button>
             }
-            <button class="btn-escaner @(ModoEscaner ? "activo" : "")" @onclick="ActivarEscaner"
-                    title="Activar modo escáner de código de barras">
-                <span>⬛</span>
-                @(ModoEscaner ? "Escaneando..." : "Escanear código")
-            </button>
+            <input
+                @ref="InputBusqueda"
+                class="input-busqueda @(ModoEscaner ? "escaner-activo" : "")"
+                type="text"
+                placeholder="@(ModoEscaner ? "Escanea el código de barras..." : "Buscar por nombre o código...")"
+                value="@TextoBusqueda"
+                @oninput="OnBusquedaInput"
+                @onkeydown="OnKeyDown" />
         </div>
 
+        <!-- Feedback del escáner -->
         @if (!string.IsNullOrEmpty(FeedbackEscaner))
         {
-            <div class="feedback-escaner feedback-ok">@FeedbackEscaner</div>
+            <div class="feedback-escaner @(FeedbackEsEscanerError ? "feedback-error" : "feedback-ok")">
+                @FeedbackEscaner
+            </div>
         }
         @if (ModoEscaner && string.IsNullOrEmpty(FeedbackEscaner))
         {
@@ -124,7 +163,7 @@
                 }
                 else
                 {
-                     @foreach (var producto in ProductosPaginados)
+                    @foreach (var producto in ProductosPaginados)
                     {
                         <tr>
                             <td>
@@ -177,7 +216,7 @@
     </div>
 </div>
 
-    <ProductoFormModal
+<ProductoFormModal
     Visible="_modalFormVisible"
     Producto="_productoSeleccionado"
     OnGuardado="RefrescarProductos"
@@ -190,45 +229,62 @@
     OnCancelar="CerrarModales" />
 
 @code {
+
     // ── Datos de la Base de Datos ──────────────────────────
     private List<Producto> TodosLosProductos = new();
     private List<Producto> ProductosFiltrados = new();
-    private List<Producto> ProductosPaginados  = new();
+    private List<Producto> ProductosPaginados = new();
+    private string _colorPrincipal = "7c3aed";
 
     // ── Alertas ────────────────────────────────────────────
     private List<AlertaStock> AlertasStock = new();
 
     // ── Filtros ────────────────────────────────────────────
-    private string TextoBusqueda  = "";
+    private string TextoBusqueda = "";
     private string CategoriaFiltro = "Todas las Categorías";
-    private string EstadoFiltro    = "Todos los Estados";
+    private string EstadoFiltro = "Todos los Estados";
 
     private List<string> Categorias = new() { "Todas las Categorías" };
-    private List<string> Estados    = new() { "Todos los Estados", "EN STOCK", "STOCK BAJO", "AGOTADO", "INACTIVO" };
+    private List<string> Estados = new() { "Todos los Estados", "EN STOCK", "STOCK BAJO", "AGOTADO", "INACTIVO" };
 
     // ── Paginación ─────────────────────────────────────────
-    private int PaginaActual  = 1;
+    private int PaginaActual = 1;
     private const int ItemsPorPagina = 5;
-    private int TotalPaginas  => (int)Math.Ceiling((double)ProductosFiltrados.Count / ItemsPorPagina);
-    private int InicioRango   => ProductosFiltrados.Count == 0 ? 0 : (PaginaActual - 1) * ItemsPorPagina + 1;
-    private int FinRango      => Math.Min(PaginaActual * ItemsPorPagina, ProductosFiltrados.Count);
+    private int TotalPaginas => (int)Math.Ceiling((double)ProductosFiltrados.Count / ItemsPorPagina);
+    private int InicioRango => ProductosFiltrados.Count == 0 ? 0 : (PaginaActual - 1) * ItemsPorPagina + 1;
+    private int FinRango => Math.Min(PaginaActual * ItemsPorPagina, ProductosFiltrados.Count);
 
     // ── Escáner ────────────────────────────────────────────
-    private bool   ModoEscaner    = false;
+    private bool ModoEscaner = false;
     private string FeedbackEscaner = "";
+    private bool FeedbackEsEscanerError = false; // FIX: distinguir ok vs error en feedback
     private ElementReference InputBusqueda;
     private System.Timers.Timer? _timerEscaner;
     private System.Timers.Timer? _timerFeedback;
 
-    // ── Lifecycle (Carga de Datos Reales) ──────────────────
+    // ── Modales ────────────────────────────────────────────
+    private bool _modalFormVisible = false;
+    private bool _modalEliminarVisible = false;
+    private Producto _productoSeleccionado = new();
+
+    // ── Lifecycle ──────────────────────────────────────────
     protected override async Task OnInitializedAsync()
     {
-        // 1. Cargar productos y categorías de la BD
+        // 1. Buscar el color elegido en la base de datos
+        var configColor = await Contexto.AppConfigs
+            .FirstOrDefaultAsync(c => c.Clave == "tienda.color_principal");
+
+        if (configColor != null && !string.IsNullOrWhiteSpace(configColor.Valor))
+        {
+            _colorPrincipal = configColor.Valor;
+        }
+
+        // 2. Cargar los productos normalmente
         TodosLosProductos = await Contexto.Productos
             .Include(p => p.Categoria)
             .OrderBy(p => p.Nombre)
             .ToListAsync();
-
+            
         var catsDB = await Contexto.Categorias.Select(c => c.Nombre).ToListAsync();
         Categorias.AddRange(catsDB);
 
@@ -236,7 +292,7 @@
         AplicarFiltros();
     }
 
-    // ── Lógica Visual (Helpers) ────────────────────────────
+    // ── Helpers de estado visual ───────────────────────────
     private string ObtenerEstado(Producto p)
     {
         if (p.Activo != true) return "INACTIVO";
@@ -257,41 +313,60 @@
     {
         AlertasStock.Clear();
         var productosEnRiesgo = TodosLosProductos.Where(p => p.Stock <= 5 && p.Activo == true).ToList();
-        
+
         foreach (var p in productosEnRiesgo)
         {
             AlertasStock.Add(new AlertaStock(
-                p.Nombre, 
-                p.CodigoBarras ?? "Sin código", 
-                p.Stock == 0 ? "AGOTADO" : $"{p.Stock} unidades", 
+                p.Nombre,
+                p.CodigoBarras ?? "Sin código",
+                p.Stock == 0 ? "AGOTADO" : $"{p.Stock} unidades",
                 p.Stock == 0
             ));
         }
     }
 
-    // ── Búsqueda y Filtros ─────────────────────────────────
+    // ── Búsqueda ───────────────────────────────────────────
     private void OnBusquedaInput(ChangeEventArgs e)
     {
         TextoBusqueda = e.Value?.ToString() ?? "";
+        var codigoLimpio = TextoBusqueda.Trim();
 
-        // Detectar código de barras (13 dígitos numéricos aprox)
-        if (TextoBusqueda.Trim().Length >= 8 && TextoBusqueda.Trim().All(char.IsDigit))
+        // Detectar código de barras: 8+ dígitos numéricos (EAN-8, EAN-13, UPC)
+        if (codigoLimpio.Length >= 8 && codigoLimpio.All(char.IsDigit))
         {
-            var encontrado = TodosLosProductos.FirstOrDefault(p => p.CodigoBarras == TextoBusqueda.Trim());
+            var encontrado = TodosLosProductos.FirstOrDefault(p => p.CodigoBarras == codigoLimpio);
+
             if (encontrado != null)
             {
-                FeedbackEscaner = $"✅ Producto encontrado: {encontrado.Nombre}";
-                _timerFeedback?.Dispose();
-                _timerFeedback = new System.Timers.Timer(3000);
-                _timerFeedback.Elapsed += (_, _) =>
-                {
-                    FeedbackEscaner = "";
-                    _timerFeedback?.Dispose();
-                    InvokeAsync(StateHasChanged);
-                };
-                _timerFeedback.AutoReset = false;
-                _timerFeedback.Start();
+                // FIX: limpiar el input y mostrar solo el producto encontrado,
+                // en lugar de dejar el código escrito en el buscador
+                TextoBusqueda = encontrado.Nombre;
+                FeedbackEscaner = $"✅ Producto encontrado: {encontrado.Nombre} — Stock: {encontrado.Stock}";
+                FeedbackEsEscanerError = false;
+
+                // FIX: cancelar el timer de escaneo porque ya encontramos lo que buscábamos
+                _timerEscaner?.Dispose();
+                ModoEscaner = false;
             }
+            else
+            {
+                // FIX: mostrar error si el código no existe
+                FeedbackEscaner = $"⚠ Código {codigoLimpio} no encontrado en inventario.";
+                FeedbackEsEscanerError = true;
+            }
+
+            // Resetear feedback tras 3 segundos (compartido para ok y error)
+            _timerFeedback?.Dispose();
+            _timerFeedback = new System.Timers.Timer(3000);
+            _timerFeedback.Elapsed += (_, _) =>
+            {
+                FeedbackEscaner = "";
+                FeedbackEsEscanerError = false;
+                _timerFeedback?.Dispose();
+                InvokeAsync(StateHasChanged);
+            };
+            _timerFeedback.AutoReset = false;
+            _timerFeedback.Start();
         }
 
         AplicarFiltros();
@@ -300,6 +375,8 @@
     private void LimpiarBusqueda()
     {
         TextoBusqueda = "";
+        FeedbackEscaner = "";
+        FeedbackEsEscanerError = false;
         AplicarFiltros();
     }
 
@@ -312,10 +389,10 @@
             var matchBusqueda = string.IsNullOrEmpty(q) ||
                                 p.Nombre.ToLower().Contains(q) ||
                                 (p.CodigoBarras != null && p.CodigoBarras.Contains(q));
-                                
-            var matchCat    = CategoriaFiltro == "Todas las Categorías" || p.Categoria?.Nombre == CategoriaFiltro;
-            var matchEstado = EstadoFiltro    == "Todos los Estados"    || ObtenerEstado(p) == EstadoFiltro;
-            
+
+            var matchCat = CategoriaFiltro == "Todas las Categorías" || p.Categoria?.Nombre == CategoriaFiltro;
+            var matchEstado = EstadoFiltro == "Todos los Estados" || ObtenerEstado(p) == EstadoFiltro;
+
             return matchBusqueda && matchCat && matchEstado;
         }).ToList();
 
@@ -341,9 +418,12 @@
     {
         ModoEscaner = true;
         TextoBusqueda = "";
+        FeedbackEscaner = "";
+        FeedbackEsEscanerError = false;
         AplicarFiltros();
         await InputBusqueda.FocusAsync();
 
+        // FIX: dispose antes de crear uno nuevo para evitar timers duplicados
         _timerEscaner?.Dispose();
         _timerEscaner = new System.Timers.Timer(8000);
         _timerEscaner.Elapsed += (_, _) =>
@@ -356,22 +436,7 @@
         _timerEscaner.Start();
     }
 
-    // ── Acciones ───────────────────────────────────────────
-    private void NuevoProducto() { /* Navegar a formulario */ }
-    private void EditarProducto(Producto p) { /* Abrir modal edición */ }
-    private void EliminarProducto(Producto p) { /* Confirmar y eliminar */ }
-
-    public void Dispose()
-    {
-        _timerEscaner?.Dispose();
-        _timerFeedback?.Dispose();
-    }
-
-    // --- Estado de los modales ---
-    private bool _modalFormVisible = false;
-    private bool _modalEliminarVisible = false;
-    private Producto _productoSeleccionado = new();
-
+    // ── Modales ────────────────────────────────────────────
     private void AbrirCrear()
     {
         _productoSeleccionado = new Producto { Activo = true };
@@ -380,7 +445,6 @@
 
     private void AbrirEditar(Producto p)
     {
-        // Clonamos el objeto para no mutar la lista mientras se edita
         _productoSeleccionado = new Producto
         {
             Id = p.Id,
@@ -423,13 +487,25 @@
         var p = await Contexto.Productos.FindAsync(_productoSeleccionado.Id);
         if (p != null)
         {
-            Contexto.Productos.Remove(p);
+            // En lugar de hacer Remove(p), hacemos una baja lógica
+            p.Activo = false;
+            Contexto.Productos.Update(p);
+            
             await Contexto.SaveChangesAsync();
+            Snackbar.Add("Producto desactivado correctamente.", Severity.Success);
         }
         await RefrescarProductos();
     }
 
-    // ── Clase Modelo para Alertas ──────────────────────────
+    // FIX: IAsyncDisposable en lugar de IDisposable (correcto para Blazor)
+    public async ValueTask DisposeAsync()
+    {
+        _timerEscaner?.Dispose();
+        _timerFeedback?.Dispose();
+        await ValueTask.CompletedTask;
+    }
+
+    // ── Modelo interno para alertas ────────────────────────
     public class AlertaStock
     {
         public string Nombre { get; set; }
@@ -443,6 +519,24 @@
             Referencia = referencia;
             Unidades = unidades;
             Urgente = urgente;
+        }
+    }
+
+    // ── OnKeyDown ──────────────────────────────────────────────
+    private void OnKeyDown(KeyboardEventArgs e)
+    {
+        // Consumimos el Enter del lector para que no haga nada más
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(TextoBusqueda))
+        {
+            // Si el oninput ya procesó el código, el Enter solo limpia el input
+            // Si el usuario escribió algo manualmente y presionó Enter, aplicamos filtros
+            if (TextoBusqueda.Trim().All(char.IsDigit) && TextoBusqueda.Trim().Length >= 8)
+            {
+                // El lector ya procesó esto en oninput, solo limpiamos
+                TextoBusqueda = "";
+                AplicarFiltros();
+            }
+            // Si es texto (búsqueda manual), el filtro ya se aplicó en oninput, no hacemos nada más
         }
     }
 

@@ -2,7 +2,9 @@
 @rendermode InteractiveServer
 @using PerfumeriaAnita.Models
 @using PerfumeriaAnita.Services
+@using Microsoft.AspNetCore.Components.Forms
 @inject IConfigService ConfigService
+@inject AppConfigState ConfigState
 
 <div class="cfg-page">
 
@@ -52,11 +54,12 @@
                     </div>
                 }
 
+                @* ── Card: Nombre y eslogan ── *@
                 <div class="cfg-card">
                     <div class="cfg-card-head">
                         <div>
                             <div class="cfg-card-title">Nombre de la tienda</div>
-                            <div class="cfg-card-sub">Se muestra en toda la interfaz y notificaciones</div>
+                            <div class="cfg-card-sub">Se muestra en el menú lateral y notificaciones</div>
                         </div>
                         <button class="cfg-btn-save" style="background:@ColorPrincipal" @onclick="GuardarApariencia">
                             Guardar
@@ -67,38 +70,116 @@
                         <input type="text" @bind="_nombreTienda" @bind:event="oninput" class="cfg-input" />
                     </div>
                     <div class="cfg-row">
-                        <div><div class="cfg-label">Eslogan</div><div class="cfg-desc">Opcional</div></div>
+                        <div><div class="cfg-label">Eslogan</div><div class="cfg-desc">Opcional — aparece debajo del nombre</div></div>
                         <input type="text" @bind="_eslogan" class="cfg-input" />
                     </div>
                 </div>
 
+                @* ── Card: Logo ── *@
                 <div class="cfg-card">
                     <div class="cfg-card-head">
                         <div>
-                            <div class="cfg-card-title">Color principal</div>
-                            <div class="cfg-card-sub">Se aplica en botones y acentos</div>
+                            <div class="cfg-card-title">Logo de la tienda</div>
+                            <div class="cfg-card-sub">Se muestra en el menú lateral. PNG, JPG o SVG. Máx. 1 MB.</div>
                         </div>
                         <button class="cfg-btn-save" style="background:@ColorPrincipal" @onclick="GuardarApariencia">
                             Guardar
                         </button>
                     </div>
-                    <div class="cfg-row" style="flex-direction:column;align-items:flex-start;gap:14px">
+                    <div class="cfg-row" style="flex-direction:column; align-items:flex-start; gap:14px">
+
+                        @* Preview actual *@
+                        <div style="display:flex; align-items:center; gap:16px;">
+                            @if (!string.IsNullOrEmpty(_logoBase64))
+                            {
+                                <img src="@_logoBase64"
+                                     alt="Logo actual"
+                                     style="height:56px; width:56px; object-fit:contain; border-radius:8px; border:1px solid #e2e8f0;" />
+                            }
+                            else
+                            {
+                                <div style="height:56px; width:56px; border-radius:8px; border:1.5px dashed #e2e8f0;
+                                            display:flex; align-items:center; justify-content:center; font-size:24px;">
+                                    🌸
+                                </div>
+                            }
+                            <div>
+                                <div class="cfg-label">@(_logoBase64 is null ? "Sin logo cargado" : "Logo actual")</div>
+                                <div class="cfg-desc">Se muestra en el menú lateral de la app</div>
+                            </div>
+                        </div>
+
+                        @* Input de archivo *@
+                        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                            <InputFile OnChange="OnLogoSeleccionado"
+                                       accept=".png,.jpg,.jpeg,.svg,.webp"
+                                       style="font-size:13px; color:#64748b;" />
+                            @if (!string.IsNullOrEmpty(_logoBase64))
+                            {
+                                <button class="cfg-btn-save"
+                                        style="background:#e2e8f0; color:#64748b; font-weight:500;"
+                                        @onclick="EliminarLogo">
+                                    Quitar logo
+                                </button>
+                            }
+                        </div>
+
+                        @if (_errorLogo is not null)
+                        {
+                            <div style="font-size:12px; color:#e24b4a;">@_errorLogo</div>
+                        }
+                    </div>
+                </div>
+
+                @* ── Card: Color principal ── *@
+                <div class="cfg-card">
+                    <div class="cfg-card-head">
+                        <div>
+                            <div class="cfg-card-title">Color principal</div>
+                            <div class="cfg-card-sub">Se aplica en botones, badges y acentos de toda la app</div>
+                        </div>
+                        <button class="cfg-btn-save" style="background:@ColorPrincipal" @onclick="GuardarApariencia">
+                            Guardar
+                        </button>
+                    </div>
+                    <div class="cfg-row" style="flex-direction:column; align-items:flex-start; gap:14px">
                         <div class="cfg-label">Colores predefinidos</div>
                         <div class="cfg-swatch-row">
                             @foreach (var c in _coloresPredefinidos)
                             {
                                 <div class="cfg-swatch @(ColorPrincipal == c ? "cfg-swatch-sel" : "")"
                                      style="background:@c"
-                                     @onclick="() => ColorPrincipal = c">
+                                     @onclick="() => AplicarColorPreview(c)">
                                 </div>
                             }
                         </div>
-                        <div style="display:flex;align-items:center;gap:10px">
+                        <div style="display:flex; align-items:center; gap:10px;">
                             <span class="cfg-desc">Hex personalizado:</span>
-                            <input type="text" @bind="ColorPrincipal" class="cfg-input" style="width:120px" placeholder="#D4537E" />
-                            <div style="width:26px;height:26px;border-radius:50%;border:1px solid #e2e8f0;background:@ColorPrincipal"></div>
+                            <input type="color"
+                                   value="@ColorPrincipal"
+                                   @oninput="OnColorPickerChange"
+                                   style="width:36px; height:36px; border:none; border-radius:6px; cursor:pointer; padding:2px;" />
+                            <input type="text"
+                                   @bind="ColorPrincipal"
+                                   @bind:event="oninput"
+                                   class="cfg-input"
+                                   style="width:110px"
+                                   placeholder="#D4537E" />
+                            <div style="width:26px; height:26px; border-radius:50%; border:1px solid #e2e8f0; background:@ColorPrincipal"></div>
                         </div>
-                        <div style="height:5px;border-radius:3px;width:140px;background:@ColorPrincipal"></div>
+
+                        @* Preview en vivo de cómo queda el color *@
+                        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                            <button style="background:@ColorPrincipal; color:white; border:none; border-radius:8px;
+                                           padding:7px 16px; font-size:13px; font-weight:600; cursor:default;">
+                                Botón ejemplo
+                            </button>
+                            <span style="background:@(ColorPrincipal + "20"); color:@ColorPrincipal;
+                                         border-radius:6px; padding:3px 10px; font-size:12px; font-weight:600;">
+                                BADGE
+                            </span>
+                            <div style="height:4px; border-radius:2px; width:100px; background:@ColorPrincipal;"></div>
+                        </div>
                     </div>
                 </div>
             }
@@ -145,7 +226,7 @@
                     @foreach (var dia in _diasSemana)
                     {
                         <div class="cfg-row">
-                            <div style="display:flex;align-items:center;gap:12px;flex:1">
+                            <div style="display:flex; align-items:center; gap:12px; flex:1">
                                 <label class="cfg-toggle">
                                     <input type="checkbox" checked="@dia.Activo"
                                            @onchange="e => dia.Activo = (bool)(e.Value ?? false)" />
@@ -153,10 +234,12 @@
                                 </label>
                                 <div class="cfg-label" style="min-width:90px">@dia.Nombre</div>
                             </div>
-                            <div style="display:flex;align-items:center;gap:8px;opacity:@(!dia.Activo ? "0.3" : "1");pointer-events:@(!dia.Activo ? "none" : "auto")">
-                                <input type="text" @bind="dia.Apertura" class="cfg-input" style="width:75px;text-align:center" />
+                            <div style="display:flex; align-items:center; gap:8px;
+                                        opacity:@(!dia.Activo ? "0.3" : "1");
+                                        pointer-events:@(!dia.Activo ? "none" : "auto")">
+                                <input type="text" @bind="dia.Apertura" class="cfg-input" style="width:75px; text-align:center" />
                                 <span class="cfg-desc">→</span>
-                                <input type="text" @bind="dia.Cierre" class="cfg-input" style="width:75px;text-align:center" />
+                                <input type="text" @bind="dia.Cierre"   class="cfg-input" style="width:75px; text-align:center" />
                             </div>
                         </div>
                     }
@@ -196,7 +279,7 @@
                     </div>
                     <div class="cfg-row">
                         <div><div class="cfg-label">Stock bajo</div><div class="cfg-desc">Menos de @_stockMinimo unidades</div></div>
-                        <div style="display:flex;align-items:center;gap:10px">
+                        <div style="display:flex; align-items:center; gap:10px;">
                             <input type="number" @bind="_stockMinimo" class="cfg-input" style="width:70px" min="1" max="99" />
                             <label class="cfg-toggle"><input type="checkbox" @bind="_notifStockBajo" /><span class="cfg-slider" style="@(_notifStockBajo ? $"background:{ColorPrincipal}" : "")"></span></label>
                         </div>
@@ -235,7 +318,7 @@
                     </div>
                     <div class="cfg-row">
                         <div class="cfg-label">Última configuración guardada</div>
-                        <span class="cfg-desc">@DateTime.Now.ToString("dd/MM/yyyy HH:mm")</span>
+                        <span class="cfg-desc">@_ultimoGuardado</span>
                     </div>
                 </div>
             }
@@ -248,16 +331,20 @@
     private string TabActivo = "apariencia";
     private bool _cargando = true;
 
-    private string _nombreTienda  = "Anita";
+    // ── Apariencia ─────────────────────────────────────────────────────────
+    private string _nombreTienda  = "Perfumería Anita";
     private string _eslogan       = "Tu perfume, tu identidad";
     private string ColorPrincipal = "#D4537E";
+    private string? _logoBase64;
+    private string? _errorLogo;
     private string? _mensajeAp;
 
-    private readonly string[] _coloresPredefinidos = new[]
+    private readonly string[] _coloresPredefinidos =
     {
         "#D4537E", "#E24B4A", "#EF9F27", "#7F77DD", "#1D9E75", "#378ADD", "#888780"
     };
 
+    // ── Horarios ───────────────────────────────────────────────────────────
     private string _zonaHoraria = "America/Argentina/Buenos_Aires";
     private string _formatoHora = "24";
     private string? _mensajeH;
@@ -273,8 +360,9 @@
         new("Domingo",   false, "—",     "—"),
     };
 
-    private string _emailNotif    = "anita@perfumeria.com";
-    private string _telefonoNotif = "";
+    // ── Notificaciones ─────────────────────────────────────────────────────
+    private string _emailNotif      = "anita@perfumeria.com";
+    private string _telefonoNotif   = "";
     private bool   _notifNuevoPedido = true;
     private bool   _notifStockBajo   = true;
     private bool   _notifTurno       = true;
@@ -284,6 +372,9 @@
     private int    _stockMinimo      = 5;
     private string? _mensajeN;
 
+    private string _ultimoGuardado = "—";
+
+    // ── Lifecycle ──────────────────────────────────────────────────────────
     protected override async Task OnInitializedAsync()
     {
         await ConfigService.SeedDefaultsAsync();
@@ -295,30 +386,89 @@
         _cargando = true;
         var all = await ConfigService.GetAllAsync();
 
-        _nombreTienda    = all.GetValueOrDefault(AppConfig.Keys.NombreTienda,     "Anita");
-        _eslogan         = all.GetValueOrDefault(AppConfig.Keys.EsloganTienda,    "Tu perfume, tu identidad");
-        ColorPrincipal   = all.GetValueOrDefault(AppConfig.Keys.ColorPrincipal,   "#D4537E");
-        _zonaHoraria     = all.GetValueOrDefault(AppConfig.Keys.ZonaHoraria,      "America/Argentina/Buenos_Aires");
-        _formatoHora     = all.GetValueOrDefault(AppConfig.Keys.FormatoHora,      "24");
-        _emailNotif      = all.GetValueOrDefault(AppConfig.Keys.EmailNotif,       "anita@perfumeria.com");
-        _telefonoNotif   = all.GetValueOrDefault(AppConfig.Keys.TelefonoNotif,    "");
-        _notifNuevoPedido= all.GetValueOrDefault(AppConfig.Keys.NotifNuevoPedido, "true") == "true";
-        _notifStockBajo  = all.GetValueOrDefault(AppConfig.Keys.NotifStockBajo,   "true") == "true";
-        _notifTurno      = all.GetValueOrDefault(AppConfig.Keys.NotifTurno,       "true") == "true";
-        _notifResena     = all.GetValueOrDefault(AppConfig.Keys.NotifResena,      "false") == "true";
-        _notifInforme    = all.GetValueOrDefault(AppConfig.Keys.NotifInforme,     "true") == "true";
-        _notifPush       = all.GetValueOrDefault(AppConfig.Keys.NotifPush,        "true") == "true";
+        _nombreTienda     = all.GetValueOrDefault(AppConfig.Keys.NombreTienda,     "Perfumería Anita");
+        _eslogan          = all.GetValueOrDefault(AppConfig.Keys.EsloganTienda,    "Tu perfume, tu identidad");
+        ColorPrincipal    = all.GetValueOrDefault(AppConfig.Keys.ColorPrincipal,   "#D4537E");
+        var logoGuardado  = all.GetValueOrDefault(AppConfig.Keys.LogoBase64,       "");
+        _logoBase64       = string.IsNullOrEmpty(logoGuardado) ? null : logoGuardado;
+
+        _zonaHoraria      = all.GetValueOrDefault(AppConfig.Keys.ZonaHoraria,      "America/Argentina/Buenos_Aires");
+        _formatoHora      = all.GetValueOrDefault(AppConfig.Keys.FormatoHora,      "24");
+        _emailNotif       = all.GetValueOrDefault(AppConfig.Keys.EmailNotif,       "anita@perfumeria.com");
+        _telefonoNotif    = all.GetValueOrDefault(AppConfig.Keys.TelefonoNotif,    "");
+        _notifNuevoPedido = all.GetValueOrDefault(AppConfig.Keys.NotifNuevoPedido, "true") == "true";
+        _notifStockBajo   = all.GetValueOrDefault(AppConfig.Keys.NotifStockBajo,   "true") == "true";
+        _notifTurno       = all.GetValueOrDefault(AppConfig.Keys.NotifTurno,       "true") == "true";
+        _notifResena      = all.GetValueOrDefault(AppConfig.Keys.NotifResena,      "false") == "true";
+        _notifInforme     = all.GetValueOrDefault(AppConfig.Keys.NotifInforme,     "true") == "true";
+        _notifPush        = all.GetValueOrDefault(AppConfig.Keys.NotifPush,        "true") == "true";
         int.TryParse(all.GetValueOrDefault(AppConfig.Keys.StockMinimoAlerta, "5"), out _stockMinimo);
 
         _cargando = false;
     }
 
+    // ── Logo ───────────────────────────────────────────────────────────────
+    private async Task OnLogoSeleccionado(InputFileChangeEventArgs e)
+    {
+        _errorLogo = null;
+        var file = e.File;
+
+        // Validar tamaño (máx 1 MB)
+        if (file.Size > 1 * 1024 * 1024)
+        {
+            _errorLogo = "El archivo es demasiado grande. Máximo 1 MB.";
+            return;
+        }
+
+        // Validar tipo
+        var tiposPermitidos = new[] { "image/png", "image/jpeg", "image/svg+xml", "image/webp" };
+        if (!tiposPermitidos.Contains(file.ContentType))
+        {
+            _errorLogo = "Formato no soportado. Usá PNG, JPG, SVG o WEBP.";
+            return;
+        }
+
+        // Leer y convertir a base64
+        using var stream = file.OpenReadStream(maxAllowedSize: 1 * 1024 * 1024);
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+        var bytes = ms.ToArray();
+        _logoBase64 = $"data:{file.ContentType};base64,{Convert.ToBase64String(bytes)}";
+    }
+
+    private void EliminarLogo()
+    {
+        _logoBase64 = null;
+        _errorLogo  = null;
+    }
+
+    // ── Color preview en vivo ──────────────────────────────────────────────
+    private void AplicarColorPreview(string color)
+    {
+        ColorPrincipal = color;
+        // Preview inmediato en el navbar SIN guardar en BD todavía
+        ConfigState.ActualizarColor(color);
+    }
+
+    private void OnColorPickerChange(ChangeEventArgs e)
+    {
+        ColorPrincipal = e.Value?.ToString() ?? ColorPrincipal;
+        ConfigState.ActualizarColor(ColorPrincipal);
+    }
+
+    // ── Guardar ────────────────────────────────────────────────────────────
     private async Task GuardarApariencia()
     {
         await ConfigService.SetAsync(AppConfig.Keys.NombreTienda,   _nombreTienda);
         await ConfigService.SetAsync(AppConfig.Keys.EsloganTienda,  _eslogan);
         await ConfigService.SetAsync(AppConfig.Keys.ColorPrincipal, ColorPrincipal);
-        _mensajeAp = "Cambios de apariencia guardados correctamente";
+        await ConfigService.SetAsync(AppConfig.Keys.LogoBase64,     _logoBase64 ?? "");
+
+        // Notificar al NavMenu y cualquier componente suscrito
+        ConfigState.ActualizarApariencia(_nombreTienda, _eslogan, ColorPrincipal, _logoBase64);
+
+        _ultimoGuardado = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+        _mensajeAp = "✅ Cambios de apariencia guardados correctamente";
         StateHasChanged();
         await Task.Delay(2500);
         _mensajeAp = null;
@@ -328,8 +478,9 @@
     private async Task GuardarHorarios()
     {
         await ConfigService.SetAsync(AppConfig.Keys.ZonaHoraria, _zonaHoraria);
-        await ConfigService.SetAsync(AppConfig.Keys.FormatoHora, _formatoHora);
-        _mensajeH = "Horarios guardados correctamente";
+        await ConfigService.SetAsync(AppConfig.Keys.FormatoHora,  _formatoHora);
+        _ultimoGuardado = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+        _mensajeH = "✅ Horarios guardados correctamente";
         StateHasChanged();
         await Task.Delay(2500);
         _mensajeH = null;
@@ -347,13 +498,15 @@
         await ConfigService.SetAsync(AppConfig.Keys.NotifInforme,      _notifInforme.ToString().ToLower());
         await ConfigService.SetAsync(AppConfig.Keys.NotifPush,         _notifPush.ToString().ToLower());
         await ConfigService.SetAsync(AppConfig.Keys.StockMinimoAlerta, _stockMinimo.ToString());
-        _mensajeN = "Notificaciones guardadas correctamente";
+        _ultimoGuardado = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+        _mensajeN = "✅ Notificaciones guardadas correctamente";
         StateHasChanged();
         await Task.Delay(2500);
         _mensajeN = null;
         StateHasChanged();
     }
 
+    // ── Modelo interno ─────────────────────────────────────────────────────
     public class DiaHorario
     {
         public string Nombre   { get; set; }
