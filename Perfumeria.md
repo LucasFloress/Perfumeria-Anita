@@ -7,17 +7,17 @@ Comandos Perfumeria Anita:
 
 2. Ejecutar y Compilar el Proyecto
 
-	dotnet watch (Tu comando principal. Arranca la web y actualiza la p�gina autom�ticamente cada vez que guardas un cambio).
+	dotnet watch (Tu comando principal. Arranca la web y actualiza la pagina automaticamente cada vez que guardas un cambio).
 
-	dotnet build (Verifica si el c�digo tiene errores, �til para saber si todo est� verde antes de probar).
+	dotnet build (Verifica si el codigo tiene errores, util para saber si todo esta verde antes de probar).
 
-	dotnet clean (Borra la "basura" temporal. �salo si VS Code te marca errores extra�os que no tienen sentido).
+	dotnet clean (Borra la "basura" temporal. usalo si VS Code te marca errores extraños que no tienen sentido).
 
 3. Base de Datos (Entity Framework Core & SQLite)
 	
 	dotnet ef migrations add NombreDescriptivo (Ejecuta esto cada vez que modifiques o crees un Modelo nuevo, por ejemplo: add AgregadoStock).
 
-	dotnet ef database update (Aplica la migraci�n al archivo .db. Tambi�n sirve para crear la base de datos vac�a cuando pasas a la otra computadora).
+	dotnet ef database update (Aplica la migraci�n al archivo .db. Tambi�n sirve para crear la base de datos vacia cuando pasas a la otra computadora).
 
 4. Rutina Git (Para sincronizar la PC Principal y la Notebook)
 	

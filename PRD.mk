@@ -63,11 +63,11 @@ Descripción: Un sistema de gestión (Backoffice/Dashboard) web para administrar
 
 4. Requerimientos Próximos (Lo que necesito desarrollar) 
 
-        [ ] Tarea 1: Crear los formularios CRUD (Crear, Editar, Eliminar) reales para el modelo Producto conectando con EF Core.
+        [x] Tarea 1: Crear los formularios CRUD (Crear, Editar, Eliminar) reales para el modelo Producto conectando con EF Core.
 
-        [ ] Tarea 2: Crear la vista de "Punto de Venta (POS)" para agregar productos a un carrito y generar una venta real descontando stock.
+        [x] Tarea 2: Crear la vista de "Punto de Venta (POS)" para agregar productos a un carrito y generar una venta real descontando stock.
 
-        [ ] Tarea 3: Unificar el diseño para que todo el proyecto migre completamente a Tailwind CSS o se estandarice en CSS puro.
+        [x] Tarea 3: Unificar el diseño para que todo el proyecto migre completamente a Tailwind CSS o se estandarice en CSS puro.
 
 5. ⚠️ Reglas Estrictas para el LLM (Developer Guidelines)   
 

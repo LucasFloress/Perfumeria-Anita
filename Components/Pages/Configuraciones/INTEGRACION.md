@@ -82,7 +82,7 @@ Si querés aplicar el color guardado en otros componentes:
 |----------------------|------------------------------------|----------------------------------------|
 | NombreTienda         | tienda.nombre                      | Anita                                  |
 | EsloganTienda        | tienda.eslogan                     | Tu perfume, tu identidad               |
-| ColorPrincipal       | tienda.color_principal             | #D4537E                                |
+| ColorPrincipal       | tienda.color_principal             | #D4537E                              |
 | ZonaHoraria          | sistema.zona_horaria               | America/Argentina/Buenos_Aires         |
 | FormatoHora          | sistema.formato_hora               | 24                                     |
 | EmailNotif           | notif.email                        | anita@perfumeria.com                   |
@@ -94,3 +94,4 @@ Si querés aplicar el color guardado en otros componentes:
 | NotifInforme         | notif.informe_semanal              | true                                   |
 | NotifPush            | notif.push_panel                   | true                                   |
 | StockMinimoAlerta    | inventario.stock_minimo            | 5                                      |
+| PorcentajeAumento    | _porcentajeAumento                 | 30                                     |

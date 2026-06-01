@@ -70,9 +70,15 @@
                 }
             </div>
         </div>
-        <div class="ventas-dia">
-            <div class="ventas-label">VENTAS DEL DÍA</div>
-            <div class="ventas-monto">$15,200</div>
+    </div>
+
+    <!-- Ventas del día -->
+    <div class="card ventas-card">
+        <div class="ventas-header">
+            <h3>Ventas del día</h3>
+        </div>
+    </div>
+        <div class="ventas-monto">$@totalHoy.ToString("N0")</div>
             <div class="ventas-variacion">↗ +12.5% vs ayer</div>
             <div class="ventas-update">Última actualización: 14:25</div>
         </div>
@@ -118,29 +124,7 @@
             {
                 <button class="btn-limpiar" @onclick="LimpiarBusqueda">✕</button>
             }
-            <input
-                @ref="InputBusqueda"
-                class="input-busqueda @(ModoEscaner ? "escaner-activo" : "")"
-                type="text"
-                placeholder="@(ModoEscaner ? "Escanea el código de barras..." : "Buscar por nombre o código...")"
-                value="@TextoBusqueda"
-                @oninput="OnBusquedaInput"
-                @onkeydown="OnKeyDown" />
         </div>
-
-        <!-- Feedback del escáner -->
-        @if (!string.IsNullOrEmpty(FeedbackEscaner))
-        {
-            <div class="feedback-escaner @(FeedbackEsEscanerError ? "feedback-error" : "feedback-ok")">
-                @FeedbackEscaner
-            </div>
-        }
-        @if (ModoEscaner && string.IsNullOrEmpty(FeedbackEscaner))
-        {
-            <div class="feedback-escaner feedback-hint">
-                🎯 Modo escáner activo — apunta tu lector al código de barras del producto
-            </div>
-        }
 
         <!-- Tabla -->
         <table class="tabla-productos">
@@ -246,6 +230,13 @@
 
     private List<string> Categorias = new() { "Todas las Categorías" };
     private List<string> Estados = new() { "Todos los Estados", "EN STOCK", "STOCK BAJO", "AGOTADO", "INACTIVO" };
+
+    // ── Ventas del día ─────────────────────────────────────
+    private decimal totalHoy = 0;
+    private decimal totalAyer = 0;
+    private int ventasAyer = 0;
+    private string ultimaActualizacionHoy = "";
+    private decimal PorcentajeVariacion = 0m;
 
     // ── Paginación ─────────────────────────────────────────
     private int PaginaActual = 1;
