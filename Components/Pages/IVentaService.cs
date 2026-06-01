@@ -5,9 +5,10 @@ public interface IVentaService
     // Mantenemos el de venta rápida por si lo usas en otro lado
     Task<ResultadoVenta> RegistrarVentaRapidaAsync(int productoId, int cantidad);
     
-    // NUEVO: Método para procesar el carrito completo de una sola vez
+    //  Método para procesar el carrito completo de una sola vez
     Task<ResultadoVenta> RegistrarVentaCarritoAsync(List<ItemVentaDto> items, string metodoPago = "Efectivo");
 
+    Task<Decimal> GetTotalAyerAsync();
     Task<ResumenDia> GetResumenHoyAsync();
     Task<List<RegistroVentaDto>> GetUltimasVentasAsync();
 }

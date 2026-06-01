@@ -153,4 +153,16 @@ public class VentaService : IVentaService
 
         return historial;
     }
+
+    // 5. Método para obtener la recaudación total de ayer
+    public async Task<decimal> GetTotalAyerAsync()
+    {
+        var ayer = DateTime.Today.AddDays(-1);
+        
+        var totalAyer = await _context.Ventas
+            .Where(v => v.Fecha.Date == ayer)
+            .SumAsync(v => v.Total);
+
+        return totalAyer;
+    }
 }

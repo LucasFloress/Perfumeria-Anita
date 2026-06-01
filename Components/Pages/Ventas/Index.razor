@@ -2,12 +2,20 @@
 @rendermode InteractiveServer
 @using PerfumeriaAnita.Models
 @using PerfumeriaAnita.Services
+@using PerfumeriaAnita.Data
+@using Microsoft.EntityFrameworkCore
 @inject IVentaService VentaService
+@inject AppDbContext Contexto
 
 <div class="ventas-container" style="padding: 20px; background-color: #f8f9fa; min-height: 100vh;">
     
     <header style="margin-bottom: 30px;">
-        <h2 style="color: #333; margin: 0;">📊 Reporte de Ventas</h2>
+        <h2 style="color: #333; margin: 0;">
+            <span class="material-symbols-outlined">
+                analytics
+            </span>
+            Reporte de Ventas
+        </h2>
         <p style="color: #666; margin: 5px 0 0 0;">Historial detallado y métricas de rendimiento diario.</p>
     </header>
 
@@ -20,9 +28,13 @@
         </div>
 
         <div class="metric-card" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-left: 5px solid #2e7d32;">
-            <span style="color: #888; font-size: 0.9rem; font-weight: 600;">TOTAL BRUTO</span>
+            <span style="color: #888; font-size: 0.9rem; font-weight: 600;">TOTAL BRUTO HOY</span>
             <h2 style="margin: 10px 0; color: #2e7d32;">$@TotalBruto.ToString("N2")</h2>
-            <span style="color: #4caf50; font-size: 0.8rem;">📈 Ingreso total acumulado</span>
+            
+            @* Lógica de colores según cómo nos fue *@
+            <span style="font-size: 0.8rem; font-weight: bold; @(PorcentajeVariacion >= 0 ? "color: #2e7d32;" : "color: #d32f2f;")">
+                @(PorcentajeVariacion >= 0 ? "↗" : "↘") @Math.Abs(PorcentajeVariacion).ToString("N1")% vs ayer
+            </span>
         </div>
 
         <div class="metric-card" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-left: 5px solid #ef6c00;">
@@ -33,7 +45,10 @@
     </div>
 
     <div style="background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 20px; margin-bottom: 30px;">
-        <h3 style="margin: 0 0 15px 0; color: #444; font-size: 1.1rem;">💳 Ingresos por Método de Pago</h3>
+        <h3 style="margin: 0 0 15px 0; color: #444; font-size: 1.1rem;">
+            <span class="material-symbols-outlined">payments</span>
+                  Ingresos por Método de Pago
+        </h3>
         
         @if (!DistribucionVentas.Any())
         {
@@ -60,7 +75,10 @@
 
     <div style="background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden;">
         <div style="padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="margin: 0; color: #444;">🛒 Transacciones Recientes</h3>
+            <h3 style="margin: 0; color: #444;"">
+                <span class="material-symbols-outlined">shopping_cart</span>
+                Transacciones Recientes
+            </h3>
             <button @onclick="CargarDatos" style="background: #f0e0f8; border: none; padding: 8px 15px; border-radius: 6px; color: #7b1fa2; cursor: pointer; font-weight: 600;">
                 🔄 Actualizar
             </button>
@@ -87,6 +105,7 @@
                         <th style="padding: 15px; color: #888; font-size: 0.85rem;">CANT.</th>
                         <th style="padding: 15px; color: #888; font-size: 0.85rem;">TOTAL</th>
                         <th style="padding: 15px; color: #888; font-size: 0.85rem;">MÉTODO</th>
+                        <th style="padding: 15px; color: #888; font-size: 0.85rem;">ACCIONES</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -107,6 +126,14 @@
                                     @venta.MetodoPago
                                 </span>
                             </td>
+                            <td style="padding: 15px;">
+                                <button style="background: #fff; border: 1px solid #e0d0e8; padding: 6px 12px; border-radius: 6px; color: #7b1fa2; cursor: pointer; font-size: 0.8rem; font-weight: bold; transition: all 0.2s;" 
+                                        onmouseover="this.style.background='#f0e0f8'" 
+                                        onmouseout="this.style.background='#fff'"
+                                        @onclick="() => VerDetalleTicket(venta.IdVenta)">
+                                    👁️ Ver Detalle
+                                </button>
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -115,9 +142,17 @@
     </div>
 </div>
 
+<!-- Renderizamos el Modal al final de la página -->
+<TablaVentasModal @ref="miModal" />
+
 @code {
+    // Referencia al componente Modal
+    private TablaVentasModal miModal = default!;
+
     private int VentasHoy = 0;
     private decimal TotalBruto = 0m;
+    private decimal TotalAyer = 0m;
+    private decimal PorcentajeVariacion = 0m;
     private decimal NetoEstimado => TotalBruto / 1.21m; // Ejemplo quitando IVA (21%)
     
     private List<RegistroVentaDto> ProductosVendidos = new();
@@ -130,18 +165,55 @@
 
     private async Task CargarDatos()
     {
-        // 1. Pedimos totales
+        // 1. Pedimos totales de HOY
         var resumen = await VentaService.GetResumenHoyAsync();
         VentasHoy = resumen.CantidadVentas;
         TotalBruto = resumen.TotalVendido;
 
-        // 2. Pedimos historial
+        // 2. Pedimos totales de AYER
+        TotalAyer = await VentaService.GetTotalAyerAsync();
+
+        // 3. Calculamos la variación porcentual
+        if (TotalAyer > 0)
+        {
+            PorcentajeVariacion = ((TotalBruto - TotalAyer) / TotalAyer) * 100;
+        }
+        else if (TotalBruto > 0)
+        {
+            PorcentajeVariacion = 100; // Si ayer no se vendió nada y hoy sí, es 100% ganancia
+        }
+        else
+        {
+            PorcentajeVariacion = 0;
+        }
+
+        // 4. Pedimos historial
         ProductosVendidos = await VentaService.GetUltimasVentasAsync();
         
-        // 3. Calculamos la distribución de pagos REAL
+        // 5. Calculamos la distribución de pagos REAL
         CalcularDistribucionPagos();
 
         StateHasChanged();
+    }
+
+    // Método que busca la venta completa y abre el modal
+    private async Task VerDetalleTicket(string idVentaStr)
+    {
+        // El ID viene formateado como "#00014". Lo limpiamos para que sea un int (14)
+        if (int.TryParse(idVentaStr.Replace("#", ""), out int idVenta))
+        {
+            // Buscamos la venta original en la base de datos, trayendo también sus detalles y el producto
+            var ventaCompleta = await Contexto.Ventas
+                .Include(v => v.Detalles)
+                .ThenInclude(d => d.Producto)
+                .FirstOrDefaultAsync(v => v.Id == idVenta);
+
+            if (ventaCompleta != null)
+            {
+                // Ahora sí, le pasamos el objeto completo al modal
+                miModal.AbrirModal(ventaCompleta);
+            }
+        }
     }
 
     private void CalcularDistribucionPagos()
