@@ -79,12 +79,17 @@ namespace PerfumeriaAnita.Services
 
             var defaults = new List<AppConfig>
             {
+                // - Tienda-
                 new() { Clave = AppConfig.Keys.NombreTienda,      Valor = "Perfumería Anita",               Descripcion = "Nombre de la perfumería" },
                 new() { Clave = AppConfig.Keys.EsloganTienda,     Valor = "Tu perfume, tu identidad",       Descripcion = "Eslogan visible en la interfaz" },
                 new() { Clave = AppConfig.Keys.ColorPrincipal,    Valor = "#D4537E",                        Descripcion = "Color principal (hex)" },
                 new() { Clave = AppConfig.Keys.LogoBase64,        Valor = "",                               Descripcion = "Logo en base64 (vacío = sin logo)" },
+                
+                // - Sistema -
                 new() { Clave = AppConfig.Keys.ZonaHoraria,       Valor = "America/Argentina/Buenos_Aires", Descripcion = "Zona horaria del sistema" },
                 new() { Clave = AppConfig.Keys.FormatoHora,       Valor = "24",                             Descripcion = "Formato de hora: 12 o 24" },
+                
+                // - Notificaciones -
                 new() { Clave = AppConfig.Keys.EmailNotif,        Valor = "anita@perfumeria.com",           Descripcion = "Email receptor de alertas" },
                 new() { Clave = AppConfig.Keys.TelefonoNotif,     Valor = "",                               Descripcion = "Teléfono/WhatsApp para alertas urgentes" },
                 new() { Clave = AppConfig.Keys.NotifNuevoPedido,  Valor = "true",                           Descripcion = "Notificar nuevo pedido" },
@@ -93,7 +98,13 @@ namespace PerfumeriaAnita.Services
                 new() { Clave = AppConfig.Keys.NotifResena,       Valor = "false",                          Descripcion = "Notificar nueva reseña" },
                 new() { Clave = AppConfig.Keys.NotifInforme,      Valor = "true",                           Descripcion = "Informe semanal de ventas" },
                 new() { Clave = AppConfig.Keys.NotifPush,         Valor = "true",                           Descripcion = "Notificaciones push en el panel" },
+                
+                // - Inventario -
                 new() { Clave = AppConfig.Keys.StockMinimoAlerta, Valor = "5",                              Descripcion = "Cantidad mínima para alerta de stock" },
+            
+                // - Venta -
+                new() { Clave = AppConfig.Keys.PorcentajeAumento,  Valor = "30",                             Descripcion = "Porcentaje de aumento sobre el precio de costo" },
+                new() { Clave = AppConfig.Keys.MetodoPagoDefault,  Valor = "Efectivo",                       Descripcion = "Método de pago por defecto" },
             };
 
             _db.AppConfigs.AddRange(defaults);

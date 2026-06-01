@@ -5,7 +5,6 @@
 @using PerfumeriaAnita.Services
 @inject IProductoService ProductoService
 @inject IVentaService VentaService
-@using PerfumeriaAnita.Components.Scanner
 
 <link href="css/dashboard.css" rel="stylesheet" />
 
@@ -24,17 +23,17 @@
                 <div class="search-box" style="position:relative;">
                     <input type="text"
                            class="search-input"
-                           placeholder="Buscar producto para agregar al ticket..."
+                           placeholder="Escaneá un código de barras o buscá por nombre..."
                            value="@textoBusqueda"
-                           @oninput="OnBusquedaChanged" />
+                           @oninput="OnBusquedaChanged"
+                           @onkeydown="OnScannerEnter"
+                           autofocus />
                            
                     @if (!string.IsNullOrEmpty(textoBusqueda))
                     {
                         <button class="btn-clear" @onclick="LimpiarBusqueda" title="Limpiar búsqueda">✕</button>
                     }
                 </div>
-
-                <BarcodeScanner OnProductoEncontrado="AgregarProductoPorEscaneo" />
 
                 @if (sugerencias.Any())
                 {
@@ -283,7 +282,7 @@
         alertasStock = await ProductoService.GetProductosBajoStockAsync(5);
     }
 
-    // ─── Búsqueda ───────────────────────────────────────────────────────────
+    // ─── Búsqueda y Escáner Físico ──────────────────────────────────────────
     private async Task OnBusquedaChanged(ChangeEventArgs e)
     {
         textoBusqueda = e.Value?.ToString() ?? "";
@@ -299,7 +298,7 @@
 
         try
         {
-            await Task.Delay(300, token);
+            await Task.Delay(300, token); // Delay para no ahogar la base de datos si teclea rápido
             if (!token.IsCancellationRequested)
             {
                 sugerencias = await ProductoService.BuscarProductosAsync(textoBusqueda);
@@ -308,6 +307,41 @@
             }
         }
         catch (TaskCanceledException) { }
+    }
+
+    // 🔥 EL NUEVO MOTOR DEL ESCÁNER FÍSICO 🔥
+    private async Task OnScannerEnter(KeyboardEventArgs e)
+    {
+        // El escáner USB siempre envía un "Enter" al terminar de leer el código
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(textoBusqueda))
+        {
+            var codigoLimpio = textoBusqueda.Trim();
+
+            // 1. Cancelamos la búsqueda visual (el delay) porque ya tenemos el código final
+            _cts?.Cancel(); 
+            
+            // 2. Buscamos el producto exactamente por el código de barras
+            var producto = await ProductoService.BuscarPorCodigoAsync(codigoLimpio);
+            
+            if (producto != null)
+            {
+                // 3. Lo inyectamos directo al carrito o a la selección
+                AgregarProductoPorEscaneo(producto);
+                LimpiarBusqueda();
+            }
+            else
+            {
+                // 4. Si presionó Enter pero no era un código exacto (ej. escribió "perfume" y dio Enter)
+                sugerencias = await ProductoService.BuscarProductosAsync(codigoLimpio);
+                busquedaRealizada = true;
+                if (!sugerencias.Any())
+                {
+                    mensajeVenta = $"⚠ No se encontró el producto '{codigoLimpio}'.";
+                    ventaExitosa = false;
+                }
+                StateHasChanged();
+            }
+        }
     }
 
     private void SeleccionarProducto(Producto p)
@@ -369,7 +403,6 @@
             });
         }
 
-        // Dejar el buscador listo para el siguiente producto
         LimpiarSeleccion();
         mensajeVenta = null;
     }
@@ -384,7 +417,6 @@
     {
         if (p.Stock == 0)
         {
-            // Mostrar el producto pero no agregar al carrito
             productoSeleccionado = p;
             cantidad = 1;
             mensajeVenta = $"⚠ {p.Nombre} no tiene stock disponible.";
@@ -408,14 +440,12 @@
 
         try
         {
-            // 1. Transformamos el carrito de la UI al DTO que espera el servicio
             var itemsParaCobrar = carrito.Select(c => new ItemVentaDto 
             { 
                 ProductoId = c.Producto.Id, 
                 Cantidad = c.Cantidad 
             }).ToList();
 
-            // 2. Mandamos TODO el ticket de un solo golpe
             var resultado = await VentaService.RegistrarVentaCarritoAsync(itemsParaCobrar, metodoPagoSeleccionado);
 
             if (resultado.Exito)
@@ -425,7 +455,6 @@
                 ventaExitosa = true;
                 mensajeVenta = $"¡Venta exitosa! Se cobraron {cantidadArticulos} artículos.";
 
-                // Agregar al historial visual
                 string resumenNombres = carrito.Count == 1 
                     ? carrito.First().Producto.Nombre 
                     : $"{carrito.Count} productos varios";
@@ -439,17 +468,14 @@
 
                 if (historialVentas.Count > 5) historialVentas.RemoveAt(historialVentas.Count - 1);
 
-                // Actualizar Resumen Hoy visualmente
                 totalHoy += resultado.Total;
                 ventasHoy++;
 
-                // Vaciar carrito y animar
                 carrito.Clear();
                 metodoPagoSeleccionado = "Efectivo";
                 animarTotal = true;
                 StateHasChanged();
 
-                // Limpiar animaciones
                 _ = Task.Delay(600).ContinueWith(_ => InvokeAsync(() => { animarTotal = false; StateHasChanged(); }));
                 _ = Task.Delay(3000).ContinueWith(_ => InvokeAsync(async () =>
                 {
@@ -475,5 +501,4 @@
             StateHasChanged();
         }
     }
-
 }

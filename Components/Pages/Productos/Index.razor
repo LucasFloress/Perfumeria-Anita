@@ -118,14 +118,6 @@
             {
                 <button class="btn-limpiar" @onclick="LimpiarBusqueda">✕</button>
             }
-            <input
-                @ref="InputBusqueda"
-                class="input-busqueda @(ModoEscaner ? "escaner-activo" : "")"
-                type="text"
-                placeholder="@(ModoEscaner ? "Escanea el código de barras..." : "Buscar por nombre o código...")"
-                value="@TextoBusqueda"
-                @oninput="OnBusquedaInput"
-                @onkeydown="OnKeyDown" />
         </div>
 
         <!-- Feedback del escáner -->

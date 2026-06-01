@@ -34,6 +34,11 @@
                 @onclick='() => TabActivo = "general"'>
             General
         </button>
+        <button class="cfg-tab @(TabActivo == "venta" ? "cfg-tab-active" : "")"
+                style="@(TabActivo == "venta" ? $"color:{ColorPrincipal};border-bottom-color:{ColorPrincipal}" : "")"
+                @onclick='() => TabActivo = "venta"'>
+            Venta
+        </button>
     </div>
 
     @if (_cargando)
@@ -323,6 +328,56 @@
                 </div>
             }
 
+            @* ══ VENTA ════════════════════════════════════════════════════════ *@
+            @if (TabActivo == "venta")
+            {
+                @if (_mensajeV is not null)
+                {
+                    <div class="cfg-toast" style="border-color:@ColorPrincipal;background:@(ColorPrincipal + "18");color:@ColorPrincipal">
+                        @_mensajeV
+                    </div>
+                }
+
+                @* ── Card: Porcentaje de aumento automático ── *@
+                <div class="cfg-card">
+                    <div class="cfg-card-head">
+                        <div>
+                            <div class="cfg-card-title">Margen de ganancia</div>
+                            <div class="cfg-card-sub">Porcentaje de aumento automático al cargar productos</div>
+                        </div>
+                        <button class="cfg-btn-save" style="background:@ColorPrincipal" @onclick="GuardarVenta">
+                            Guardar
+                        </button>
+                    </div>
+                    <div class="cfg-row">
+                        <div>
+                            <div class="cfg-label">% de aumento</div>
+                            <div class="cfg-desc">Se aplica automáticamente al precio de costo para calcular el precio de venta</div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <input type="number" @bind="_porcentajeAumento" @bind:event="oninput" 
+                                   class="cfg-input" style="width:100px;" min="0" max="999" step="1" />
+                            <span class="cfg-desc">%</span>
+                        </div>
+                    </div>
+                    <div class="cfg-row">
+                        <div>
+                            <div class="cfg-label">Vista previa</div>
+                            <div class="cfg-desc">Cómo se vería el cálculo</div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:12px; font-size:12px; color:#64748b;">
+                            <span>$1000</span>
+                            <span style="color:#94a3b8;">×</span>
+                            <span>(1 + @(_porcentajeAumento)% / 100)</span>
+                            <span style="color:#94a3b8;">=</span>
+                            <span style="font-weight:600; color:@ColorPrincipal;">
+                                $@Math.Round(1000 * (1 + _porcentajeAumento / 100M), 2).ToString("F0")
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            }
+
         </div>
     }
 </div>
@@ -372,6 +427,10 @@
     private int    _stockMinimo      = 5;
     private string? _mensajeN;
 
+    // ── Venta ───────────────────────────────────────────────────────────────
+    private decimal _porcentajeAumento = 30;
+    private string? _mensajeV;
+
     private string _ultimoGuardado = "—";
 
     // ── Lifecycle ──────────────────────────────────────────────────────────
@@ -403,6 +462,7 @@
         _notifInforme     = all.GetValueOrDefault(AppConfig.Keys.NotifInforme,     "true") == "true";
         _notifPush        = all.GetValueOrDefault(AppConfig.Keys.NotifPush,        "true") == "true";
         int.TryParse(all.GetValueOrDefault(AppConfig.Keys.StockMinimoAlerta, "5"), out _stockMinimo);
+        decimal.TryParse(all.GetValueOrDefault(AppConfig.Keys.PorcentajeAumento, "30"), out _porcentajeAumento);
 
         _cargando = false;
     }
@@ -503,6 +563,17 @@
         StateHasChanged();
         await Task.Delay(2500);
         _mensajeN = null;
+        StateHasChanged();
+    }
+
+    private async Task GuardarVenta()
+    {
+        await ConfigService.SetAsync(AppConfig.Keys.PorcentajeAumento, _porcentajeAumento.ToString());
+        _ultimoGuardado = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+        _mensajeV = "✅ Configuración de venta guardada correctamente";
+        StateHasChanged();
+        await Task.Delay(2500);
+        _mensajeV = null;
         StateHasChanged();
     }
 

@@ -59,14 +59,6 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9FcnJvci5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[/workspaces/Perfumeria-Anita/Components/Pages/Productos/Crear.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Qcm9kdWN0b3MvQ3JlYXIucmF6b3I=
-build_metadata.AdditionalFiles.CssScope = 
-
-[/workspaces/Perfumeria-Anita/Components/Pages/Productos/Editar.razor]
-build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9Qcm9kdWN0b3MvRWRpdGFyLnJhem9y
-build_metadata.AdditionalFiles.CssScope = 
-
 [/workspaces/Perfumeria-Anita/Components/Pages/Weather.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9XZWF0aGVyLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
