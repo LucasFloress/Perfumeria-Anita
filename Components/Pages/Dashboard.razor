@@ -19,9 +19,8 @@
         <div class="content-body">
             <div class="card">
                 <h3>
-                 <span class="material-symbols-outlined">shopping_cart</span>
                  Punto de Venta
-                 </h3>
+                </h3>
 
                 <div class="search-box" style="position:relative;">
                     <input type="text"
@@ -80,7 +79,7 @@
 
                         <div style="display:flex; gap:10px; margin-top:14px; align-items:center; flex-wrap:wrap; justify-content: space-between;">
                             <div style="display:flex; align-items:center; gap:6px;">
-                                <button class="btn-cant" @onclick="DecrementarCantidad" disabled="@(cantidad <= 1)">−</button>
+                                <button class="btn-cant" @onclick="DecrementarCantidad" disabled="@(cantidad <= 1)">-</button>
                                 <input type="number" class="input-cantidad" @bind="cantidad" @bind:event="oninput" min="1" max="@productoSeleccionado.Stock" />
                                 <button class="btn-cant" @onclick="IncrementarCantidad" disabled="@(cantidad >= productoSeleccionado.Stock)">+</button>
                             </div>
@@ -88,7 +87,7 @@
                             <button class="btn-add-cart"
                                     @onclick="AgregarAlCarrito"
                                     disabled="@(productoSeleccionado.Stock == 0)">
-                                ➕ Agregar al Ticket ($@((productoSeleccionado.Precio * cantidad).ToString("N0")))
+                                + Agregar al Ticket ($@((productoSeleccionado.Precio * cantidad).ToString("N0")))
                             </button>
                         </div>
                     </div>
@@ -97,7 +96,10 @@
                 @if (carrito.Any())
                 {
                     <div class="cart-container">
-                        <h4 style="margin: 0 0 10px 0; color: #555;">📋 Ticket Actual</h4>
+                        <h4 style="margin: 0 0 10px 0; color: #555;">
+                         <span class="material-symbols-outlined">order_approve</span>
+                         Ticket Actual
+                         </h4>
                         <table class="cart-table">
                             <thead>
                                 <tr>
@@ -115,7 +117,9 @@
                                         <td><span class="badge-qty">x@(item.Cantidad)</span></td>
                                         <td style="font-weight: bold; color: #2e7d32;">$@item.Subtotal.ToString("N0")</td>
                                         <td style="text-align: right;">
-                                            <button class="btn-remove" @onclick="() => EliminarDelCarrito(item)" title="Quitar">🗑️</button>
+                                            <button class="btn-remove" @onclick="() => EliminarDelCarrito(item)" title="Quitar">
+                                                <span class="material-symbols-outlined">delete</span>
+                                            </button>
                                         </td>
                                     </tr>
                                 }
@@ -125,11 +129,14 @@
                         <div class="cart-total-row" style="display: flex; flex-direction: column; align-items: stretch; gap: 15px;">
                             
                             <div style="background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #e0d0e8;">
-                                <label style="font-size: 0.85rem; color: #888; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">💳 Método de Pago</label>
+                                <label style="font-size: 0.85rem; color: #888; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">
+                                    <span class="material-symbols-outlined">paid</span>
+                                    Método de Pago
+                                </label>
                                 <select @bind="metodoPagoSeleccionado" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #c8a8d8; font-size: 1rem; cursor: pointer;">
-                                    <option value="Efectivo">💵 Efectivo</option>
-                                    <option value="Mercado Pago">📱 Mercado Pago</option>
-                                    <option value="Transferencia">🏦 Transferencia Bancaria</option>
+                                    <option value="Efectivo">Efectivo</option>
+                                    <option value="Mercado Pago" class="material-symbols-outlined-mobile_arrow_right">Mercado Pago</option>
+                                    <option value="Transferencia">Transferencia Bancaria</option>
                                 </select>
                             </div>
 
@@ -167,7 +174,10 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 20px;">
 
                 <div class="card">
-                    <h3>⚠️ Alertas de Stock</h3>
+                    <h3>
+                        <span class="material-symbols-outlined">production_quantity_limits</span>
+                        Alertas de Stock
+                    </h3>
                     @if (alertasStock.Any())
                     {
                         @foreach (var a in alertasStock)
@@ -181,11 +191,9 @@
                     }
                 </div>
 
-                <div class="card">
+                <div class="card" style="text-align:center">
                     <h3>
-                        <!--<span class="material-symbols-outlined">
-                            attach_money
-                        </span>-->                     Resumen Hoy
+                         Resumen Hoy
                      </h3>
                     <div style="text-align:center; padding: 20px;">
                         <span style="color:#666">Total Vendido</span>
@@ -198,7 +206,10 @@
                 </div>
 
                 <div class="card">
-                    <h3>🛒 Últimas Ventas</h3>
+                    <h3>
+                    <span class="material-symbols-outlined">shopping_bag</span>
+                        Últimas Ventas
+                     </h3>
                     @if (historialVentas.Any())
                     {
                         <table class="history-table">

@@ -34,7 +34,9 @@
     <div class="card alertas-card">
         <div class="alertas-left">
             <div class="alertas-header">
-                <span class="alert-icon">⚠️</span>
+                <span class="alert-icon">
+                    <span class="material-symbols-outlined">production_quantity_limits</span>
+                </span>
                 <h2>Alertas de Stock Críticas</h2>
                 <!-- FIX: badge dinámico, no hardcodeado -->
                 @if (AlertasStock.Any())
@@ -103,7 +105,7 @@
                         <option value="@est">@est</option>
                     }
                 </select>
-                <button class="btn-nuevo" @onclick="AbrirCrear">➕ Nuevo Producto</button>
+                <button class="btn-nuevo" @onclick="AbrirCrear"> + Nuevo Producto</button>
             </div>
         </div>
 
@@ -166,8 +168,8 @@
                             </td>
                             <td>
                                 <div class="acciones-cell">
-                                    <button class="btn-accion btn-editar" @onclick="() => AbrirEditar(producto)">✏️</button>
-                                    <button class="btn-accion btn-borrar" @onclick="() => AbrirEliminar(producto)">🗑️</button>
+                                    <button class="btn-accion btn-editar" @onclick="() => AbrirEditar(producto)"><span class="material-symbols-outlined">edit</span></button>
+                                    <button class="btn-accion btn-borrar" @onclick="() => AbrirEliminar(producto)"><span class="material-symbols-outlined">delete</span></button>
                                 </div>
                             </td>
                         </tr>

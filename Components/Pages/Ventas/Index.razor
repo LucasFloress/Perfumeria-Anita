@@ -10,12 +10,7 @@
 <div class="ventas-container" style="padding: 20px; background-color: #f8f9fa; min-height: 100vh;">
     
     <header style="margin-bottom: 30px;">
-        <h2 style="color: #333; margin: 0;">
-            <span class="material-symbols-outlined">
-                analytics
-            </span>
-            Reporte de Ventas
-        </h2>
+        <h2 style="color: #333; margin: 0;">Reporte de Ventas</h2>
         <p style="color: #666; margin: 5px 0 0 0;">Historial detallado y métricas de rendimiento diario.</p>
     </header>
 
@@ -24,7 +19,7 @@
         <div class="metric-card" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-left: 5px solid #7b1fa2;">
             <span style="color: #888; font-size: 0.9rem; font-weight: 600;">VENTAS HOY</span>
             <h2 style="margin: 10px 0; color: #333;">@VentasHoy</h2>
-            <span style="color: #7b1fa2; font-size: 0.8rem;">📦 Operaciones procesadas</span>
+            <span style="color: #7b1fa2; font-size: 0.8rem;"><span class="material-symbols-outlined">package_2</span> Operaciones procesadas</span>
         </div>
 
         <div class="metric-card" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-left: 5px solid #2e7d32;">
@@ -40,7 +35,7 @@
         <div class="metric-card" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-left: 5px solid #ef6c00;">
             <span style="color: #888; font-size: 0.9rem; font-weight: 600;">ESTIMADO NETO (-IVA)</span>
             <h2 style="margin: 10px 0; color: #ef6c00;">$@NetoEstimado.ToString("N2")</h2>
-            <span style="color: #ff9800; font-size: 0.8rem;">⚖️ Neto aprox. después de imp.</span>
+            <span style="color: #ff9800; font-size: 0.8rem;"><span class="material-symbols-outlined">balance</span> Neto aprox. después de imp.</span>
         </div>
     </div>
 
@@ -80,7 +75,7 @@
                 Transacciones Recientes
             </h3>
             <button @onclick="CargarDatos" style="background: #f0e0f8; border: none; padding: 8px 15px; border-radius: 6px; color: #7b1fa2; cursor: pointer; font-weight: 600;">
-                🔄 Actualizar
+                <span class="material-symbols-outlined">refresh</span>
             </button>
         </div>
 
@@ -131,7 +126,7 @@
                                         onmouseover="this.style.background='#f0e0f8'" 
                                         onmouseout="this.style.background='#fff'"
                                         @onclick="() => VerDetalleTicket(venta.IdVenta)">
-                                    👁️ Ver Detalle
+                                    <span class="material-symbols-outlined">undereye</span>
                                 </button>
                             </td>
                         </tr>
