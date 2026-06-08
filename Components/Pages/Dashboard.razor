@@ -5,6 +5,7 @@
 @using PerfumeriaAnita.Services
 @inject IProductoService ProductoService
 @inject IVentaService VentaService
+@inject PerfumeriaAnita.Services.IConfigService ConfigService
 
 <link href="css/dashboard.css" rel="stylesheet" />
 
@@ -281,9 +282,16 @@
     private bool animarTotal = false;
     private List<Producto> alertasStock = new();
     private List<RegistroVentaLocal> historialVentas = new();
+    private int _stockMinimoGlobal = 5;
 
     protected override async Task OnInitializedAsync()
     {
+        var umbralStr = await ConfigService.GetAsync("inventario.stock_minimo","5");
+        if (int.TryParse(umbralStr, out int umbralParseado))
+        {
+            _stockMinimoGlobal = umbralParseado;
+        }
+
         await CargarResumenDia();
         await CargarAlertasStock();
     }
@@ -297,7 +305,7 @@
 
     private async Task CargarAlertasStock()
     {
-        alertasStock = await ProductoService.GetProductosBajoStockAsync(5);
+        alertasStock = await ProductoService.GetProductosBajoStockAsync(_stockMinimoGlobal);
     }
 
     // ─── Búsqueda y Escáner Físico ──────────────────────────────────────────

@@ -6,12 +6,12 @@
 @using MudBlazor
 @inject AppDbContext Contexto
 @inject ISnackbar Snackbar
-@implements IAsyncDisposable
+@inject PerfumeriaAnita.Services.IConfigService ConfigService
 
 <PageTitle>Inventario - Perfumería Anita</PageTitle>
 
 <style>
-    /* 🎨 Sobrescribimos el violeta por defecto con el color dinámico de la BD */
+    /* Sobrescribimos el violeta por defecto con el color dinámico de la BD */
     .btn-nuevo { background-color: @_colorPrincipal !important; }
     .btn-nuevo:hover { filter: brightness(0.85); /* Oscurece el color dinámico al pasar el mouse */ }
     
@@ -34,11 +34,9 @@
     <div class="card alertas-card">
         <div class="alertas-left">
             <div class="alertas-header">
-                <span class="alert-icon">
-                    <span class="material-symbols-outlined">production_quantity_limits</span>
-                </span>
+                <span class="material-symbols-outlined">warning</span>
                 <h2>Alertas de Stock Críticas</h2>
-                <!-- FIX: badge dinámico, no hardcodeado -->
+                <!-- badge dinámico -->
                 @if (AlertasStock.Any())
                 {
                     <span class="badge-riesgo">@AlertasStock.Count PRODUCTO@(AlertasStock.Count != 1 ? "S" : "") EN RIESGO</span>
@@ -66,7 +64,7 @@
                             }
                             else
                             {
-                                <a href="#" class="link-gestionar">Gestionar Pedido</a>
+                                <a class="link-gestionar">Gestionar Pedido</a>
                             }
                         </div>
                     </div>
@@ -76,14 +74,14 @@
     </div>
 
     <!-- Ventas del día -->
-    <!--<div class="card ventas-card">
+    <div class="card ventas-card">
         <div class="ventas-header">
             <h3>Ventas del día</h3>
         </div>
         <div class="ventas-monto">$@totalHoy.ToString("N0")</div>
-        <div class="ventas-variacion">↗ +12.5% vs ayer</div>
-        <div class="ventas-update">Última actualización: 14:25</div>
-    </div>-->
+            <div class="ventas-variacion">↗ +12.5% vs ayer</div>
+            <div class="ventas-update">Última actualización: 14:25</div>
+    </div>
 
     <!-- Tabla Inventario -->
     <div class="card tabla-card">
@@ -105,11 +103,15 @@
                         <option value="@est">@est</option>
                     }
                 </select>
-                <button class="btn-nuevo" @onclick="AbrirCrear"> + Nuevo Producto</button>
+                <button class="btn-secundario" style="background: #f1f5f9; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 8px; cursor: pointer; color: #475569; transition: background 0.2s;" 
+                        @onclick="RefrescarProductos" title="Recargar todos los datos"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></svg></button>
+                <button class="btn-secundario" style="background: #f1f5f9; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; color: #475569;" 
+                    @onclick="AbrirGestorCategorias">Categorías</button>
+                <button class="btn-nuevo" @onclick="AbrirCrear">➕ Nuevo Producto</button>
             </div>
         </div>
 
-        <!-- 🔍 BARRA DE BÚSQUEDA + ESCÁNER -->
+        <!--🔍 BARRA DE BÚSQUEDA + ESCÁNER  -->
         <div class="busqueda-row">
             <div class="busqueda-wrapper">
                 <span class="busqueda-icon">@(ModoEscaner ? "📷" : "🔍")</span>
@@ -125,7 +127,7 @@
             {
                 <button class="btn-limpiar" @onclick="LimpiarBusqueda">✕</button>
             }
-        </div>
+        </div> 
 
         <!-- Tabla -->
         <table class="tabla-productos">
@@ -168,8 +170,12 @@
                             </td>
                             <td>
                                 <div class="acciones-cell">
-                                    <button class="btn-accion btn-editar" @onclick="() => AbrirEditar(producto)"><span class="material-symbols-outlined">edit</span></button>
-                                    <button class="btn-accion btn-borrar" @onclick="() => AbrirEliminar(producto)"><span class="material-symbols-outlined">delete</span></button>
+                                    <button class="btn-accion btn-editar" @onclick="() => AbrirEditar(producto)">
+                                        <span class="material-symbols-outlined">edit</span>
+                                    </button>
+                                    <button class="btn-accion btn-borrar" @onclick="() => AbrirEliminar(producto)">
+                                        <span class="material-symbols-outlined">delete</span>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -209,10 +215,11 @@
 
 <ConfirmarEliminarModal
     Visible="_modalEliminarVisible"
-    NombreProducto="_productoSeleccionado.Nombre"
+    NombreProducto="@_productoSeleccionado.Nombre"
     OnConfirmar="EliminarConfirmado"
     OnCancelar="CerrarModales" />
 
+<GestorCategoriasModal @ref="_gestorCategorias" OnCambioCategorias="RefrescarProductos" />
 @code {
 
     // ── Datos de la Base de Datos ──────────────────────────
@@ -220,6 +227,7 @@
     private List<Producto> ProductosFiltrados = new();
     private List<Producto> ProductosPaginados = new();
     private string _colorPrincipal = "7c3aed";
+    private int _stockMinimo = 5;
 
     // ── Alertas ────────────────────────────────────────────
     private List<AlertaStock> AlertasStock = new();
@@ -232,6 +240,13 @@
     private List<string> Categorias = new() { "Todas las Categorías" };
     private List<string> Estados = new() { "Todos los Estados", "EN STOCK", "STOCK BAJO", "AGOTADO", "INACTIVO" };
 
+    // ── Ventas del día ─────────────────────────────────────
+    private decimal totalHoy = 0;
+    private decimal totalAyer = 0;
+    private int ventasAyer = 0;
+    private string ultimaActualizacionHoy = "";
+    private decimal PorcentajeVariacion = 0m;
+
     // ── Paginación ─────────────────────────────────────────
     private int PaginaActual = 1;
     private const int ItemsPorPagina = 5;
@@ -242,7 +257,7 @@
     // ── Escáner ────────────────────────────────────────────
     private bool ModoEscaner = false;
     private string FeedbackEscaner = "";
-    private bool FeedbackEsEscanerError = false; // FIX: distinguir ok vs error en feedback
+    private bool FeedbackEsEscanerError = false; // distinguir ok vs error en feedback
     private ElementReference InputBusqueda;
     private System.Timers.Timer? _timerEscaner;
     private System.Timers.Timer? _timerFeedback;
@@ -251,6 +266,7 @@
     private bool _modalFormVisible = false;
     private bool _modalEliminarVisible = false;
     private Producto _productoSeleccionado = new();
+    private GestorCategoriasModal _gestorCategorias = default!;
 
     // ── Lifecycle ──────────────────────────────────────────
     protected override async Task OnInitializedAsync()
@@ -262,6 +278,13 @@
         if (configColor != null && !string.IsNullOrWhiteSpace(configColor.Valor))
         {
             _colorPrincipal = configColor.Valor;
+        }
+
+        // Buscamos el minimo
+        var umbralStr = await ConfigService.GetAsync("inventario.stock_minimo","5");
+        if (int.TryParse(umbralStr, out int umbralParseado))
+        {
+            _stockMinimo = umbralParseado;
         }
 
         // 2. Cargar los productos normalmente
@@ -282,7 +305,7 @@
     {
         if (p.Activo != true) return "INACTIVO";
         if (p.Stock == 0) return "AGOTADO";
-        if (p.Stock <= 5) return "STOCK BAJO";
+        if (p.Stock <= _stockMinimo) return "STOCK BAJO";
         return "EN STOCK";
     }
 
@@ -290,14 +313,14 @@
     {
         if (p.Activo != true) return "inactivo";
         if (p.Stock == 0) return "agotado";
-        if (p.Stock <= 5) return "bajo";
+        if (p.Stock <= _stockMinimo) return "bajo";
         return "stock";
     }
 
     private void GenerarAlertas()
     {
         AlertasStock.Clear();
-        var productosEnRiesgo = TodosLosProductos.Where(p => p.Stock <= 5 && p.Activo == true).ToList();
+        var productosEnRiesgo = TodosLosProductos.Where(p => p.Stock <= _stockMinimo && p.Activo == true).ToList();
 
         foreach (var p in productosEnRiesgo)
         {
@@ -323,19 +346,19 @@
 
             if (encontrado != null)
             {
-                // FIX: limpiar el input y mostrar solo el producto encontrado,
+                // limpiar el input y mostrar solo el producto encontrado,
                 // en lugar de dejar el código escrito en el buscador
                 TextoBusqueda = encontrado.Nombre;
                 FeedbackEscaner = $"✅ Producto encontrado: {encontrado.Nombre} — Stock: {encontrado.Stock}";
                 FeedbackEsEscanerError = false;
 
-                // FIX: cancelar el timer de escaneo porque ya encontramos lo que buscábamos
+                //cancelar el timer de escaneo porque ya encontramos lo que buscábamos
                 _timerEscaner?.Dispose();
                 ModoEscaner = false;
             }
             else
             {
-                // FIX: mostrar error si el código no existe
+                // mostrar error si el código no existe
                 FeedbackEscaner = $"⚠ Código {codigoLimpio} no encontrado en inventario.";
                 FeedbackEsEscanerError = true;
             }
@@ -373,7 +396,8 @@
         {
             var matchBusqueda = string.IsNullOrEmpty(q) ||
                                 p.Nombre.ToLower().Contains(q) ||
-                                (p.CodigoBarras != null && p.CodigoBarras.Contains(q));
+                                (p.CodigoBarras != null && p.CodigoBarras.ToLower().Contains(q)) ||
+                                (p.Categoria != null && p.Categoria.Nombre.ToLower().Contains(q));
 
             var matchCat = CategoriaFiltro == "Todas las Categorías" || p.Categoria?.Nombre == CategoriaFiltro;
             var matchEstado = EstadoFiltro == "Todos los Estados" || ObtenerEstado(p) == EstadoFiltro;
@@ -408,7 +432,7 @@
         AplicarFiltros();
         await InputBusqueda.FocusAsync();
 
-        // FIX: dispose antes de crear uno nuevo para evitar timers duplicados
+        // dispose antes de crear uno nuevo para evitar timers duplicados
         _timerEscaner?.Dispose();
         _timerEscaner = new System.Timers.Timer(8000);
         _timerEscaner.Elapsed += (_, _) =>
@@ -459,12 +483,31 @@
     private async Task RefrescarProductos()
     {
         CerrarModales();
+        // 1. Forzamos a traer la tabla de productos fresca desde la base de datos
         TodosLosProductos = await Contexto.Productos
             .Include(p => p.Categoria)
             .OrderBy(p => p.Nombre)
             .ToListAsync();
+            
+        // 2. Recargamos los textos de las categorías en el menú desplegable
+        var catsDB = await Contexto.Categorias.Where(c => c.Activo).Select(c => c.Nombre).ToListAsync();
+        Categorias = new List<string> { "Todas las Categorías" }; 
+        Categorias.AddRange(catsDB); 
+
+        // 3. Blanquear todos los filtros
+        TextoBusqueda = "";
+        CategoriaFiltro = "Todas las Categorías";
+        EstadoFiltro = "Todos los Estados";
+        ModoEscaner = false;
+        FeedbackEscaner = "";
+        FeedbackEsEscanerError = false;
+
+        // 4. Re-calculamos todo lo visual
         GenerarAlertas();
         AplicarFiltros();
+        
+        // 5. Le avisamos a la pantalla que se redibuje obligatoriamente
+        StateHasChanged();
     }
 
     private async Task EliminarConfirmado()
@@ -482,7 +525,12 @@
         await RefrescarProductos();
     }
 
-    // FIX: IAsyncDisposable en lugar de IDisposable (correcto para Blazor)
+    private async Task AbrirGestorCategorias()
+    {
+        await _gestorCategorias.AbrirModal();
+    }
+
+    // IAsyncDisposable en lugar de IDisposable
     public async ValueTask DisposeAsync()
     {
         _timerEscaner?.Dispose();
@@ -510,7 +558,6 @@
     // ── OnKeyDown ──────────────────────────────────────────────
     private void OnKeyDown(KeyboardEventArgs e)
     {
-        // Consumimos el Enter del lector para que no haga nada más
         if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(TextoBusqueda))
         {
             // Si el oninput ya procesó el código, el Enter solo limpia el input
