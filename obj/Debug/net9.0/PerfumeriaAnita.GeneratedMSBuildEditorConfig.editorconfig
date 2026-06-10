@@ -106,3 +106,7 @@ build_metadata.AdditionalFiles.CssScope = b-qr4b9dph62
 [/workspaces/Perfumeria-Anita/Components/Pages/Ventas/TablaVentasModal.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9WZW50YXMvVGFibGFWZW50YXNNb2RhbC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = b-5kmeo2g62h
+
+[/workspaces/Perfumeria-Anita/Components/Pages/_Host.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9QYWdlcy9fSG9zdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 

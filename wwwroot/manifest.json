@@ -1,84 +1,84 @@
 {
-    "name": "Perfumería Anita",
-    "short_name": "Perfumería",
-    "start_url": "/dashboard",
-    "scope": "/",
-    "display": "standalone",
-    "theme_color": "#7c3aed",
-    "background_color": "#ffffff",
-    "description": "Sistema de gestión de inventario",
-    "orientation": "portrait-primary",
-    "icons": [
-      {
-        "src": "/fav-192x192.png",
-        "sizes": "192x192",
-        "type": "image/png",
-        "purpose": "any"
-      },
-      {
-        "src": "/favi-310x310.png",
-        "sizes": "512x512",
-        "type": "image/png",
-        "purpose": "any"
-      },
-      {
-        "src": "/fav-192x192.png",
-        "sizes": "192x192",
-        "type": "image/png",
-        "purpose": "maskable"
-      },
-      {
-        "src": "/favi-310x310.png",
-        "sizes": "512x512",
-        "type": "image/png",
-        "purpose": "maskable"
-      }
-    ],
-    "screenshots": [
-      {
-        "src": "/screenshot-540x720.png",
-        "sizes": "540x720",
-        "type": "image/png",
-        "form_factor": "narrow"
-      },
-      {
-        "src": "/screenshot-1280x720.png",
-        "sizes": "1280x720",
-        "type": "image/png",
-        "form_factor": "wide"
-      }
-    ],
-    "categories": [
-      "business",
-      "productivity"
-    ],
-    "shortcuts": [
-      {
-        "name": "Ver Inventario",
-        "short_name": "Inventario",
-        "description": "Acceder directamente al inventario de productos",
-        "url": "/dashboard?view=inventory",
-        "icons": [
-          {
-            "src": "/icon-96x96.png",
-            "sizes": "96x96",
-            "type": "image/png"
-          }
-        ]
-      },
-      {
-        "name": "Aumentar Precios",
-        "short_name": "Precios",
-        "description": "Herramienta para aumentar precios en masa",
-        "url": "/dashboard?action=increase-prices",
-        "icons": [
-          {
-            "src": "/icon-96x96.png",
-            "sizes": "96x96",
-            "type": "image/png"
-          }
-        ]
-      }
-    ],
-    "prefer_related_applications": false
-  }
+  "name": "Perfumería Anita",
+  "short_name": "Perfumería",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#7c3aed",
+  "background_color": "#ffffff",
+  "description": "Sistema de gestión de inventario",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-540x720.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/screenshot-1280x720.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "categories": [
+    "business",
+    "productivity"
+  ],
+  "shortcuts": [
+    {
+      "name": "Ver Inventario",
+      "short_name": "Inventario",
+      "description": "Acceder directamente al inventario de productos",
+      "url": "/dashboard?view=inventory",
+      "icons": [
+        {
+          "src": "/icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Aumentar Precios",
+      "short_name": "Precios",
+      "description": "Herramienta para aumentar precios en masa",
+      "url": "/dashboard?action=increase-prices",
+      "icons": [
+        {
+          "src": "/icon-96x96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false
+}

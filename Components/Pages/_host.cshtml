@@ -1,29 +1,108 @@
-<!-- PWA Configuration -->
-<meta name="theme-color" content="#7F77DD" />
-<meta name="mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="Perfumería Anita" />
+@page "/"
+@namespace PerfumeriaAnita.Pages
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Perfumería Anita</title>
+    <base href="~/" />
 
-<link rel="manifest" href="manifest.json" />
-<link rel="icon" type="image/png" href="/icon-192x192.png" />
-<link rel="apple-touch-icon" href="/icon-192x192.png" />
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/app.css" />
+    
+    <!-- MudBlazor CSS (si lo usas) -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
 
+    <!-- ============================================================ -->
+    <!-- PWA Configuration -->
+    <!-- ============================================================ -->
+    <meta name="theme-color" content="#7c3aed" />
+    <meta name="description" content="Sistema de gestión de inventario para Perfumería Anita" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Perfumería Anita" />
+
+    <!-- Manifest y iconos -->
+    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" type="image/png" href="/icon-192x192.png" />
+    <link rel="apple-touch-icon" href="/icon-192x192.png" />
+    <link rel="shortcut icon" type="image/png" href="/icon-192x192.png" />
+
+</head>
 <body>
+    <div id="app">
+        <svg class="loading-progress">
+            <circle r="40" cx="50" cy="50"></circle>
+        </svg>
+        <div class="loading-progress-text"></div>
+    </div>
 
-<!-- Register Service Worker -->
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/service-worker.js')
-        .then(reg => {
-          console.log('✓ Service Worker registrado:', reg);
-        })
-        .catch(err => {
-          console.error('✗ Error registrando Service Worker:', err);
+    <div id="blazor-error-ui">
+        <environment include="Staging,Production">
+            An error has occurred. This application may no longer respond until reloaded.
+        </environment>
+        <environment include="Development">
+            An unhandled exception has occurred. See browser console for details.
+        </environment>
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+
+    <!-- Blazor Scripts -->
+    <script src="_framework/blazor.server.js"></script>
+
+    <!-- MudBlazor Scripts (si lo usas) -->
+    <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+
+    <!-- ============================================================ -->
+    <!-- Service Worker Registration -->
+    <!-- ============================================================ -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            console.log('[PWA] Registrando Service Worker...');
+            
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(reg => {
+                        console.log('✓ Service Worker registrado exitosamente:', reg);
+                        console.log('  Scope:', reg.scope);
+                        
+                        // Escuchar actualizaciones
+                        reg.addEventListener('updatefound', () => {
+                            const newWorker = reg.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'activated') {
+                                    console.log('✓ Nueva versión del Service Worker activada');
+                                }
+                            });
+                        });
+                    })
+                    .catch(err => {
+                        console.error('✗ Error registrando Service Worker:', err);
+                        console.error('  Detalles:', err.message);
+                    });
+            });
+        } else {
+            console.warn('[PWA] Service Workers no soportados en este navegador');
+        }
+    </script>
+
+    <!-- ============================================================ -->
+    <!-- Detectar conectividad (opcional) -->
+    <!-- ============================================================ -->
+    <script>
+        window.addEventListener('online', () => {
+            console.log('✓ Conexión restaurada');
         });
-    });
-  }
-</script>
+
+        window.addEventListener('offline', () => {
+            console.log('⚠ Sin conexión a internet');
+        });
+    </script>
 
 </body>
+</html>

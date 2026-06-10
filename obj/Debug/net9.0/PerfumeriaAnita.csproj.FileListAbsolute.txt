@@ -199,3 +199,7 @@
 /workspaces/Perfumeria-Anita/obj/Debug/net9.0/PerfumeriaAnita.pdb
 /workspaces/Perfumeria-Anita/obj/Debug/net9.0/PerfumeriaAnita.genruntimeconfig.cache
 /workspaces/Perfumeria-Anita/obj/Debug/net9.0/ref/PerfumeriaAnita.dll
+/workspaces/Perfumeria-Anita/obj/Debug/net9.0/PerfumeriaAnita.RazorAssemblyInfo.cache
+/workspaces/Perfumeria-Anita/obj/Debug/net9.0/PerfumeriaAnita.RazorAssemblyInfo.cs
+/workspaces/Perfumeria-Anita/obj/Debug/net9.0/compressed/ggrdbyep4x-qyxwbbhh9h.gz
+/workspaces/Perfumeria-Anita/obj/Debug/net9.0/compressed/w282arh4hc-7zo7ukbp9p.gz
