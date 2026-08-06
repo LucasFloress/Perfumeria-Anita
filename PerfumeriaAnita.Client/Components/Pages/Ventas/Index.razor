@@ -1,0 +1,239 @@
+@page "/ventas"
+@using PerfumeriaAnita.Client.Services
+@inject IVentaService VentaService
+@inject IConfigService ConfigService
+@inject AppConfigState ConfigState
+
+<PageTitle>Reporte de Ventas - Perfumería Anita</PageTitle>
+
+<style>
+    .texto-primario { color: @_colorPrincipal !important; }
+    .borde-primario { border-left-color: @_colorPrincipal !important; }
+    .btn-dinamico-outline {
+        background: #fff; border: 1.5px solid @_colorPrincipal; padding: 6px 12px;
+        border-radius: 6px; color: @_colorPrincipal; cursor: pointer; font-size: 0.8rem;
+        font-weight: bold; transition: all 0.2s ease-in-out; display: flex; align-items: center; gap: 5px;
+    }
+    .btn-dinamico-outline:hover { background: @_colorPrincipal; color: #fff; }
+    .btn-dinamico-ligero {
+        background: #fff; border: 1.5px solid #eee; padding: 8px 15px; border-radius: 6px;
+        color: @_colorPrincipal; cursor: pointer; font-weight: 600; transition: all 0.2s ease-in-out; display: flex; align-items: center;
+    }
+    .btn-dinamico-ligero:hover { border-color: @_colorPrincipal; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+</style>
+
+<div class="ventas-container" style="padding: 20px; background-color: #f8f9fa; min-height: 100vh;">
+    <header style="margin-bottom: 30px;">
+        <h2 style="color: #333; margin: 0;">Reporte de Ventas</h2>
+        <p style="color: #666; margin: 5px 0 0 0;">Historial detallado y métricas de rendimiento diario.</p>
+    </header>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 20px;">
+        <div class="metric-card borde-primario" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-left: 5px solid;">
+            <span style="color: #888; font-size: 0.9rem; font-weight: 600;">VENTAS HOY</span>
+            <h2 style="margin: 10px 0; color: #333;">@VentasHoy</h2>
+            <span class="texto-primario" style="font-size: 0.8rem;"><span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle;">package_2</span> Operaciones procesadas</span>
+        </div>
+        <div class="metric-card" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-left: 5px solid #2e7d32;">
+            <span style="color: #888; font-size: 0.9rem; font-weight: 600;">TOTAL BRUTO HOY</span>
+            <h2 style="margin: 10px 0; color: #2e7d32;">$@TotalBruto.ToString("N2")</h2>
+            <span style="font-size: 0.8rem; font-weight: bold; @(PorcentajeVariacion >= 0 ? "color: #2e7d32;" : "color: #d32f2f;")">
+                @(PorcentajeVariacion >= 0 ? "↗" : "↘") @Math.Abs(PorcentajeVariacion).ToString("N1")% vs ayer
+            </span>
+        </div>
+    </div>
+
+    <div style="background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 20px; margin-bottom: 30px;">
+        <h3 style="margin: 0 0 15px 0; color: #444; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+            <span class="material-symbols-outlined">payments</span>
+            Ingresos por Método de Pago
+        </h3>
+        @if (!DistribucionVentas.Any())
+        {
+            <p style="color: #888; margin: 0; font-size: 0.9rem;">No hay datos suficientes para mostrar la distribución.</p>
+        }
+        else
+        {
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                @foreach (var item in DistribucionVentas)
+                {
+                    <div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9rem;">
+                            <span style="font-weight: 600; color: #333;">@item.MetodoPago</span>
+                            <span style="color: #666;">$@item.TotalMonto.ToString("N0") <strong>(@item.Porcentaje%)</strong></span>
+                        </div>
+                        <div style="width: 100%; background-color: #eee; border-radius: 10px; height: 10px; overflow: hidden;">
+                            <div style="width: @item.Porcentaje%; background-color: @item.Color; height: 100%; border-radius: 10px; transition: width 0.5s ease;"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <div style="background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden;">
+        <div style="padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; color: #444; display: flex; align-items: center; gap: 8px;">
+                <span class="material-symbols-outlined">shopping_cart</span>
+                Transacciones Recientes
+            </h3>
+            <button class="btn-dinamico-ligero" @onclick="CargarDatos" title="Actualizar">
+                <span class="material-symbols-outlined">refresh</span>
+            </button>
+        </div>
+
+        @if (ProductosVendidos == null)
+        {
+            <div style="padding: 40px; text-align: center; color: #888;">Cargando ventas...</div>
+        }
+        else if (!ProductosVendidos.Any())
+        {
+            <div style="padding: 40px; text-align: center; color: #888;">
+                <p>Aún no se han registrado ventas hoy.</p>
+                <a href="/dashboard" class="texto-primario" style="text-decoration: none; font-weight: bold;">Ir al Dashboard para vender</a>
+            </div>
+        }
+        else
+        {
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #fafafa; text-align: left;">
+                        <th style="padding: 15px; color: #888; font-size: 0.85rem;">ID VENTA</th>
+                        <th style="padding: 15px; color: #888; font-size: 0.85rem;">PRODUCTO / RESUMEN</th>
+                        <th style="padding: 15px; color: #888; font-size: 0.85rem;">CANT.</th>
+                        <th style="padding: 15px; color: #888; font-size: 0.85rem;">TOTAL</th>
+                        <th style="padding: 15px; color: #888; font-size: 0.85rem;">MÉTODO</th>
+                        <th style="padding: 15px; color: #888; font-size: 0.85rem;">ACCIONES</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var venta in ProductosVendidos)
+                    {
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td class="texto-primario" style="padding: 15px; font-family: monospace; font-weight: bold;">@venta.IdVenta</td>
+                            <td style="padding: 15px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span class="material-symbols-outlined" style="color: #aaa;">@venta.Icono</span>
+                                    <span style="font-weight: 500; color: #333;">@venta.NombreProducto</span>
+                                </div>
+                            </td>
+                            <td style="padding: 15px;"><span style="background: #f5f5f5; padding: 4px 10px; border-radius: 20px; font-size: 0.85rem;">x @venta.Cantidad</span></td>
+                            <td style="padding: 15px; font-weight: bold; color: #2e7d32;">$@venta.Precio.ToString("N2")</td>
+                            <td style="padding: 15px;">
+                                <span style="font-size: 0.75rem; padding: 4px 10px; border-radius: 6px; font-weight: 600; background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9;">
+                                    @venta.MetodoPago
+                                </span>
+                            </td>
+                            <td style="padding: 15px;">
+                                <button class="btn-dinamico-outline" @onclick="() => VerDetalleTicket(venta.IdVenta)" title="Ver detalle">
+                                    <span class="material-symbols-outlined" style="font-size: 1.1rem;">visibility</span>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+
+<TablaVentasModal @ref="miModal" />
+
+@code {
+    private TablaVentasModal miModal = default!;
+    private string _colorPrincipal = "#D4537E";
+    private int VentasHoy = 0;
+    private decimal TotalBruto = 0m;
+    private decimal TotalAyer = 0m;
+    private decimal PorcentajeVariacion = 0m;
+    private List<RegistroVentaDto> ProductosVendidos = new();
+    private List<DistribucionItem> DistribucionVentas = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var allConfigs = await ConfigService.GetAllAsync();
+            if (allConfigs.TryGetValue("tienda.color_principal", out var color))
+                _colorPrincipal = color;
+            ConfigState.Inicializar(allConfigs);
+        }
+        catch { }
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        try
+        {
+            var resumen = await VentaService.GetResumenHoyAsync();
+            VentasHoy = resumen.CantidadVentas;
+            TotalBruto = resumen.TotalVendido;
+            TotalAyer = await VentaService.GetTotalAyerAsync();
+
+            if (TotalAyer > 0)
+                PorcentajeVariacion = ((TotalBruto - TotalAyer) / TotalAyer) * 100;
+            else if (TotalBruto > 0)
+                PorcentajeVariacion = 100;
+            else
+                PorcentajeVariacion = 0;
+
+            ProductosVendidos = await VentaService.GetUltimasVentasAsync();
+            CalcularDistribucionPagos();
+            StateHasChanged();
+        }
+        catch { }
+    }
+
+    private async Task VerDetalleTicket(string idVentaStr)
+    {
+        if (int.TryParse(idVentaStr.Replace("#", ""), out int idVenta))
+        {
+            var venta = await VentaService.GetByIdAsync(idVenta);
+            if (venta != null)
+            {
+                miModal.AbrirModal(venta);
+            }
+        }
+    }
+
+    private void CalcularDistribucionPagos()
+    {
+        if (TotalBruto == 0 || !ProductosVendidos.Any())
+        {
+            DistribucionVentas = new();
+            return;
+        }
+
+        DistribucionVentas = ProductosVendidos
+            .GroupBy(v => v.MetodoPago)
+            .Select(grupo => new DistribucionItem
+            {
+                MetodoPago = grupo.Key,
+                TotalMonto = grupo.Sum(v => v.Precio),
+                Porcentaje = (int)Math.Round((grupo.Sum(v => v.Precio) / TotalBruto) * 100),
+                Color = AsignarColorMetodo(grupo.Key)
+            })
+            .OrderByDescending(d => d.Porcentaje)
+            .ToList();
+    }
+
+    private string AsignarColorMetodo(string metodo)
+    {
+        return metodo.ToLower() switch
+        {
+            "efectivo" => "#16a34a",
+            "mercado pago" => "#009ee3",
+            "transferencia" => "#818cf8",
+            _ => "#9e9e9e"
+        };
+    }
+
+    public class DistribucionItem
+    {
+        public string MetodoPago { get; set; } = "";
+        public decimal TotalMonto { get; set; }
+        public int Porcentaje { get; set; }
+        public string Color { get; set; } = "";
+    }
+}

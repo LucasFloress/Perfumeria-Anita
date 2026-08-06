@@ -1,19 +1,53 @@
-﻿@using MudBlazor
-
+@using MudBlazor
+@using PerfumeriaAnita.Services
+@implements IDisposable
 @inherits LayoutComponentBase
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
 
 <MudThemeProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 <MudPopoverProvider />
-<div style="display: flex; min-height: 100vh; margin: 0; padding: 0; background: #f5f6fa;">
-    
-    <div style="width: 240px; flex-shrink: 0; background: #fff; border-right: 1px solid #ebebf0; height: 100vh; position: sticky; top: 0; overflow-y: auto;">
-        <NavMenu />
-    </div>
 
-    <main style="flex-grow: 1; overflow-y: auto;">
-        @Body
-    </main>
-    
-</div>
+@if (AuthService.IsAuthenticated)
+{
+    <div style="display: flex; min-height: 100vh; margin: 0; padding: 0; background: #f5f6fa;">
+        
+        <div style="width: 240px; flex-shrink: 0; background: #fff; border-right: 1px solid #ebebf0; height: 100vh; position: sticky; top: 0; overflow-y: auto;">
+            <NavMenu />
+        </div>
+
+        <main style="flex-grow: 1; overflow-y: auto;">
+            @Body
+        </main>
+        
+    </div>
+}
+else
+{
+    <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #0f172a; color: white;">
+        <div style="text-align: center;">
+            <div style="margin-bottom: 12px; font-size: 16px; color: #94a3b8;">Redirigiendo al inicio de sesión...</div>
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        </div>
+    </div>
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        AuthService.OnChange += StateHasChanged;
+        
+        // Si no está autenticado, redirigir a Login
+        if (!AuthService.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
+    public void Dispose()
+    {
+        AuthService.OnChange -= StateHasChanged;
+    }
+}

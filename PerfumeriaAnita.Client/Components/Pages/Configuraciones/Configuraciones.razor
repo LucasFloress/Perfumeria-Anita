@@ -1,0 +1,487 @@
+@page "/configuraciones"
+@using PerfumeriaAnita.Client.Services
+@using Microsoft.AspNetCore.Components.Forms
+@inject IConfigService ConfigService
+@inject AppConfigState ConfigState
+
+<div class="cfg-page">
+    <div class="cfg-header">
+        <h1 class="cfg-title">Configuración</h1>
+        <p class="cfg-sub">Personalizá tu perfumería</p>
+    </div>
+
+    <div class="cfg-tabs">
+        <button class="cfg-tab @(TabActivo == "apariencia" ? "cfg-tab-active" : "")"
+                style="@(TabActivo == "apariencia" ? $"color:{ColorPrincipal};border-bottom-color:{ColorPrincipal}" : "")"
+                @onclick='() => TabActivo = "apariencia"'>
+            Apariencia
+        </button>
+        <button class="cfg-tab @(TabActivo == "horarios" ? "cfg-tab-active" : "")"
+                style="@(TabActivo == "horarios" ? $"color:{ColorPrincipal};border-bottom-color:{ColorPrincipal}" : "")"
+                @onclick='() => TabActivo = "horarios"'>
+            Horarios
+        </button>
+        <button class="cfg-tab @(TabActivo == "notificaciones" ? "cfg-tab-active" : "")"
+                style="@(TabActivo == "notificaciones" ? $"color:{ColorPrincipal};border-bottom-color:{ColorPrincipal}" : "")"
+                @onclick='() => TabActivo = "notificaciones"'>
+            Notificaciones
+        </button>
+        <button class="cfg-tab @(TabActivo == "general" ? "cfg-tab-active" : "")"
+                style="@(TabActivo == "general" ? $"color:{ColorPrincipal};border-bottom-color:{ColorPrincipal}" : "")"
+                @onclick='() => TabActivo = "general"'>
+            General
+        </button>
+        <button class="cfg-tab @(TabActivo == "venta" ? "cfg-tab-active" : "")"
+                style="@(TabActivo == "venta" ? $"color:{ColorPrincipal};border-bottom-color:{ColorPrincipal}" : "")"
+                @onclick='() => TabActivo = "venta"'>
+            Venta
+        </button>
+    </div>
+
+    @if (_cargando)
+    {
+        <div class="cfg-loading">Cargando configuraciones...</div>
+    }
+    else
+    {
+        <div class="cfg-body">
+            @* ══ APARIENCIA ══════════════════════════════════════════════ *@
+            @if (TabActivo == "apariencia")
+            {
+                @if (_mensajeAp is not null)
+                {
+                    <div class="cfg-toast" style="border-color:@ColorPrincipal;background:@(ColorPrincipal + "18");color:@ColorPrincipal">@_mensajeAp</div>
+                }
+                <div class="cfg-card">
+                    <div class="cfg-card-head">
+                        <div>
+                            <div class="cfg-card-title">Nombre de la tienda</div>
+                            <div class="cfg-card-sub">Se muestra en el menú lateral y notificaciones</div>
+                        </div>
+                        <button class="cfg-btn-save" style="background:@ColorPrincipal" @onclick="GuardarApariencia">Guardar</button>
+                    </div>
+                    <div class="cfg-row">
+                        <div><div class="cfg-label">Nombre</div></div>
+                        <input type="text" @bind="_nombreTienda" @bind:event="oninput" class="cfg-input" />
+                    </div>
+                    <div class="cfg-row">
+                        <div><div class="cfg-label">Eslogan</div><div class="cfg-desc">Opcional — aparece debajo del nombre</div></div>
+                        <input type="text" @bind="_eslogan" class="cfg-input" />
+                    </div>
+                </div>
+
+                <div class="cfg-card">
+                    <div class="cfg-card-head">
+                        <div>
+                            <div class="cfg-card-title">Logo de la tienda</div>
+                            <div class="cfg-card-sub">Se muestra en el menú lateral. PNG, JPG o SVG. Máx. 1 MB.</div>
+                        </div>
+                        <button class="cfg-btn-save" style="background:@ColorPrincipal" @onclick="GuardarApariencia">Guardar</button>
+                    </div>
+                    <div class="cfg-row" style="flex-direction:column; align-items:flex-start; gap:14px">
+                        <div style="display:flex; align-items:center; gap:16px;">
+                            @if (!string.IsNullOrEmpty(_logoBase64))
+                            {
+                                <img src="@_logoBase64" alt="Logo actual" style="height:56px; width:56px; object-fit:contain; border-radius:8px; border:1px solid #e2e8f0;" />
+                            }
+                            else
+                            {
+                                <div style="height:56px; width:56px; border-radius:8px; border:1.5px dashed #e2e8f0; display:flex; align-items:center; justify-content:center; font-size:24px;">🌸</div>
+                            }
+                            <div>
+                                <div class="cfg-label">@(_logoBase64 is null ? "Sin logo cargado" : "Logo actual")</div>
+                                <div class="cfg-desc">Se muestra en el menú lateral de la app</div>
+                            </div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                            <InputFile OnChange="OnLogoSeleccionado" accept=".png,.jpg,.jpeg,.svg,.webp" style="font-size:13px; color:#64748b;" />
+                            @if (!string.IsNullOrEmpty(_logoBase64))
+                            {
+                                <button class="cfg-btn-save" style="background:#e2e8f0; color:#64748b; font-weight:500;" @onclick="EliminarLogo">Quitar logo</button>
+                            }
+                        </div>
+                        @if (_errorLogo is not null)
+                        {
+                            <div style="font-size:12px; color:#e24b4a;">@_errorLogo</div>
+                        }
+                    </div>
+                </div>
+
+                <div class="cfg-card">
+                    <div class="cfg-card-head">
+                        <div>
+                            <div class="cfg-card-title">Color principal</div>
+                            <div class="cfg-card-sub">Se aplica en botones, badges y acentos de toda la app</div>
+                        </div>
+                        <button class="cfg-btn-save" style="background:@ColorPrincipal" @onclick="GuardarApariencia">Guardar</button>
+                    </div>
+                    <div class="cfg-row" style="flex-direction:column; align-items:flex-start; gap:14px">
+                        <div class="cfg-label">Colores predefinidos</div>
+                        <div class="cfg-swatch-row">
+                            @foreach (var c in _coloresPredefinidos)
+                            {
+                                <div class="cfg-swatch @(ColorPrincipal == c ? "cfg-swatch-sel" : "")" style="background:@c" @onclick="() => AplicarColorPreview(c)"></div>
+                            }
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span class="cfg-desc">Hex personalizado:</span>
+                            <input type="color" value="@ColorPrincipal" @oninput="OnColorPickerChange" style="width:36px; height:36px; border:none; border-radius:6px; cursor:pointer; padding:2px;" />
+                            <input type="text" @bind="ColorPrincipal" @bind:event="oninput" class="cfg-input" style="width:110px" placeholder="#D4537E" />
+                            <div style="width:26px; height:26px; border-radius:50%; border:1px solid #e2e8f0; background:@ColorPrincipal"></div>
+                        </div>
+                        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                            <button style="background:@ColorPrincipal; color:white; border:none; border-radius:8px; padding:7px 16px; font-size:13px; font-weight:600; cursor:default;">Botón ejemplo</button>
+                            <span style="background:@(ColorPrincipal + "20"); color:@ColorPrincipal; border-radius:6px; padding:3px 10px; font-size:12px; font-weight:600;">BADGE</span>
+                            <div style="height:4px; border-radius:2px; width:100px; background:@ColorPrincipal;"></div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @* ══ HORARIOS ═════════════════════════════════════════════════ *@
+            @if (TabActivo == "horarios")
+            {
+                @if (_mensajeH is not null)
+                {
+                    <div class="cfg-toast" style="border-color:@ColorPrincipal;background:@(ColorPrincipal + "18");color:@ColorPrincipal">@_mensajeH</div>
+                }
+                <div class="cfg-card">
+                    <div class="cfg-card-head">
+                        <div><div class="cfg-card-title">Sistema horario</div></div>
+                        <button class="cfg-btn-save" style="background:@ColorPrincipal" @onclick="GuardarHorarios">Guardar</button>
+                    </div>
+                    <div class="cfg-row">
+                        <div><div class="cfg-label">Zona horaria</div><div class="cfg-desc">Afecta turnos, recordatorios y reportes</div></div>
+                        <select @bind="_zonaHoraria" class="cfg-select">
+                            <option value="America/Argentina/Buenos_Aires">Buenos Aires (ART)</option>
+                            <option value="America/Argentina/Cordoba">Córdoba (ART)</option>
+                            <option value="America/Argentina/Mendoza">Mendoza (ART)</option>
+                            <option value="America/Santiago">Santiago (CLT)</option>
+                            <option value="America/Montevideo">Montevideo (UYT)</option>
+                            <option value="UTC">UTC</option>
+                        </select>
+                    </div>
+                    <div class="cfg-row">
+                        <div><div class="cfg-label">Formato de hora</div></div>
+                        <select @bind="_formatoHora" class="cfg-select" style="width:160px">
+                            <option value="24">24 horas</option>
+                            <option value="12">12 horas (AM/PM)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="cfg-card">
+                    <div class="cfg-card-head"><div class="cfg-card-title">Días y horarios</div></div>
+                    @foreach (var dia in _diasSemana)
+                    {
+                        <div class="cfg-row">
+                            <div style="display:flex; align-items:center; gap:12px; flex:1">
+                                <label class="cfg-toggle">
+                                    <input type="checkbox" checked="@dia.Activo" @onchange="e => dia.Activo = (bool)(e.Value ?? false)" />
+                                    <span class="cfg-slider" style="@(dia.Activo ? $"background:{ColorPrincipal}" : "")"></span>
+                                </label>
+                                <div class="cfg-label" style="min-width:90px">@dia.Nombre</div>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:8px; opacity:@(!dia.Activo ? "0.3" : "1"); pointer-events:@(!dia.Activo ? "none" : "auto")">
+                                <input type="text" @bind="dia.Apertura" class="cfg-input" style="width:75px; text-align:center" />
+                                <span class="cfg-desc">→</span>
+                                <input type="text" @bind="dia.Cierre" class="cfg-input" style="width:75px; text-align:center" />
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            @* ══ NOTIFICACIONES ════════════════════════════════════════════ *@
+            @if (TabActivo == "notificaciones")
+            {
+                @if (_mensajeN is not null)
+                {
+                    <div class="cfg-toast" style="border-color:@ColorPrincipal;background:@(ColorPrincipal + "18");color:@ColorPrincipal">@_mensajeN</div>
+                }
+                <div class="cfg-card">
+                    <div class="cfg-card-head">
+                        <div><div class="cfg-card-title">Canal de envío</div></div>
+                        <button class="cfg-btn-save" style="background:@ColorPrincipal" @onclick="GuardarNotificaciones">Guardar</button>
+                    </div>
+                    <div class="cfg-row">
+                        <div><div class="cfg-label">Email de notificaciones</div></div>
+                        <input type="email" @bind="_emailNotif" class="cfg-input" />
+                    </div>
+                    <div class="cfg-row">
+                        <div><div class="cfg-label">WhatsApp / teléfono</div><div class="cfg-desc">Para alertas urgentes</div></div>
+                        <input type="text" @bind="_telefonoNotif" class="cfg-input" placeholder="+54 11 XXXX-XXXX" />
+                    </div>
+                </div>
+                <div class="cfg-card">
+                    <div class="cfg-card-head"><div class="cfg-card-title">Tipos de alerta</div></div>
+                    <div class="cfg-row">
+                        <div><div class="cfg-label">Nuevo pedido recibido</div></div>
+                        <label class="cfg-toggle"><input type="checkbox" @bind="_notifNuevoPedido" /><span class="cfg-slider" style="@(_notifNuevoPedido ? $"background:{ColorPrincipal}" : "")"></span></label>
+                    </div>
+                    <div class="cfg-row">
+                        <div><div class="cfg-label">Stock bajo</div><div class="cfg-desc">Menos de @_stockMinimo unidades</div></div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <input type="number" @bind="_stockMinimo" class="cfg-input" style="width:70px" min="1" max="99" />
+                            <label class="cfg-toggle"><input type="checkbox" @bind="_notifStockBajo" /><span class="cfg-slider" style="@(_notifStockBajo ? $"background:{ColorPrincipal}" : "")"></span></label>
+                        </div>
+                    </div>
+                    <div class="cfg-row">
+                        <div><div class="cfg-label">Recordatorio de turno</div><div class="cfg-desc">24 hs antes del turno agendado</div></div>
+                        <label class="cfg-toggle"><input type="checkbox" @bind="_notifTurno" /><span class="cfg-slider" style="@(_notifTurno ? $"background:{ColorPrincipal}" : "")"></span></label>
+                    </div>
+                    <div class="cfg-row">
+                        <div><div class="cfg-label">Reseña nueva de cliente</div></div>
+                        <label class="cfg-toggle"><input type="checkbox" @bind="_notifResena" /><span class="cfg-slider" style="@(_notifResena ? $"background:{ColorPrincipal}" : "")"></span></label>
+                    </div>
+                    <div class="cfg-row">
+                        <div><div class="cfg-label">Informe semanal de ventas</div><div class="cfg-desc">Cada lunes a las 8:00</div></div>
+                        <label class="cfg-toggle"><input type="checkbox" @bind="_notifInforme" /><span class="cfg-slider" style="@(_notifInforme ? $"background:{ColorPrincipal}" : "")"></span></label>
+                    </div>
+                    <div class="cfg-row">
+                        <div><div class="cfg-label">Notificaciones push en el panel</div></div>
+                        <label class="cfg-toggle"><input type="checkbox" @bind="_notifPush" /><span class="cfg-slider" style="@(_notifPush ? $"background:{ColorPrincipal}" : "")"></span></label>
+                    </div>
+                </div>
+            }
+
+            @* ══ GENERAL ══════════════════════════════════════════════════ *@
+            @if (TabActivo == "general")
+            {
+                <div class="cfg-card">
+                    <div class="cfg-card-head"><div class="cfg-card-title">Información de la aplicación</div></div>
+                    <div class="cfg-row">
+                        <div class="cfg-label">Versión</div>
+                        <span class="cfg-desc">1.0.0 · Blazor WebAssembly</span>
+                    </div>
+                    <div class="cfg-row">
+                        <div class="cfg-label">Arquitectura</div>
+                        <span class="cfg-desc" style="font-family:monospace">WASM + Web API · SQLite</span>
+                    </div>
+                    <div class="cfg-row">
+                        <div class="cfg-label">Última configuración guardada</div>
+                        <span class="cfg-desc">@_ultimoGuardado</span>
+                    </div>
+                </div>
+            }
+
+            @* ══ VENTA ════════════════════════════════════════════════════════ *@
+            @if (TabActivo == "venta")
+            {
+                @if (_mensajeV is not null)
+                {
+                    <div class="cfg-toast" style="border-color:@ColorPrincipal;background:@(ColorPrincipal + "18");color:@ColorPrincipal">@_mensajeV</div>
+                }
+                <div class="cfg-card">
+                    <div class="cfg-card-head">
+                        <div>
+                            <div class="cfg-card-title">Margen de ganancia</div>
+                            <div class="cfg-card-sub">Porcentaje de aumento automático al cargar productos</div>
+                        </div>
+                        <button class="cfg-btn-save" style="background:@ColorPrincipal" @onclick="GuardarVenta">Guardar</button>
+                    </div>
+                    <div class="cfg-row">
+                        <div>
+                            <div class="cfg-label">% de aumento</div>
+                            <div class="cfg-desc">Se aplica automáticamente al precio de costo para calcular el precio de venta</div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <input type="number" @bind="_porcentajeAumento" @bind:event="oninput" class="cfg-input" style="width:100px;" min="0" max="999" step="1" />
+                            <span class="cfg-desc">%</span>
+                        </div>
+                    </div>
+                    <div class="cfg-row">
+                        <div>
+                            <div class="cfg-label">Vista previa</div>
+                            <div class="cfg-desc">Cómo se vería el cálculo</div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:12px; font-size:12px; color:#64748b;">
+                            <span>$1000</span>
+                            <span style="color:#94a3b8;">×</span>
+                            <span>(1 + @(_porcentajeAumento)% / 100)</span>
+                            <span style="color:#94a3b8;">=</span>
+                            <span style="font-weight:600; color:@ColorPrincipal;">$@Math.Round(1000 * (1 + _porcentajeAumento / 100M), 2).ToString("F0")</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private string TabActivo = "apariencia";
+    private bool _cargando = true;
+
+    private string _nombreTienda = "Perfumería Anita";
+    private string _eslogan = "Tu perfume, tu identidad";
+    private string ColorPrincipal = "#D4537E";
+    private string? _logoBase64;
+    private string? _errorLogo;
+    private string? _mensajeAp;
+
+    private readonly string[] _coloresPredefinidos =
+    {
+        "#D4537E", "#E24B4A", "#EF9F27", "#7F77DD", "#1D9E75", "#378ADD", "#888780"
+    };
+
+    private string _zonaHoraria = "America/Argentina/Buenos_Aires";
+    private string _formatoHora = "24";
+    private string? _mensajeH;
+
+    private List<DiaHorario> _diasSemana = new()
+    {
+        new("Lunes",     true,  "09:00", "19:00"),
+        new("Martes",    true,  "09:00", "19:00"),
+        new("Miércoles", true,  "09:00", "19:00"),
+        new("Jueves",    true,  "09:00", "19:00"),
+        new("Viernes",   true,  "09:00", "19:00"),
+        new("Sábado",    true,  "09:00", "14:00"),
+        new("Domingo",   false, "—",     "—"),
+    };
+
+    private string _emailNotif = "anita@perfumeria.com";
+    private string _telefonoNotif = "";
+    private bool _notifNuevoPedido = true;
+    private bool _notifStockBajo = true;
+    private bool _notifTurno = true;
+    private bool _notifResena = false;
+    private bool _notifInforme = true;
+    private bool _notifPush = true;
+    private int _stockMinimo = 5;
+    private string? _mensajeN;
+
+    private decimal _porcentajeAumento = 30;
+    private string? _mensajeV;
+    private string _ultimoGuardado = "—";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await ConfigService.SetAsync("_seed_", "_");
+        }
+        catch { }
+        await CargarConfiguraciones();
+    }
+
+    private async Task CargarConfiguraciones()
+    {
+        _cargando = true;
+        try
+        {
+            var all = await ConfigService.GetAllAsync();
+
+            _nombreTienda = all.GetValueOrDefault("tienda.nombre", "Perfumería Anita");
+            _eslogan = all.GetValueOrDefault("tienda.eslogan", "Tu perfume, tu identidad");
+            ColorPrincipal = all.GetValueOrDefault("tienda.color_principal", "#D4537E");
+            var logoGuardado = all.GetValueOrDefault("tienda.logo_base64", "");
+            _logoBase64 = string.IsNullOrEmpty(logoGuardado) ? null : logoGuardado;
+
+            _zonaHoraria = all.GetValueOrDefault("sistema.zona_horaria", "America/Argentina/Buenos_Aires");
+            _formatoHora = all.GetValueOrDefault("sistema.formato_hora", "24");
+            _emailNotif = all.GetValueOrDefault("notif.email", "anita@perfumeria.com");
+            _telefonoNotif = all.GetValueOrDefault("notif.telefono", "");
+            _notifNuevoPedido = all.GetValueOrDefault("notif.nuevo_pedido", "true") == "true";
+            _notifStockBajo = all.GetValueOrDefault("notif.stock_bajo", "true") == "true";
+            _notifTurno = all.GetValueOrDefault("notif.recordatorio_turno", "true") == "true";
+            _notifResena = all.GetValueOrDefault("notif.resena", "false") == "true";
+            _notifInforme = all.GetValueOrDefault("notif.informe_semanal", "true") == "true";
+            _notifPush = all.GetValueOrDefault("notif.push_panel", "true") == "true";
+            int.TryParse(all.GetValueOrDefault("inventario.stock_minimo", "5"), out _stockMinimo);
+            decimal.TryParse(all.GetValueOrDefault("venta.porcentaje_aumento", "30"), out _porcentajeAumento);
+
+            ConfigState.Inicializar(all);
+        }
+        catch { }
+        _cargando = false;
+    }
+
+    private async Task OnLogoSeleccionado(InputFileChangeEventArgs e)
+    {
+        _errorLogo = null;
+        var file = e.File;
+        if (file.Size > 1 * 1024 * 1024) { _errorLogo = "El archivo es demasiado grande. Máximo 1 MB."; return; }
+        var tiposPermitidos = new[] { "image/png", "image/jpeg", "image/svg+xml", "image/webp" };
+        if (!tiposPermitidos.Contains(file.ContentType)) { _errorLogo = "Formato no soportado. Usá PNG, JPG, SVG o WEBP."; return; }
+        using var stream = file.OpenReadStream(maxAllowedSize: 1 * 1024 * 1024);
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+        var bytes = ms.ToArray();
+        _logoBase64 = $"data:{file.ContentType};base64,{Convert.ToBase64String(bytes)}";
+    }
+
+    private void EliminarLogo() { _logoBase64 = null; _errorLogo = null; }
+
+    private void AplicarColorPreview(string color) { ColorPrincipal = color; ConfigState.ActualizarColor(color); }
+
+    private void OnColorPickerChange(ChangeEventArgs e) { ColorPrincipal = e.Value?.ToString() ?? ColorPrincipal; ConfigState.ActualizarColor(ColorPrincipal); }
+
+    private async Task GuardarApariencia()
+    {
+        await ConfigService.SetAsync("tienda.nombre", _nombreTienda);
+        await ConfigService.SetAsync("tienda.eslogan", _eslogan);
+        await ConfigService.SetAsync("tienda.color_principal", ColorPrincipal);
+        await ConfigService.SetAsync("tienda.logo_base64", _logoBase64 ?? "");
+        ConfigState.ActualizarApariencia(_nombreTienda, _eslogan, ColorPrincipal, _logoBase64);
+        _ultimoGuardado = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+        _mensajeAp = "✅ Cambios de apariencia guardados correctamente";
+        StateHasChanged();
+        await Task.Delay(2500);
+        _mensajeAp = null;
+        StateHasChanged();
+    }
+
+    private async Task GuardarHorarios()
+    {
+        await ConfigService.SetAsync("sistema.zona_horaria", _zonaHoraria);
+        await ConfigService.SetAsync("sistema.formato_hora", _formatoHora);
+        _ultimoGuardado = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+        _mensajeH = "✅ Horarios guardados correctamente";
+        StateHasChanged();
+        await Task.Delay(2500);
+        _mensajeH = null;
+        StateHasChanged();
+    }
+
+    private async Task GuardarNotificaciones()
+    {
+        await ConfigService.SetAsync("notif.email", _emailNotif);
+        await ConfigService.SetAsync("notif.telefono", _telefonoNotif);
+        await ConfigService.SetAsync("notif.nuevo_pedido", _notifNuevoPedido.ToString().ToLower());
+        await ConfigService.SetAsync("notif.stock_bajo", _notifStockBajo.ToString().ToLower());
+        await ConfigService.SetAsync("notif.recordatorio_turno", _notifTurno.ToString().ToLower());
+        await ConfigService.SetAsync("notif.resena", _notifResena.ToString().ToLower());
+        await ConfigService.SetAsync("notif.informe_semanal", _notifInforme.ToString().ToLower());
+        await ConfigService.SetAsync("notif.push_panel", _notifPush.ToString().ToLower());
+        await ConfigService.SetAsync("inventario.stock_minimo", _stockMinimo.ToString());
+        _ultimoGuardado = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+        _mensajeN = "✅ Notificaciones guardadas correctamente";
+        StateHasChanged();
+        await Task.Delay(2500);
+        _mensajeN = null;
+        StateHasChanged();
+    }
+
+    private async Task GuardarVenta()
+    {
+        await ConfigService.SetAsync("venta.porcentaje_aumento", _porcentajeAumento.ToString());
+        _ultimoGuardado = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+        _mensajeV = "✅ Configuración de venta guardada correctamente";
+        StateHasChanged();
+        await Task.Delay(2500);
+        _mensajeV = null;
+        StateHasChanged();
+    }
+
+    public class DiaHorario
+    {
+        public string Nombre { get; set; }
+        public bool Activo { get; set; }
+        public string Apertura { get; set; }
+        public string Cierre { get; set; }
+        public DiaHorario(string nombre, bool activo, string apertura, string cierre)
+        {
+            Nombre = nombre; Activo = activo; Apertura = apertura; Cierre = cierre;
+        }
+    }
+}

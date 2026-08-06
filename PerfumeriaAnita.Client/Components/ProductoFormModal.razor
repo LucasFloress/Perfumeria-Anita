@@ -1,0 +1,163 @@
+@using PerfumeriaAnita.Client.Services
+@inject IProductoService ProductoService
+@inject ICategoriaService CategoriaService
+@inject IConfigService ConfigService
+@inject ISnackbar Snackbar
+
+@if (Visible)
+{
+    <div class="modal-backdrop" @onclick="Cerrar"></div>
+    <div class="modal-box" @onclick:stopPropagation>
+        <div class="modal-header">
+            <h3>@(Producto.Id == 0 ? "➕ Nuevo Producto" : "✏️ Editar Producto")</h3>
+            <button class="btn-cerrar" @onclick="Cerrar">✕</button>
+        </div>
+
+        <EditForm Model="Producto" OnValidSubmit="Guardar">
+            <DataAnnotationsValidator />
+
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label>Nombre *</label>
+                    <InputText @bind-Value="Producto.Nombre" class="form-input" placeholder="Ej: Chanel N°5" />
+                    <ValidationMessage For="@(() => Producto.Nombre)" />
+                </div>
+
+                <div class="form-group">
+                    <label>Código de Barras</label>
+                    <InputText @bind-Value="Producto.CodigoBarras" class="form-input" />
+                </div>
+
+                <div class="form-group">
+                    <label>Categoría *</label>
+                    <InputSelect @bind-Value="Producto.CategoriaId" class="form-input">
+                        <option value="">-- Seleccionar --</option>
+                        @foreach (var cat in _categorias)
+                        {
+                            <option value="@cat.Id">@cat.Nombre</option>
+                        }
+                    </InputSelect>
+                </div>
+
+                <div class="form-group">
+                    <label>Precio de costo *</label>
+                    <input type="number" step="0.01" class="form-input"
+                           @bind="_precioCosto" @bind:event="oninput" @bind:after="CalcularPrecios" />
+                </div>
+                <div class="form-group">
+                    <label>Precio de venta *</label>
+                    <InputNumber @bind-Value="Producto.Precio" class="form-input" />
+                    <small style="color:#888; font-size:0.8rem;">Calculado con @_porcentajeAumento% (editable)</small>
+                </div>
+                <div class="form-group">
+                    <label>Stock *</label>
+                    <InputNumber @bind-Value="Producto.Stock" class="form-input" />
+                </div>
+                <div class="form-group checkbox-group">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" checked="@(Producto.Activo == true)"
+                               @onchange="@(e => Producto.Activo = (bool)(e.Value ?? false))" />
+                        Producto activo
+                    </label>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Imagen (opcional)</label>
+                    <InputFile OnChange="CargarImagen" accept="image/*" class="form-input" />
+                    @if (_imagenPreview != null)
+                    {
+                        <img src="@_imagenPreview" alt="Preview" class="img-preview" />
+                    }
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-cancelar" @onclick="Cerrar">Cancelar</button>
+                <button type="submit" class="btn-guardar" disabled="@_guardando">
+                    @(_guardando ? "Guardando..." : "Guardar")
+                </button>
+            </div>
+        </EditForm>
+    </div>
+}
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public ProductoDto Producto { get; set; } = new();
+    [Parameter] public EventCallback OnGuardado { get; set; }
+    [Parameter] public EventCallback OnCerrar { get; set; }
+
+    private List<CategoriaDto> _categorias = new();
+    private string? _imagenPreview;
+    private bool _guardando = false;
+    private decimal _porcentajeAumento = 30;
+    private decimal _precioCosto;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Visible && !_categorias.Any())
+        {
+            try { _categorias = await CategoriaService.GetAllAsync(); } catch { }
+        }
+
+        if (Producto.Imagen != null)
+            _imagenPreview = $"data:image/jpeg;base64,{Convert.ToBase64String(Producto.Imagen)}";
+
+        try
+        {
+            var allConfigs = await ConfigService.GetAllAsync();
+            if (allConfigs.TryGetValue("venta.porcentaje_aumento", out var pStr)
+                && decimal.TryParse(pStr, out var p))
+                _porcentajeAumento = p;
+        }
+        catch { }
+    }
+
+    private async Task CargarImagen(InputFileChangeEventArgs e)
+    {
+        var archivo = e.File;
+        using var stream = archivo.OpenReadStream(2 * 1024 * 1024);
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+        Producto.Imagen = ms.ToArray();
+        _imagenPreview = $"data:image/png;base64,{Convert.ToBase64String(Producto.Imagen)}";
+    }
+
+    private void CalcularPrecios()
+    {
+        if (_precioCosto > 0)
+            Producto.Precio = _precioCosto * (1 + _porcentajeAumento / 100M);
+        else
+            Producto.Precio = 0;
+    }
+
+    private async Task Guardar()
+    {
+        _guardando = true;
+        try
+        {
+            if (Producto.Id == 0)
+            {
+                var result = await ProductoService.CreateAsync(Producto);
+                if (result == null) { Snackbar.Add("Error al crear el producto.", Severity.Error); return; }
+            }
+            else
+            {
+                var exito = await ProductoService.UpdateAsync(Producto.Id, Producto);
+                if (!exito) { Snackbar.Add("Error al actualizar el producto.", Severity.Error); return; }
+            }
+            Snackbar.Add("¡Guardado!", Severity.Success);
+            await OnGuardado.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _guardando = false;
+        }
+    }
+
+    private async Task Cerrar() { _imagenPreview = null; await OnCerrar.InvokeAsync(); }
+}

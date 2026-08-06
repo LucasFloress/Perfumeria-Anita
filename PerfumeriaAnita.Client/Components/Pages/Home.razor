@@ -1,0 +1,108 @@
+@page "/"
+@inject IConfigService ConfigService
+
+<PageTitle>Bienvenida - Perfumería Anita</PageTitle>
+
+<style>
+    .bienvenida-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: #f5f6fa;
+        font-family: 'DM Sans', 'Segoe UI', sans-serif;
+        padding: 20px;
+    }
+
+    .bienvenida-card {
+        background: #fff;
+        padding: 50px 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        text-align: center;
+        max-width: 450px;
+        width: 100%;
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    .icono-bienvenida {
+        font-size: 64px;
+        margin-bottom: 20px;
+        display: inline-block;
+        /* Usamos el color dinámico como color de texto para el ícono si es Material Symbol */
+        color: @_colorPrincipal; 
+    }
+
+    .bienvenida-titulo {
+        color: #1a1a2e;
+        font-size: 26px;
+        font-weight: 800;
+        margin: 0 0 10px 0;
+    }
+
+    .bienvenida-texto {
+        color: #64748b;
+        font-size: 15px;
+        margin: 0 0 35px 0;
+        line-height: 1.6;
+    }
+
+    .btn-ingresar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background-color: @_colorPrincipal;
+        color: white;
+        text-decoration: none;
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 700;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .btn-ingresar:hover {
+        filter: brightness(0.9);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        color: white;
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="bienvenida-wrapper">
+    <div class="bienvenida-card">
+        <div class="icono-bienvenida">
+            <span class="material-symbols-outlined" style="font-size: 64px;">local_florist</span>
+        </div>
+        
+        <h1 class="bienvenida-titulo">¡Hola, Buen dia!</h1>
+        <p class="bienvenida-texto">
+            Tu sistema de gestión está listo. Controlá tu inventario, registrá tus ventas y visualizá el rendimiento de tu negocio de forma simple y rápida.
+        </p>
+        
+        <a href="/dashboard" class="btn-ingresar">
+            Ir al Dashboard 
+            <span class="material-symbols-outlined" style="font-size: 20px;">arrow_forward</span>
+        </a>
+    </div>
+</div>
+
+@code {
+    private string _colorPrincipal = "#e91e63";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Traemos el color de la base de datos para que el botón haga juego con el resto de la app
+        _colorPrincipal = await ConfigService.GetAsync("tienda.color_principal") ?? "#e91e63";
+    }
+}

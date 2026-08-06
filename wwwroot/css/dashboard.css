@@ -274,3 +274,13 @@ body {
 }
 .btn-add-cart:hover { background: #6a1b9a; }
 .btn-add-cart:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Responsive Grid for Dashboard */
+@media (max-width: 992px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    .content-body {
+        padding: 15px;
+    }
+}

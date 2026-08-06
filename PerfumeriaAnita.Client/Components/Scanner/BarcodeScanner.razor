@@ -1,0 +1,112 @@
+@using PerfumeriaAnita.Client.Services
+@inject IJSRuntime JS
+@inject IProductoService ProductoService
+@inject IConfigService ConfigService
+@implements IAsyncDisposable
+
+<div class="scanner-wrapper" style="margin-bottom: 20px;">
+    @if (mostrarCamara)
+    {
+        <div style="position: relative; border-radius: 12px; overflow: hidden; border: 2px solid @_colorPrincipal; background: #000;">
+            <div id="interactive" class="viewport" style="width: 100%; height: 280px;"></div>
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 70%; height: 80px; border: 2px dashed #4caf50; pointer-events: none; box-shadow: 0 0 0 4000px rgba(0,0,0,0.4);"></div>
+        </div>
+        <button class="btn btn-clear" style="margin-top: 10px; width: 100%; background: #ffebee; color: #c62828; padding: 12px; border-radius: 6px; font-weight: bold; position: relative; transform: none; top: 0; left: 0;" @onclick="DetenerCamara">
+            ⏹ Detener Cámara
+        </button>
+    }
+    else
+    {
+        <button class="btn btn-success" style="width: 100%; padding: 15px; font-size: 1.1rem; border-radius: 8px; display: flex; justify-content: center; align-items: center; gap: 10px; background-color: @_colorPrincipal; border: none; color: white; cursor: pointer;" @onclick="IniciarCamara">
+            📸 Abrir Cámara Escáner
+        </button>
+    }
+
+    @if (mensajeError != null)
+    {
+        <div class="toast-venta toast-error">✖ @mensajeError</div>
+    }
+
+    @if (_buscando)
+    {
+        <div style="text-align:center; padding: 8px; color: @_colorPrincipal;">🔄 Buscando producto...</div>
+    }
+</div>
+
+@code {
+    [Parameter] public EventCallback<ProductoDto> OnProductoEncontrado { get; set; }
+
+    private bool mostrarCamara = false;
+    private string? mensajeError;
+    private DotNetObjectReference<BarcodeScanner>? objRef;
+    private string _colorPrincipal = "#7b1fa2";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var color = await ConfigService.GetAsync("tienda.color_principal");
+            if (!string.IsNullOrWhiteSpace(color)) _colorPrincipal = color;
+        }
+        catch { }
+    }
+
+    private async Task IniciarCamara()
+    {
+        mostrarCamara = true;
+        mensajeError = null;
+        StateHasChanged();
+        await Task.Delay(100);
+        objRef = DotNetObjectReference.Create(this);
+        await JS.InvokeVoidAsync("quaggaInterop.startScanner", objRef);
+    }
+
+    private async Task DetenerCamara()
+    {
+        mostrarCamara = false;
+        await JS.InvokeVoidAsync("quaggaInterop.stopScanner");
+        StateHasChanged();
+    }
+
+    private bool _buscandoCodigo = false;
+    private bool _buscando = false;
+
+    [JSInvokable]
+    public async Task ProcesarCodigoEscaneado(string codigo)
+    {
+        if (_buscandoCodigo) return;
+        _buscandoCodigo = true;
+        _buscando = true;
+        StateHasChanged();
+
+        await DetenerCamara();
+
+        var producto = await ProductoService.BuscarPorCodigoAsync(codigo);
+        _buscando = false;
+
+        if (producto != null)
+        {
+            await OnProductoEncontrado.InvokeAsync(producto);
+        }
+        else
+        {
+            mensajeError = $"El código {codigo} no existe en inventario.";
+            StateHasChanged();
+            _ = Task.Delay(4000).ContinueWith(_ => InvokeAsync(() =>
+            {
+                mensajeError = null;
+                _buscandoCodigo = false;
+                StateHasChanged();
+            }));
+            return;
+        }
+        _buscandoCodigo = false;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (mostrarCamara)
+            await JS.InvokeVoidAsync("quaggaInterop.stopScanner");
+        objRef?.Dispose();
+    }
+}

@@ -6,6 +6,7 @@
 @inject IProductoService ProductoService
 @inject IVentaService VentaService
 @inject PerfumeriaAnita.Services.IConfigService ConfigService
+@inject AuthService AuthService
 
 <link href="css/dashboard.css" rel="stylesheet" />
 
@@ -14,14 +15,19 @@
     <main class="main-content">
         <header class="header">
             <h2>Panel de Control</h2>
-            <div class="user-info">Usuario: <strong>Admin</strong></div>
+            <div class="user-info">Usuario: <strong>@(AuthService.UsuarioActual?.Nombre ?? "Admin")</strong></div>
         </header>
 
         <div class="content-body">
-            <div class="card">
-                <h3>
-                 Punto de Venta
-                </h3>
+            <div class="dashboard-grid">
+                
+                <!-- Columna Izquierda: Punto de Venta -->
+                <div class="dashboard-main">
+                    <div class="card" style="margin-bottom: 0;">
+                        <h3 style="display: flex; align-items: center; gap: 8px; margin-bottom: 20px;">
+                            <span class="material-symbols-outlined" style="color: #7b1fa2;">point_of_sale</span>
+                            Punto de Venta
+                        </h3>
 
                 <div class="search-box" style="position:relative;">
                     <input type="text"
@@ -170,78 +176,92 @@
                         @(ventaExitosa ? "✔" : "✖") @mensajeVenta
                     </div>
                 }
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 20px;">
-
-                <div class="card">
-                    <h3>
-                        <span class="material-symbols-outlined">production_quantity_limits</span>
-                        Alertas de Stock
-                    </h3>
-                    @if (alertasStock.Any())
-                    {
-                        @foreach (var a in alertasStock)
-                        {
-                            <div class="alert-item">@a.Nombre (Quedan @a.Stock)</div>
-                        }
-                    }
-                    else
-                    {
-                        <p style="color:#888; margin:0; padding: 10px 0;">Sin alertas por el momento</p>
-                    }
                 </div>
+            </div> <!-- Cierre de dashboard-main -->
 
-                <div class="card" style="text-align:center">
-                    <h3>
-                         Resumen Hoy
-                     </h3>
-                    <div style="text-align:center; padding: 20px;">
-                        <span style="color:#666">Total Vendido</span>
-                        <h1 style="font-size: 3rem; margin: 10px 0; transition: color 0.3s;" 
-                            class="@(animarTotal ? "pulse-money" : "")">
+            <!-- Columna Derecha: KPI y Alertas -->
+            <div class="dashboard-side" style="display: flex; flex-direction: column; gap: 20px;">
+                
+                <!-- Resumen Hoy -->
+                <div class="card" style="margin-bottom: 0;">
+                    <h3 style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
+                        <span class="material-symbols-outlined" style="color: #7b1fa2;">analytics</span>
+                        Resumen de Hoy
+                    </h3>
+                    <div style="text-align: center; padding: 10px 0;">
+                        <span style="color:#666; font-size: 0.9rem;">Total Vendido</span>
+                        <h1 style="font-size: 3rem; margin: 10px 0; color: #7b1fa2; font-weight: 800;" class="@(animarTotal ? "pulse-money" : "")">
                             $@totalHoy.ToString("N0")
                         </h1>
                         <span style="color:#888; font-size:0.85rem;">@ventasHoy venta@(ventasHoy == 1 ? "" : "s") hoy</span>
                     </div>
                 </div>
 
-                <div class="card">
-                    <h3>
-                    <span class="material-symbols-outlined">shopping_bag</span>
-                        Últimas Ventas
-                     </h3>
-                    @if (historialVentas.Any())
+                <!-- Alertas de Stock -->
+                <div class="card" style="margin-bottom: 0;">
+                    <h3 style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
+                        <span class="material-symbols-outlined" style="color: #e53935;">warning</span>
+                        Alertas de Stock
+                    </h3>
+                    @if (alertasStock.Any())
                     {
-                        <table class="history-table">
-                            <thead>
-                                <tr>
-                                    <th>Hora</th>
-                                    <th>Productos</th>
-                                    <th>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var v in historialVentas)
-                                {
-                                    <tr>
-                                        <td style="color:#888; font-size:0.8rem;">@v.Hora</td>
-                                        <td style="font-weight:500;">@v.Descripcion</td>
-                                        <td class="text-money">$@v.Total.ToString("N0")</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                        <div style="display: flex; flex-direction: column; gap: 10px; max-height: 250px; overflow-y: auto; padding-right: 5px;">
+                            @foreach (var a in alertasStock)
+                            {
+                                <div class="alert-item" style="background: #fff5f5; border-left: 4px solid #e53935; padding: 10px; border-radius: 4px; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                                    <span style="font-weight: 500; color: #333;">@a.Nombre</span>
+                                    <span style="color: #b71c1c; font-weight: bold; font-size: 0.85rem;">Quedan @a.Stock</span>
+                                </div>
+                            }
+                        </div>
                     }
                     else
                     {
-                        <p style="color:#888; margin:0; padding: 10px 0;">Aún no hay ventas registradas en esta sesión.</p>
+                        <p style="color:#888; margin:0; padding: 10px 0; font-size: 0.9rem; text-align: center;">Sin alertas por el momento</p>
+                    }
+                </div>
+
+                <!-- Últimas Ventas -->
+                <div class="card" style="margin-bottom: 0;">
+                    <h3 style="display: flex; align-items: center; gap: 8px; margin-bottom: 15px;">
+                        <span class="material-symbols-outlined" style="color: #2e7d32;">shopping_bag</span>
+                        Últimas Ventas
+                    </h3>
+                    @if (historialVentas.Any())
+                    {
+                        <div style="max-height: 250px; overflow-y: auto; padding-right: 5px;">
+                            <table class="history-table">
+                                <thead>
+                                    <tr>
+                                        <th>Hora</th>
+                                        <th>Productos</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var v in historialVentas)
+                                    {
+                                        <tr>
+                                            <td style="color:#888; font-size:0.8rem;">@v.Hora</td>
+                                            <td style="font-weight:500; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="@v.Descripcion">@v.Descripcion</td>
+                                            <td class="text-money">$@v.Total.ToString("N0")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p style="color:#888; margin:0; padding: 10px 0; font-size: 0.9rem; text-align: center;">Aún no hay ventas registradas.</p>
                     }
                 </div>
 
             </div>
-        </div>
-    </main>
+
+        </div> <!-- Cierre de dashboard-grid -->
+    </div> <!-- Cierre de content-body -->
+</main>
 </div>
 
 @code {
