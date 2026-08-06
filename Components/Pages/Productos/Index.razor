@@ -249,7 +249,7 @@
 
     // ── Paginación ─────────────────────────────────────────
     private int PaginaActual = 1;
-    private const int ItemsPorPagina = 5;
+    private const int ItemsPorPagina = 15;
     private int TotalPaginas => (int)Math.Ceiling((double)ProductosFiltrados.Count / ItemsPorPagina);
     private int InicioRango => ProductosFiltrados.Count == 0 ? 0 : (PaginaActual - 1) * ItemsPorPagina + 1;
     private int FinRango => Math.Min(PaginaActual * ItemsPorPagina, ProductosFiltrados.Count);
@@ -515,12 +515,32 @@
         var p = await Contexto.Productos.FindAsync(_productoSeleccionado.Id);
         if (p != null)
         {
-            // En lugar de hacer Remove(p), hacemos una baja lógica
-            p.Activo = false;
-            Contexto.Productos.Update(p);
-            
-            await Contexto.SaveChangesAsync();
-            Snackbar.Add("Producto desactivado correctamente.", Severity.Success);
+            if (p.Activo == false)
+            {
+                // Si ya está inactivo, intentamos eliminarlo físicamente
+                try
+                {
+                    Contexto.Productos.Remove(p);
+                    await Contexto.SaveChangesAsync();
+                    Snackbar.Add("Producto eliminado permanentemente.", Severity.Success);
+                }
+                catch (Exception)
+                {
+                    // Si tiene relaciones (ventas), la BD lanzará una excepción por restricción de integridad
+                    Snackbar.Add("No se puede eliminar permanentemente porque tiene ventas asociadas.", Severity.Warning);
+                    
+                    // Desvinculamos el estado del objeto en EF Core para evitar transacciones corruptas
+                    Contexto.Entry(p).State = EntityState.Unchanged;
+                }
+            }
+            else
+            {
+                // Baja lógica normal
+                p.Activo = false;
+                Contexto.Productos.Update(p);
+                await Contexto.SaveChangesAsync();
+                Snackbar.Add("Producto desactivado correctamente (baja lógica).", Severity.Success);
+            }
         }
         await RefrescarProductos();
     }

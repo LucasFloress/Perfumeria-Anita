@@ -31,8 +31,9 @@
 
                     @* Código de Barras *@
                     <div class="form-group">
-                        <label>Código de Barras</label>
-                        <InputText @bind-Value="Producto.CodigoBarras" class="form-input" />
+                        <label>Código de Barras *</label>
+                        <InputText @bind-Value="Producto.CodigoBarras" class="form-input" placeholder="Ej: 7791234567001" />
+                        <ValidationMessage For="@(() => Producto.CodigoBarras)" />
                     </div>
 
                     @* Categoría *@
@@ -171,6 +172,28 @@
             _guardando = true;
             try
             {
+                // Validar nombre duplicado (ignorando el producto actual en caso de edición)
+                var existeNombre = await Contexto.Productos.AnyAsync(p => 
+                    p.Nombre.ToLower() == Producto.Nombre.ToLower() && p.Id != Producto.Id);
+                if (existeNombre)
+                {
+                    Snackbar.Add("Ya existe un producto con este nombre.", Severity.Warning);
+                    _guardando = false;
+                    return;
+                }
+
+                // Validar código de barras duplicado
+                if (!string.IsNullOrWhiteSpace(Producto.CodigoBarras))
+                {
+                    var existeCodigo = await Contexto.Productos.AnyAsync(p => 
+                        p.CodigoBarras == Producto.CodigoBarras && p.Id != Producto.Id);
+                    if (existeCodigo)
+                    {
+                        Snackbar.Add("Ya existe un producto con este código de barras.", Severity.Warning);
+                        _guardando = false;
+                        return;
+                    }
+                }
 
                 if (Producto.Id == 0)
                 {

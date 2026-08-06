@@ -8,6 +8,29 @@ public static class DataSeeder
 {
     public static async Task SeedAsync(AppDbContext db)
     {
+        // ── 0. Usuarios ───────────────────────────────────────────────
+        if (!await db.Usuarios.AnyAsync())
+        {
+            var admin = new User
+            {
+                Nombre = "Admin",
+                Contraseña = "admin123",
+                Email = "admin@perfumeriaanita.com",
+                Rol = "Administrador",
+                FechaRegistro = DateTime.Now
+            };
+            var vendedor = new User
+            {
+                Nombre = "Anita",
+                Contraseña = "anita123",
+                Email = "anita@perfumeriaanita.com",
+                Rol = "Vendedor",
+                FechaRegistro = DateTime.Now
+            };
+            await db.Usuarios.AddRangeAsync(admin, vendedor);
+            await db.SaveChangesAsync();
+        }
+
         // ── 1. Categorías ──────────────────────────────────────────────
         if (!await db.Categorias.AnyAsync())
         {

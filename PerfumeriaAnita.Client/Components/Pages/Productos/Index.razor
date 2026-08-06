@@ -1,0 +1,433 @@
+@page "/inventario"
+@using PerfumeriaAnita.Client.Services
+@using MudBlazor
+@inject IProductoService ProductoService
+@inject ICategoriaService CategoriaService
+@inject IConfigService ConfigService
+@inject AppConfigState ConfigState
+@inject ISnackbar Snackbar
+
+<PageTitle>Inventario - Perfumería Anita</PageTitle>
+
+<style>
+    .btn-nuevo { background-color: @_colorPrincipal !important; }
+    .btn-nuevo:hover { filter: brightness(0.85); }
+    .input-busqueda:focus { border-color: @_colorPrincipal !important; }
+    .input-busqueda.escaner-activo { border-color: @_colorPrincipal !important; }
+    .feedback-hint { border-color: @_colorPrincipal !important; color: @_colorPrincipal !important; }
+    .text-violeta { color: @_colorPrincipal !important; }
+    .btn-pagina.activa { background-color: @_colorPrincipal !important; border-color: @_colorPrincipal !important; }
+    .link-gestionar { color: @_colorPrincipal !important; }
+</style>
+
+<div class="inventario-wrapper">
+    <div class="card alertas-card">
+        <div class="alertas-left">
+            <div class="alertas-header">
+                <span class="material-symbols-outlined">warning</span>
+                <h2>Alertas de Stock Críticas</h2>
+                @if (AlertasStock.Any())
+                {
+                    <span class="badge-riesgo">@AlertasStock.Count PRODUCTO@(AlertasStock.Count != 1 ? "S" : "") EN RIESGO</span>
+                }
+                else
+                {
+                    <span class="badge-ok">✔ TODO EN ORDEN</span>
+                }
+            </div>
+            <div class="alertas-items">
+                @if (!AlertasStock.Any())
+                {
+                    <p style="color:#888; margin:0; padding: 10px 0;">Sin alertas por el momento</p>
+                }
+                @foreach (var alerta in AlertasStock)
+                {
+                    <div class="alerta-item @(alerta.Urgente ? "urgente" : "")">
+                        <div class="alerta-nombre">@alerta.Nombre</div>
+                        <div class="alerta-ref">Referencia: @alerta.Referencia</div>
+                        <div class="alerta-footer">
+                            <span class="alerta-unidades @(alerta.Urgente ? "text-rojo" : "text-naranja")">@alerta.Unidades</span>
+                            @if (alerta.Urgente)
+                            {
+                                <span class="badge-urgente">REPOSICIÓN URGENTE</span>
+                            }
+                            else
+                            {
+                                <a class="link-gestionar">Gestionar Pedido</a>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="card ventas-card">
+        <div class="ventas-header">
+            <h3>Ventas del día</h3>
+        </div>
+        <div class="ventas-monto">$@totalHoy.ToString("N0")</div>
+        <div class="ventas-variacion">↗ +12.5% vs ayer</div>
+        <div class="ventas-update">Última actualización: @DateTime.Now.ToString("HH:mm")</div>
+    </div>
+
+    <div class="card tabla-card">
+        <div class="tabla-header">
+            <div>
+                <h3>Inventario de Productos</h3>
+                <p class="tabla-subtitulo">Gestiona tus productos y existencias</p>
+            </div>
+            <div class="tabla-controles">
+                <select class="select-filtro" @bind="CategoriaFiltro" @bind:after="AplicarFiltros">
+                    @foreach (var cat in Categorias)
+                    {
+                        <option value="@cat">@cat</option>
+                    }
+                </select>
+                <select class="select-filtro" @bind="EstadoFiltro" @bind:after="AplicarFiltros">
+                    @foreach (var est in Estados)
+                    {
+                        <option value="@est">@est</option>
+                    }
+                </select>
+                <button class="btn-secundario" style="background: #f1f5f9; border: 1px solid #cbd5e1; padding: 8px 12px; border-radius: 8px; cursor: pointer; color: #475569; transition: background 0.2s;"
+                        @onclick="RefrescarProductos" title="Recargar">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/></svg>
+                </button>
+                <button class="btn-secundario" style="background: #f1f5f9; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; color: #475569;"
+                        @onclick="AbrirGestorCategorias">Categorías</button>
+                <button class="btn-nuevo" @onclick="AbrirCrear">➕ Nuevo Producto</button>
+            </div>
+        </div>
+
+        <div class="busqueda-row">
+            <div class="busqueda-wrapper">
+                <span class="busqueda-icon">🔍</span>
+                <input @ref="InputBusqueda"
+                       class="input-busqueda"
+                       type="text"
+                       placeholder="Buscar por nombre de producto o código..."
+                       value="@TextoBusqueda"
+                       @oninput="OnBusquedaInput" />
+            </div>
+            @if (!string.IsNullOrEmpty(TextoBusqueda))
+            {
+                <button class="btn-limpiar" @onclick="LimpiarBusqueda">✕</button>
+            }
+        </div>
+
+        <table class="tabla-productos">
+            <thead>
+                <tr>
+                    <th>PRODUCTO</th>
+                    <th>CATEGORÍA</th>
+                    <th>PRECIO</th>
+                    <th>STOCK</th>
+                    <th>ESTADO</th>
+                    <th>ACCIONES</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!ProductosPaginados.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="sin-resultados">No se encontraron productos</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var producto in ProductosPaginados)
+                    {
+                        <tr>
+                            <td>
+                                <div class="producto-cell">
+                                    <div class="producto-thumb">🧴</div>
+                                    <div>
+                                        <div class="producto-nombre">@producto.Nombre</div>
+                                        <div class="producto-sku">Código: @producto.CodigoBarras</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-gris">@(producto.CategoriaNombre ?? "Sin categoría")</td>
+                            <td class="text-bold">$@producto.Precio.ToString("N2")</td>
+                            <td class="text-bold">@producto.Stock</td>
+                            <td>
+                                <span class="badge-estado badge-@ObtenerEstadoCss(producto)">@ObtenerEstado(producto)</span>
+                            </td>
+                            <td>
+                                <div class="acciones-cell">
+                                    <button class="btn-accion btn-editar" @onclick="() => AbrirEditar(producto)">
+                                        <span class="material-symbols-outlined">edit</span>
+                                    </button>
+                                    <button class="btn-accion btn-borrar" @onclick="() => AbrirEliminar(producto)">
+                                        <span class="material-symbols-outlined">delete</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+
+        <div class="paginacion">
+            <span class="paginacion-info">
+                Mostrando @InicioRango–@FinRango de @ProductosFiltrados.Count producto@(ProductosFiltrados.Count != 1 ? "s" : "")
+                @if (!string.IsNullOrEmpty(TextoBusqueda))
+                {
+                    <span class="text-violeta"> (filtrado de @TodosLosProductos.Count)</span>
+                }
+            </span>
+            <div class="paginacion-botones">
+                <button class="btn-pagina" disabled="@(PaginaActual == 1)" @onclick="PaginaAnterior">Anterior</button>
+                @for (int i = 1; i <= TotalPaginas; i++)
+                {
+                    var numPagina = i;
+                    <button class="btn-pagina @(PaginaActual == numPagina ? "activa" : "")"
+                            @onclick="() => IrAPagina(numPagina)">@numPagina</button>
+                }
+                <button class="btn-pagina" disabled="@(PaginaActual == TotalPaginas || TotalPaginas == 0)" @onclick="PaginaSiguiente">Siguiente</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ProductoFormModal
+    Visible="_modalFormVisible"
+    Producto="_productoSeleccionado"
+    OnGuardado="RefrescarProductos"
+    OnCerrar="CerrarModales" />
+
+<ConfirmarEliminarModal
+    Visible="_modalEliminarVisible"
+    NombreProducto="@_productoSeleccionado.Nombre"
+    OnConfirmar="EliminarConfirmado"
+    OnCancelar="CerrarModales" />
+
+<GestorCategoriasModal @ref="_gestorCategorias" OnCambioCategorias="RefrescarProductos" />
+
+@code {
+    private List<ProductoDto> TodosLosProductos = new();
+    private List<ProductoDto> ProductosFiltrados = new();
+    private List<ProductoDto> ProductosPaginados = new();
+    private string _colorPrincipal = "7c3aed";
+    private int _stockMinimo = 5;
+
+    private List<AlertaStock> AlertasStock = new();
+
+    private string TextoBusqueda = "";
+    private string CategoriaFiltro = "Todas las Categorías";
+    private string EstadoFiltro = "Todos los Estados";
+
+    private List<string> Categorias = new() { "Todas las Categorías" };
+    private List<string> Estados = new() { "Todos los Estados", "EN STOCK", "STOCK BAJO", "AGOTADO", "INACTIVO" };
+
+    private decimal totalHoy = 0;
+
+    private int PaginaActual = 1;
+    private const int ItemsPorPagina = 5;
+    private int TotalPaginas => (int)Math.Ceiling((double)ProductosFiltrados.Count / ItemsPorPagina);
+    private int InicioRango => ProductosFiltrados.Count == 0 ? 0 : (PaginaActual - 1) * ItemsPorPagina + 1;
+    private int FinRango => Math.Min(PaginaActual * ItemsPorPagina, ProductosFiltrados.Count);
+
+    private bool _modalFormVisible = false;
+    private bool _modalEliminarVisible = false;
+    private ProductoDto _productoSeleccionado = new();
+    private GestorCategoriasModal _gestorCategorias = default!;
+    private ElementReference InputBusqueda;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var allConfigs = await ConfigService.GetAllAsync();
+            if (allConfigs.TryGetValue("tienda.color_principal", out var color))
+                _colorPrincipal = color;
+            if (allConfigs.TryGetValue("inventario.stock_minimo", out var umbralStr)
+                && int.TryParse(umbralStr, out var umbral))
+                _stockMinimo = umbral;
+            ConfigState.Inicializar(allConfigs);
+        }
+        catch { }
+
+        await CargarDatos();
+    }
+
+    private async Task CargarDatos()
+    {
+        try
+        {
+            TodosLosProductos = await ProductoService.GetAllAsync();
+            var catsDB = TodosLosProductos
+                .Where(p => p.CategoriaNombre != null)
+                .Select(p => p.CategoriaNombre!)
+                .Distinct()
+                .OrderBy(x => x)
+                .ToList();
+            Categorias = new List<string> { "Todas las Categorías" };
+            Categorias.AddRange(catsDB);
+            GenerarAlertas();
+            AplicarFiltros();
+        }
+        catch { }
+    }
+
+    private string ObtenerEstado(ProductoDto p)
+    {
+        if (p.Activo != true) return "INACTIVO";
+        if (p.Stock == 0) return "AGOTADO";
+        if (p.Stock <= _stockMinimo) return "STOCK BAJO";
+        return "EN STOCK";
+    }
+
+    private string ObtenerEstadoCss(ProductoDto p)
+    {
+        if (p.Activo != true) return "inactivo";
+        if (p.Stock == 0) return "agotado";
+        if (p.Stock <= _stockMinimo) return "bajo";
+        return "stock";
+    }
+
+    private void GenerarAlertas()
+    {
+        AlertasStock.Clear();
+        var enRiesgo = TodosLosProductos.Where(p => p.Stock <= _stockMinimo && p.Activo == true).ToList();
+        foreach (var p in enRiesgo)
+        {
+            AlertasStock.Add(new AlertaStock(
+                p.Nombre,
+                p.CodigoBarras ?? "Sin código",
+                p.Stock == 0 ? "AGOTADO" : $"{p.Stock} unidades",
+                p.Stock == 0
+            ));
+        }
+    }
+
+    private void OnBusquedaInput(ChangeEventArgs e)
+    {
+        TextoBusqueda = e.Value?.ToString() ?? "";
+        var codigoLimpio = TextoBusqueda.Trim();
+        if (codigoLimpio.Length >= 8 && codigoLimpio.All(char.IsDigit))
+        {
+            var encontrado = TodosLosProductos.FirstOrDefault(p => p.CodigoBarras == codigoLimpio);
+            if (encontrado != null)
+            {
+                TextoBusqueda = encontrado.Nombre;
+            }
+        }
+        AplicarFiltros();
+    }
+
+    private void LimpiarBusqueda()
+    {
+        TextoBusqueda = "";
+        AplicarFiltros();
+    }
+
+    private void AplicarFiltros()
+    {
+        var q = TextoBusqueda.Trim().ToLower();
+        ProductosFiltrados = TodosLosProductos.Where(p =>
+        {
+            var matchBusqueda = string.IsNullOrEmpty(q) ||
+                                p.Nombre.ToLower().Contains(q) ||
+                                (p.CodigoBarras != null && p.CodigoBarras.ToLower().Contains(q)) ||
+                                (p.CategoriaNombre != null && p.CategoriaNombre.ToLower().Contains(q));
+            var matchCat = CategoriaFiltro == "Todas las Categorías" || p.CategoriaNombre == CategoriaFiltro;
+            var matchEstado = EstadoFiltro == "Todos los Estados" || ObtenerEstado(p) == EstadoFiltro;
+            return matchBusqueda && matchCat && matchEstado;
+        }).ToList();
+
+        PaginaActual = 1;
+        ActualizarPagina();
+    }
+
+    private void ActualizarPagina()
+    {
+        ProductosPaginados = ProductosFiltrados
+            .Skip((PaginaActual - 1) * ItemsPorPagina)
+            .Take(ItemsPorPagina)
+            .ToList();
+    }
+
+    private void PaginaAnterior() { if (PaginaActual > 1) { PaginaActual--; ActualizarPagina(); } }
+    private void PaginaSiguiente() { if (PaginaActual < TotalPaginas) { PaginaActual++; ActualizarPagina(); } }
+    private void IrAPagina(int n) { PaginaActual = n; ActualizarPagina(); }
+
+    private void AbrirCrear()
+    {
+        _productoSeleccionado = new ProductoDto { Activo = true };
+        _modalFormVisible = true;
+    }
+
+    private void AbrirEditar(ProductoDto p)
+    {
+        _productoSeleccionado = new ProductoDto
+        {
+            Id = p.Id,
+            Nombre = p.Nombre,
+            CodigoBarras = p.CodigoBarras,
+            CategoriaId = p.CategoriaId,
+            Precio = p.Precio,
+            Stock = p.Stock,
+            Activo = p.Activo,
+            Imagen = p.Imagen
+        };
+        _modalFormVisible = true;
+    }
+
+    private void AbrirEliminar(ProductoDto p)
+    {
+        _productoSeleccionado = p;
+        _modalEliminarVisible = true;
+    }
+
+    private void CerrarModales()
+    {
+        _modalFormVisible = false;
+        _modalEliminarVisible = false;
+    }
+
+    private async Task RefrescarProductos()
+    {
+        CerrarModales();
+        await CargarDatos();
+        EstadoFiltro = "Todos los Estados";
+        StateHasChanged();
+    }
+
+    private async Task EliminarConfirmado()
+    {
+        var exito = await ProductoService.DeleteAsync(_productoSeleccionado.Id);
+        if (exito)
+        {
+            Snackbar.Add("Producto desactivado correctamente.", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add("Error al desactivar el producto.", Severity.Error);
+        }
+        await RefrescarProductos();
+    }
+
+    private async Task AbrirGestorCategorias()
+    {
+        await _gestorCategorias.AbrirModal();
+    }
+
+    public class AlertaStock
+    {
+        public string Nombre { get; set; }
+        public string Referencia { get; set; }
+        public string Unidades { get; set; }
+        public bool Urgente { get; set; }
+
+        public AlertaStock(string nombre, string referencia, string unidades, bool urgente)
+        {
+            Nombre = nombre;
+            Referencia = referencia;
+            Unidades = unidades;
+            Urgente = urgente;
+        }
+    }
+}

@@ -21,6 +21,7 @@ builder.Services.AddScoped<IVentaService, VentaService>();
 
 builder.Services.AddScoped<IConfigService, ConfigService>();
 builder.Services.AddScoped<ICategoriaService, CategoriaService>();
+builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddSingleton<AppConfigState>(); 
 

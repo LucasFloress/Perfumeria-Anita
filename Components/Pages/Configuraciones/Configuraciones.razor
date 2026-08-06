@@ -3,8 +3,11 @@
 @using PerfumeriaAnita.Models
 @using PerfumeriaAnita.Services
 @using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.EntityFrameworkCore
 @inject IConfigService ConfigService
 @inject AppConfigState ConfigState
+@inject AuthService AuthService
+@inject PerfumeriaAnita.Data.AppDbContext Db
 
 <div class="cfg-page">
 
@@ -38,6 +41,11 @@
                 style="@(TabActivo == "venta" ? $"color:{ColorPrincipal};border-bottom-color:{ColorPrincipal}" : "")"
                 @onclick='() => TabActivo = "venta"'>
             Venta
+        </button>
+        <button class="cfg-tab @(TabActivo == "seguridad" ? "cfg-tab-active" : "")"
+                style="@(TabActivo == "seguridad" ? $"color:{ColorPrincipal};border-bottom-color:{ColorPrincipal}" : "")"
+                @onclick='() => TabActivo = "seguridad"'>
+            Seguridad
         </button>
     </div>
 
@@ -378,6 +386,56 @@
                 </div>
             }
 
+            @* ══ SEGURIDAD ══════════════════════════════════════════════════ *@
+            @if (TabActivo == "seguridad")
+            {
+                @if (_mensajeSeguridad is not null)
+                {
+                    <div class="cfg-toast" style="border-color:@ColorPrincipal;background:@(ColorPrincipal + "18");color:@ColorPrincipal">
+                        @_mensajeSeguridad
+                    </div>
+                }
+                @if (_mensajeSeguridadError is not null)
+                {
+                    <div class="cfg-toast" style="border-color:#e24b4a;background:#e24b4a18;color:#e24b4a">
+                        @_mensajeSeguridadError
+                    </div>
+                }
+
+                <div class="cfg-card">
+                    <div class="cfg-card-head">
+                        <div>
+                            <div class="cfg-card-title">Datos de Acceso</div>
+                            <div class="cfg-card-sub">Actualizá tus credenciales de inicio de sesión</div>
+                        </div>
+                        <button class="cfg-btn-save" style="background:@ColorPrincipal" @onclick="GuardarSeguridad">
+                            Guardar
+                        </button>
+                    </div>
+                    <div class="cfg-row">
+                        <div>
+                            <div class="cfg-label">Nombre de usuario</div>
+                            <div class="cfg-desc">El nombre que usás para iniciar sesión</div>
+                        </div>
+                        <input type="text" @bind="_nuevoNombreUsuario" class="cfg-input" />
+                    </div>
+                    <div class="cfg-row">
+                        <div>
+                            <div class="cfg-label">Nueva contraseña</div>
+                            <div class="cfg-desc">Dejá en blanco si no la querés cambiar (mínimo 6 caracteres)</div>
+                        </div>
+                        <input type="password" @bind="_nuevaContraseña" class="cfg-input" placeholder="Nueva contraseña" />
+                    </div>
+                    <div class="cfg-row">
+                        <div>
+                            <div class="cfg-label">Confirmar contraseña</div>
+                            <div class="cfg-desc">Repetí la nueva contraseña para confirmar</div>
+                        </div>
+                        <input type="password" @bind="_confirmarContraseña" class="cfg-input" placeholder="Confirmar contraseña" />
+                    </div>
+                </div>
+            }
+
         </div>
     }
 </div>
@@ -431,6 +489,13 @@
     private decimal _porcentajeAumento = 30;
     private string? _mensajeV;
 
+    // ── Seguridad ───────────────────────────────────────────────────────────
+    private string _nuevoNombreUsuario = "";
+    private string _nuevaContraseña = "";
+    private string _confirmarContraseña = "";
+    private string? _mensajeSeguridad;
+    private string? _mensajeSeguridadError;
+
     private string _ultimoGuardado = "—";
 
     // ── Lifecycle ──────────────────────────────────────────────────────────
@@ -463,6 +528,11 @@
         _notifPush        = all.GetValueOrDefault(AppConfig.Keys.NotifPush,        "true") == "true";
         int.TryParse(all.GetValueOrDefault(AppConfig.Keys.StockMinimoAlerta, "5"), out _stockMinimo);
         decimal.TryParse(all.GetValueOrDefault(AppConfig.Keys.PorcentajeAumento, "30"), out _porcentajeAumento);
+
+        if (AuthService.UsuarioActual != null)
+        {
+            _nuevoNombreUsuario = AuthService.UsuarioActual.Nombre;
+        }
 
         _cargando = false;
     }
@@ -575,6 +645,88 @@
         await Task.Delay(2500);
         _mensajeV = null;
         StateHasChanged();
+    }
+
+    private async Task GuardarSeguridad()
+    {
+        _mensajeSeguridad = null;
+        _mensajeSeguridadError = null;
+
+        if (string.IsNullOrWhiteSpace(_nuevoNombreUsuario))
+        {
+            _mensajeSeguridadError = "❌ El nombre de usuario no puede estar vacío.";
+            return;
+        }
+
+        if (AuthService.UsuarioActual == null)
+        {
+            _mensajeSeguridadError = "❌ No hay un usuario autenticado.";
+            return;
+        }
+
+        // Si ingresaron contraseña, validar longitud y coincidencia
+        if (!string.IsNullOrEmpty(_nuevaContraseña))
+        {
+            if (_nuevaContraseña.Length < 6)
+            {
+                _mensajeSeguridadError = "❌ La contraseña debe tener al menos 6 caracteres.";
+                return;
+            }
+
+            if (_nuevaContraseña != _confirmarContraseña)
+            {
+                _mensajeSeguridadError = "❌ Las contraseñas no coinciden.";
+                return;
+            }
+        }
+
+        try
+        {
+            // Validar que el nombre de usuario no esté duplicado
+            var nombreExiste = await Db.Usuarios.AnyAsync(u => u.Id != AuthService.UsuarioActual.Id && u.Nombre.ToLower() == _nuevoNombreUsuario.ToLower());
+            if (nombreExiste)
+            {
+                _mensajeSeguridadError = "❌ El nombre de usuario ya está en uso.";
+                return;
+            }
+
+            // Buscar en la BD y actualizar
+            var usuarioDb = await Db.Usuarios.FindAsync(AuthService.UsuarioActual.Id);
+            if (usuarioDb != null)
+            {
+                usuarioDb.Nombre = _nuevoNombreUsuario;
+                if (!string.IsNullOrEmpty(_nuevaContraseña))
+                {
+                    usuarioDb.Contraseña = _nuevaContraseña;
+                }
+                
+                await Db.SaveChangesAsync();
+                
+                // Actualizar el estado de sesión actual
+                AuthService.Login(usuarioDb);
+
+                _ultimoGuardado = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+                _mensajeSeguridad = "✅ Credenciales actualizadas correctamente.";
+                
+                // Limpiar campos de contraseña
+                _nuevaContraseña = "";
+                _confirmarContraseña = "";
+
+                StateHasChanged();
+                await Task.Delay(2500);
+                _mensajeSeguridad = null;
+                StateHasChanged();
+            }
+            else
+            {
+                _mensajeSeguridadError = "❌ No se encontró el usuario en la base de datos.";
+            }
+        }
+        catch (Exception ex)
+        {
+            _mensajeSeguridadError = $"❌ Error al guardar: {ex.Message}";
+            Console.WriteLine(ex);
+        }
     }
 
     // ── Modelo interno ─────────────────────────────────────────────────────

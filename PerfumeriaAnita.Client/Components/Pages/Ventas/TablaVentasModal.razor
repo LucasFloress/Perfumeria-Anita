@@ -1,0 +1,117 @@
+@using PerfumeriaAnita.Client.Services
+@using PerfumeriaAnita.Shared.DTOs
+@inject IConfigService ConfigService
+
+@if (EstaAbierto && VentaSeleccionada != null)
+{
+    <style>
+        .modal-icon { color: @_colorPrincipal !important; }
+        .modal-close:hover { color: @_colorPrincipal !important; }
+        .modal-footer-count .material-symbols-outlined { color: @_colorPrincipal !important; }
+        .texto-primario { color: @_colorPrincipal !important; }
+    </style>
+
+    <div class="modal-backdrop" @onclick="CerrarModal"></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-header">
+            <div class="modal-header-left">
+                <div class="modal-icon">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                </div>
+                <div>
+                    <h2 id="modal-title" class="modal-title">Detalle del Ticket #@VentaSeleccionada.Id.ToString("D5")</h2>
+                    <p class="modal-subtitle">
+                        @VentaSeleccionada.Fecha.ToString("dd/MM/yyyy a las HH:mm") • Pagado con @VentaSeleccionada.MetodoPago
+                    </p>
+                </div>
+            </div>
+            <button class="modal-close" @onclick="CerrarModal" aria-label="Cerrar">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <div class="modal-table-wrapper" style="padding-top: 10px;">
+            <table class="ventas-table modal-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Precio Unitario</th>
+                        <th style="text-align: center;">Cantidad</th>
+                        <th style="text-align: right; padding-right: 2rem;">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var detalle in VentaSeleccionada.Detalles)
+                    {
+                        <tr>
+                            <td>
+                                <div class="td-producto">
+                                    <div class="icon-box">
+                                        <span class="material-symbols-outlined">sanitizer</span>
+                                    </div>
+                                    <span class="producto-nombre">@(detalle.ProductoNombre ?? "Producto Eliminado")</span>
+                                </div>
+                            </td>
+                            <td class="td-precio" style="color: #64748b; font-weight: normal;">
+                                $@detalle.PrecioUnitario.ToString("N2")
+                            </td>
+                            <td style="text-align: center;">
+                                <span style="background: #f1f5f9; padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; color: #334155;">
+                                    x @detalle.Cantidad
+                                </span>
+                            </td>
+                            <td class="td-precio" style="text-align: right; padding-right: 2rem;">
+                                $@((detalle.PrecioUnitario * detalle.Cantidad).ToString("N2"))
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="modal-footer">
+            <span class="modal-footer-count">
+                <span class="material-symbols-outlined">shopping_bag</span>
+                @VentaSeleccionada.Detalles.Sum(d => d.Cantidad) artículos en total
+            </span>
+            <div class="modal-footer-totals">
+                <span class="footer-total-label">Total Cobrado:</span>
+                <span class="footer-total-amount texto-primario">$@VentaSeleccionada.Total.ToString("N2")</span>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public EventCallback OnCerrar { get; set; }
+
+    private VentaCompletaDto? VentaSeleccionada;
+    private bool EstaAbierto = false;
+    private string _colorPrincipal = "#e91e63";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var allConfigs = await ConfigService.GetAllAsync();
+            if (allConfigs.TryGetValue("tienda.color_principal", out var color))
+                _colorPrincipal = color;
+        }
+        catch { }
+    }
+
+    public void AbrirModal(VentaCompletaDto venta)
+    {
+        VentaSeleccionada = venta;
+        EstaAbierto = true;
+        StateHasChanged();
+    }
+
+    private async Task CerrarModal()
+    {
+        EstaAbierto = false;
+        VentaSeleccionada = null;
+        await OnCerrar.InvokeAsync();
+        StateHasChanged();
+    }
+}

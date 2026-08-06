@@ -1,0 +1,419 @@
+@page "/"
+@rendermode InteractiveServer
+@layout PerfumeriaAnita.Components.Layout.EmptyLayout
+@using Microsoft.EntityFrameworkCore
+@using PerfumeriaAnita.Data
+@using PerfumeriaAnita.Models
+@using PerfumeriaAnita.Services
+@inject AppConfigState ConfigState
+@inject IConfigService ConfigService
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
+@inject AppDbContext Db
+
+<PageTitle>Iniciar Sesión - Perfumería Anita</PageTitle>
+
+<style>
+    :root {
+        --color-primario: @ColorPrincipal;
+        --color-primario-rgb: @ColorPrincipalRgb;
+    }
+
+    .login-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        width: 100vw;
+        background: #0f172a; /* Fondo oscuro premium */
+        position: relative;
+        overflow: hidden;
+        font-family: 'Outfit', 'Inter', 'Segoe UI', sans-serif;
+    }
+
+    /* Elementos flotantes para el efecto de desenfoque (blur) de fondo */
+    .blob {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.55;
+        z-index: 1;
+        transition: background-color 0.8s ease, transform 10s ease-in-out;
+    }
+
+    .blob-1 {
+        top: -10%;
+        left: -10%;
+        width: 450px;
+        height: 450px;
+        background-color: var(--color-primario);
+        animation: float-slow 15s infinite alternate;
+    }
+
+    .blob-2 {
+        bottom: -15%;
+        right: -10%;
+        width: 500px;
+        height: 500px;
+        background-color: #3b82f6; /* Azul de contraste */
+        animation: float-slow 20s infinite alternate-reverse;
+    }
+
+    .blob-3 {
+        top: 40%;
+        left: 60%;
+        width: 300px;
+        height: 300px;
+        background-color: var(--color-primario);
+        opacity: 0.35;
+        animation: float-slow 18s infinite alternate;
+    }
+
+    @@keyframes float-slow {
+        0% { transform: translate(0, 0) scale(1); }
+        50% { transform: translate(50px, 30px) scale(1.1); }
+        100% { transform: translate(-30px, -50px) scale(0.95); }
+    }
+
+    /* Tarjeta de login con Glassmorphism (vidrio esmerilado) */
+    .login-card {
+        position: relative;
+        z-index: 10;
+        background: rgba(255, 255, 255, 0.08); /* Fondo ultra translúcido */
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 28px;
+        width: 100%;
+        max-width: 420px;
+        padding: 45px 35px;
+        box-sizing: border-box;
+        text-align: center;
+        animation: card-appear 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @@keyframes card-appear {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-logo {
+        font-size: 52px;
+        color: var(--color-primario);
+        margin-bottom: 12px;
+        display: inline-block;
+        transition: color 0.5s ease;
+    }
+
+    .login-title {
+        color: #ffffff;
+        font-size: 26px;
+        font-weight: 800;
+        margin: 0;
+        letter-spacing: -0.5px;
+    }
+
+    .login-subtitle {
+        color: #94a3b8;
+        font-size: 14px;
+        margin: 8px 0 30px 0;
+    }
+
+    /* Formulario */
+    .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+        position: relative;
+    }
+
+    .form-label {
+        display: block;
+        color: #cbd5e1;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 14px;
+        color: #64748b;
+        font-size: 20px;
+        pointer-events: none;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 13px 14px 13px 44px;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        color: #ffffff;
+        font-size: 15px;
+        transition: all 0.3s;
+        box-sizing: border-box;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--color-primario);
+        box-shadow: 0 0 0 3px rgba(var(--color-primario-rgb), 0.25);
+        background: rgba(15, 23, 42, 0.8);
+    }
+
+    .btn-login {
+        width: 100%;
+        background-color: var(--color-primario);
+        color: #ffffff;
+        border: none;
+        border-radius: 12px;
+        padding: 14px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 10px;
+        box-shadow: 0 4px 15px rgba(var(--color-primario-rgb), 0.3);
+    }
+
+    .btn-login:hover {
+        filter: brightness(1.1);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(var(--color-primario-rgb), 0.45);
+    }
+
+    .btn-login:active {
+        transform: translateY(0);
+    }
+
+    /* Mensaje de error */
+    .error-toast {
+        background: rgba(239, 68, 68, 0.15);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #fca5a5;
+        padding: 10px 14px;
+        border-radius: 10px;
+        font-size: 13px;
+        margin-bottom: 20px;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Selector de Tema de Color */
+    .theme-selector-container {
+        margin-top: 30px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding-top: 20px;
+    }
+
+    .theme-selector-title {
+        color: #94a3b8;
+        font-size: 12px;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        margin-bottom: 12px;
+    }
+
+    .color-swatches {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .swatch {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.3s;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .swatch:hover {
+        transform: scale(1.18);
+    }
+
+    .swatch.active {
+        border-color: #ffffff;
+        transform: scale(1.1);
+        box-shadow: 0 0 0 2px var(--color-primario);
+    }
+</style>
+
+<div class="login-container">
+    <!-- Blobs de color de fondo desenfocados -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <!-- Tarjeta de Login -->
+    <div class="login-card">
+        <div class="login-logo">
+            <span class="material-symbols-outlined" style="font-size: 56px;">local_florist</span>
+        </div>
+        <h1 class="login-title">Perfumería Anita</h1>
+        <p class="login-subtitle">Ingresá tus credenciales para acceder</p>
+
+        @if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <div class="error-toast">
+                <span class="material-symbols-outlined" style="font-size: 18px;">error</span>
+                <span>@_errorMessage</span>
+            </div>
+        }
+
+        <form @onsubmit="HandleLogin">
+            <div class="form-group">
+                <label class="form-label">Usuario</label>
+                <div class="input-wrapper">
+                    <span class="material-symbols-outlined input-icon">person</span>
+                    <input type="text" 
+                           class="form-input" 
+                           placeholder="Nombre de usuario" 
+                           @bind="_username" 
+                           required />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Contraseña</label>
+                <div class="input-wrapper">
+                    <span class="material-symbols-outlined input-icon">lock</span>
+                    <input type="password" 
+                           class="form-input" 
+                           placeholder="••••••••" 
+                           @bind="_password" 
+                           required />
+                </div>
+            </div>
+
+            <button type="submit" class="btn-login" disabled="@_isLoading">
+                @if (_isLoading)
+                {
+                    <span>Verificando...</span>
+                }
+                else
+                {
+                    <span>Ingresar</span>
+                }
+            </button>
+        </form>
+
+        <!-- Selector de tema de color -->
+        <div class="theme-selector-container">
+            <div class="theme-selector-title">Personalizar Color del Sistema</div>
+            <div class="color-swatches">
+                @foreach (var c in _coloresDisponibles)
+                {
+                    <div class="swatch @(ColorPrincipal == c.Hex ? "active" : "")"
+                         style="background-color: @c.Hex;"
+                         title="@c.Nombre"
+                         @onclick="() => CambiarColor(c.Hex)">
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string _username = "";
+    private string _password = "";
+    private string? _errorMessage;
+    private bool _isLoading = false;
+
+    // Colores disponibles para personalizar la aplicación
+    private readonly List<(string Nombre, string Hex)> _coloresDisponibles = new()
+    {
+        ("Rosa (Default)", "#D4537E"),
+        ("Violeta", "#7b1fa2"),
+        ("Azul", "#0288d1"),
+        ("Esmeralda", "#2e7d32"),
+        ("Naranja Ambar", "#ff8f00")
+    };
+
+    // Propiedades calculadas a partir del estado de la configuración
+    private string ColorPrincipal => ConfigState.ColorPrincipal;
+
+    // Convertir el color hex en formato RGB para sombras CSS semitransparentes
+    private string ColorPrincipalRgb
+    {
+        get
+        {
+            try
+            {
+                var hex = ColorPrincipal.Replace("#", "");
+                if (hex.Length == 6)
+                {
+                    var r = Convert.ToInt32(hex.Substring(0, 2), 16);
+                    var g = Convert.ToInt32(hex.Substring(2, 2), 16);
+                    var b = Convert.ToInt32(hex.Substring(4, 2), 16);
+                    return $"{r}, {g}, {b}";
+                }
+            }
+            catch { }
+            return "212, 83, 126"; // Rosa fallback rgb
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        // Si el usuario ya está autenticado, redirigir al dashboard directamente
+        if (AuthService.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo("/dashboard");
+        }
+    }
+
+    private async Task HandleLogin()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            // Validar contra la base de datos
+            var user = await Db.Usuarios
+                .FirstOrDefaultAsync(u => u.Nombre.ToLower() == _username.ToLower() && u.Contraseña == _password);
+
+            if (user != null)
+            {
+                AuthService.Login(user);
+                NavigationManager.NavigateTo("/dashboard");
+            }
+            else
+            {
+                _errorMessage = "Usuario o contraseña incorrectos.";
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = "Ocurrió un error al intentar iniciar sesión.";
+            Console.WriteLine(ex);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task CambiarColor(string hexColor)
+    {
+        ConfigState.ActualizarColor(hexColor);
+        await ConfigService.SetAsync(AppConfig.Keys.ColorPrincipal, hexColor);
+        StateHasChanged();
+    }
+}

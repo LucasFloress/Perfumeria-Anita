@@ -1,0 +1,508 @@
+@page "/dashboard"
+@using PerfumeriaAnita.Client.Services
+@inject IProductoService ProductoService
+@inject IVentaService VentaService
+@inject IConfigService ConfigService
+@inject AppConfigState ConfigState
+
+<link href="css/dashboard.css" rel="stylesheet" />
+
+<div class="dashboard-container">
+    <main class="main-content">
+        <header class="header">
+            <h2>Panel de Control</h2>
+            <div class="user-info">Usuario: <strong>Admin</strong></div>
+        </header>
+
+        <div class="content-body">
+            <div class="card">
+                <h3>Punto de Venta</h3>
+
+                <div class="search-box" style="position:relative;">
+                    <input type="text"
+                           class="search-input"
+                           placeholder="Escaneá un código de barras o buscá por nombre..."
+                           value="@textoBusqueda"
+                           @oninput="OnBusquedaChanged"
+                           @onkeydown="OnScannerEnter"
+                           autofocus />
+                    @if (!string.IsNullOrEmpty(textoBusqueda))
+                    {
+                        <button class="btn-clear" @onclick="LimpiarBusqueda" title="Limpiar">✕</button>
+                    }
+                </div>
+
+                @if (sugerencias.Any())
+                {
+                    <div class="sugerencias-dropdown">
+                        @foreach (var p in sugerencias)
+                        {
+                            <div class="sugerencia-item @(p.Stock == 0 ? "sin-stock" : "")"
+                                 @onclick="() => SeleccionarProducto(p)">
+                                <span class="sug-nombre">@p.Nombre</span>
+                                <span class="sug-detalle">
+                                    $@p.Precio.ToString("N0") &nbsp;·&nbsp;
+                                    @if (p.Stock == 0)
+                                    {
+                                        <span style="color:#e53935;">Sin stock</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Stock: @p.Stock</span>
+                                    }
+                                </span>
+                            </div>
+                        }
+                    </div>
+                }
+
+                @if (busquedaRealizada && !sugerencias.Any() && textoBusqueda?.Length >= 2)
+                {
+                    <div class="sin-resultados">No se encontraron productos para "@textoBusqueda"</div>
+                }
+
+                @if (productoSeleccionado != null)
+                {
+                    <div class="producto-seleccionado">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div>
+                                <h2 style="margin:0 0 4px 0; font-size:1.1rem;">@productoSeleccionado.Nombre</h2>
+                                <span style="color:#888; font-size:0.85rem;">Stock: @productoSeleccionado.Stock unidades | Precio: $@productoSeleccionado.Precio.ToString("N0")</span>
+                            </div>
+                            <button class="btn-clear" @onclick="LimpiarSeleccion" title="Cancelar">✕</button>
+                        </div>
+                        <div style="display:flex; gap:10px; margin-top:14px; align-items:center; flex-wrap:wrap; justify-content: space-between;">
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <button class="btn-cant" @onclick="DecrementarCantidad" disabled="@(cantidad <= 1)">-</button>
+                                <input type="number" class="input-cantidad" @bind="cantidad" @bind:event="oninput" min="1" max="@productoSeleccionado.Stock" />
+                                <button class="btn-cant" @onclick="IncrementarCantidad" disabled="@(cantidad >= productoSeleccionado.Stock)">+</button>
+                            </div>
+                            <button class="btn-add-cart"
+                                    @onclick="AgregarAlCarrito"
+                                    disabled="@(productoSeleccionado.Stock == 0)">
+                                + Agregar al Ticket ($@((productoSeleccionado.Precio * cantidad).ToString("N0")))
+                            </button>
+                        </div>
+                    </div>
+                }
+
+                @if (carrito.Any())
+                {
+                    <div class="cart-container">
+                        <h4 style="margin: 0 0 10px 0; color: #555;">
+                            <span class="material-symbols-outlined">order_approve</span>
+                            Ticket Actual
+                        </h4>
+                        <table class="cart-table">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cant.</th>
+                                    <th>Subtotal</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in carrito)
+                                {
+                                    <tr>
+                                        <td style="font-weight: 500;">@item.Producto.Nombre</td>
+                                        <td><span class="badge-qty">x@(item.Cantidad)</span></td>
+                                        <td style="font-weight: bold; color: #2e7d32;">$@item.Subtotal.ToString("N0")</td>
+                                        <td style="text-align: right;">
+                                            <button class="btn-remove" @onclick="() => EliminarDelCarrito(item)" title="Quitar">
+                                                <span class="material-symbols-outlined">delete</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                        <div class="cart-total-row" style="display: flex; flex-direction: column; align-items: stretch; gap: 15px;">
+                            <div style="background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #e0d0e8;">
+                                <label style="font-size: 0.85rem; color: #888; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 5px;">
+                                    <span class="material-symbols-outlined">paid</span>
+                                    Método de Pago
+                                </label>
+                                <select @bind="metodoPagoSeleccionado" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #c8a8d8; font-size: 1rem; cursor: pointer;">
+                                    <option value="Efectivo">Efectivo</option>
+                                    <option value="Mercado Pago">Mercado Pago</option>
+                                    <option value="Transferencia">Transferencia Bancaria</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #e0d0e8; padding-top: 15px;">
+                                <div>
+                                    <span style="color:#888; font-size:0.9rem; text-transform: uppercase; font-weight: bold;">Total a Cobrar</span>
+                                    <h2 style="color: #7b1fa2; margin: 2px 0 0 0; font-size: 2rem;">$@TotalCarrito.ToString("N0")</h2>
+                                </div>
+                                <button class="btn btn-success" style="font-size: 1.1rem; padding: 12px 24px;"
+                                        @onclick="ConfirmarVentaCarrito"
+                                        disabled="@ventaEnProceso">
+                                    @if (ventaEnProceso)
+                                    {
+                                        <span>Procesando...</span>
+                                    }
+                                    else
+                                    {
+                                        <span>✔ Confirmar y Cobrar</span>
+                                    }
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @if (mensajeVenta != null)
+                {
+                    <div class="toast-venta @(ventaExitosa ? "toast-ok" : "toast-error")" style="margin-top: 16px;">
+                        @(ventaExitosa ? "✔" : "✖") @mensajeVenta
+                    </div>
+                }
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 20px;">
+                <div class="card">
+                    <h3><span class="material-symbols-outlined">production_quantity_limits</span> Alertas de Stock</h3>
+                    @if (alertasStock.Any())
+                    {
+                        @foreach (var a in alertasStock)
+                        {
+                            <div class="alert-item">@a.Nombre (Quedan @a.Stock)</div>
+                        }
+                    }
+                    else
+                    {
+                        <p style="color:#888; margin:0; padding: 10px 0;">Sin alertas por el momento</p>
+                    }
+                </div>
+
+                <div class="card" style="text-align:center">
+                    <h3>Resumen Hoy</h3>
+                    <div style="text-align:center; padding: 20px;">
+                        <span style="color:#666">Total Vendido</span>
+                        <h1 style="font-size: 3rem; margin: 10px 0; transition: color 0.3s;" class="@(animarTotal ? "pulse-money" : "")">
+                            $@totalHoy.ToString("N0")
+                        </h1>
+                        <span style="color:#888; font-size:0.85rem;">@ventasHoy venta@(ventasHoy == 1 ? "" : "s") hoy</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><span class="material-symbols-outlined">shopping_bag</span> Últimas Ventas</h3>
+                    @if (historialVentas.Any())
+                    {
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Hora</th>
+                                    <th>Productos</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var v in historialVentas)
+                                {
+                                    <tr>
+                                        <td style="color:#888; font-size:0.8rem;">@v.Hora</td>
+                                        <td style="font-weight:500;">@v.Descripcion</td>
+                                        <td class="text-money">$@v.Total.ToString("N0")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p style="color:#888; margin:0; padding: 10px 0;">Aún no hay ventas registradas en esta sesión.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+@code {
+    public class ItemCarrito
+    {
+        public ProductoDto Producto { get; set; } = new();
+        public int Cantidad { get; set; }
+        public decimal Subtotal => Producto.Precio * Cantidad;
+    }
+
+    public class RegistroVentaLocal
+    {
+        public string Hora { get; set; } = "";
+        public string Descripcion { get; set; } = "";
+        public decimal Total { get; set; }
+    }
+
+    private string textoBusqueda = "";
+    private List<ProductoDto> sugerencias = new();
+    private bool busquedaRealizada = false;
+    private System.Threading.CancellationTokenSource? _cts;
+    private ProductoDto? productoSeleccionado;
+    private int cantidad = 1;
+
+    private List<ItemCarrito> carrito = new();
+    private string metodoPagoSeleccionado = "Efectivo";
+    private decimal TotalCarrito => carrito.Sum(i => i.Subtotal);
+
+    private bool ventaEnProceso = false;
+    private string? mensajeVenta;
+    private bool ventaExitosa = false;
+    private decimal totalHoy = 0;
+    private int ventasHoy = 0;
+    private bool animarTotal = false;
+    private List<ProductoDto> alertasStock = new();
+    private List<RegistroVentaLocal> historialVentas = new();
+    private int _stockMinimoGlobal = 5;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var allConfigs = await ConfigService.GetAllAsync();
+            if (allConfigs.TryGetValue("inventario.stock_minimo", out var umbralStr)
+                && int.TryParse(umbralStr, out var umbral))
+            {
+                _stockMinimoGlobal = umbral;
+            }
+            ConfigState.Inicializar(allConfigs);
+        }
+        catch { }
+
+        await CargarResumenDia();
+        await CargarAlertasStock();
+    }
+
+    private async Task CargarResumenDia()
+    {
+        try
+        {
+            var resumen = await VentaService.GetResumenHoyAsync();
+            totalHoy = resumen.TotalVendido;
+            ventasHoy = resumen.CantidadVentas;
+        }
+        catch { }
+    }
+
+    private async Task CargarAlertasStock()
+    {
+        try
+        {
+            alertasStock = await ProductoService.GetStockBajoAsync(_stockMinimoGlobal);
+        }
+        catch { }
+    }
+
+    private async Task OnBusquedaChanged(ChangeEventArgs e)
+    {
+        textoBusqueda = e.Value?.ToString() ?? "";
+        productoSeleccionado = null;
+        sugerencias = new();
+        busquedaRealizada = false;
+        _cts?.Cancel();
+
+        if (textoBusqueda.Length < 2) return;
+
+        _cts = new System.Threading.CancellationTokenSource();
+        var token = _cts.Token;
+
+        try
+        {
+            await Task.Delay(300, token);
+            if (!token.IsCancellationRequested)
+            {
+                sugerencias = await ProductoService.BuscarAsync(textoBusqueda);
+                busquedaRealizada = true;
+                StateHasChanged();
+            }
+        }
+        catch (TaskCanceledException) { }
+    }
+
+    private async Task OnScannerEnter(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(textoBusqueda))
+        {
+            var codigoLimpio = textoBusqueda.Trim();
+            _cts?.Cancel();
+
+            var producto = await ProductoService.BuscarPorCodigoAsync(codigoLimpio);
+
+            if (producto != null)
+            {
+                AgregarProductoPorEscaneo(producto);
+                LimpiarBusqueda();
+            }
+            else
+            {
+                sugerencias = await ProductoService.BuscarAsync(codigoLimpio);
+                busquedaRealizada = true;
+                if (!sugerencias.Any())
+                {
+                    mensajeVenta = $"⚠ No se encontró el producto '{codigoLimpio}'.";
+                    ventaExitosa = false;
+                }
+                StateHasChanged();
+            }
+        }
+    }
+
+    private void SeleccionarProducto(ProductoDto p)
+    {
+        productoSeleccionado = p;
+        cantidad = 1;
+        sugerencias = new();
+        textoBusqueda = p.Nombre;
+        mensajeVenta = null;
+    }
+
+    private void LimpiarBusqueda()
+    {
+        textoBusqueda = "";
+        sugerencias = new();
+        busquedaRealizada = false;
+        productoSeleccionado = null;
+    }
+
+    private void LimpiarSeleccion()
+    {
+        productoSeleccionado = null;
+        textoBusqueda = "";
+        sugerencias = new();
+    }
+
+    private void IncrementarCantidad()
+    {
+        if (productoSeleccionado != null && cantidad < productoSeleccionado.Stock) cantidad++;
+    }
+
+    private void DecrementarCantidad()
+    {
+        if (cantidad > 1) cantidad--;
+    }
+
+    private void AgregarAlCarrito()
+    {
+        if (productoSeleccionado == null) return;
+
+        var itemExistente = carrito.FirstOrDefault(i => i.Producto.Id == productoSeleccionado.Id);
+
+        if (itemExistente != null)
+        {
+            if (itemExistente.Cantidad + cantidad <= productoSeleccionado.Stock)
+            {
+                itemExistente.Cantidad += cantidad;
+            }
+        }
+        else
+        {
+            carrito.Add(new ItemCarrito
+            {
+                Producto = productoSeleccionado,
+                Cantidad = cantidad
+            });
+        }
+
+        LimpiarSeleccion();
+        mensajeVenta = null;
+    }
+
+    private void EliminarDelCarrito(ItemCarrito item)
+    {
+        carrito.Remove(item);
+    }
+
+    private void AgregarProductoPorEscaneo(ProductoDto p)
+    {
+        if (p.Stock == 0)
+        {
+            productoSeleccionado = p;
+            cantidad = 1;
+            mensajeVenta = $"⚠ {p.Nombre} no tiene stock disponible.";
+            ventaExitosa = false;
+            return;
+        }
+
+        productoSeleccionado = p;
+        cantidad = 1;
+        AgregarAlCarrito();
+    }
+
+    private async Task ConfirmarVentaCarrito()
+    {
+        if (!carrito.Any() || ventaEnProceso) return;
+
+        ventaEnProceso = true;
+        mensajeVenta = null;
+        StateHasChanged();
+
+        try
+        {
+            var request = new VentaRequest
+            {
+                Items = carrito.Select(c => new ItemVentaRequest
+                {
+                    ProductoId = c.Producto.Id,
+                    Cantidad = c.Cantidad
+                }).ToList(),
+                MetodoPago = metodoPagoSeleccionado
+            };
+
+            var resultado = await VentaService.RegistrarVentaAsync(request);
+
+            if (resultado.Exito)
+            {
+                int cantidadArticulos = carrito.Sum(c => c.Cantidad);
+                ventaExitosa = true;
+                mensajeVenta = $"¡Venta exitosa! Se cobraron {cantidadArticulos} artículos.";
+
+                string resumenNombres = carrito.Count == 1
+                    ? carrito.First().Producto.Nombre
+                    : $"{carrito.Count} productos varios";
+
+                historialVentas.Insert(0, new RegistroVentaLocal
+                {
+                    Hora = DateTime.Now.ToString("HH:mm"),
+                    Descripcion = resumenNombres,
+                    Total = resultado.Total
+                });
+
+                if (historialVentas.Count > 5) historialVentas.RemoveAt(historialVentas.Count - 1);
+
+                totalHoy += resultado.Total;
+                ventasHoy++;
+
+                carrito.Clear();
+                metodoPagoSeleccionado = "Efectivo";
+                animarTotal = true;
+                StateHasChanged();
+
+                _ = Task.Delay(600).ContinueWith(_ => InvokeAsync(() => { animarTotal = false; StateHasChanged(); }));
+                _ = Task.Delay(3000).ContinueWith(_ => InvokeAsync(async () =>
+                {
+                    mensajeVenta = null;
+                    await CargarAlertasStock();
+                    StateHasChanged();
+                }));
+            }
+            else
+            {
+                ventaExitosa = false;
+                mensajeVenta = resultado.Error ?? "Error al procesar el carrito.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ventaExitosa = false;
+            mensajeVenta = "Error crítico: " + ex.Message;
+        }
+        finally
+        {
+            ventaEnProceso = false;
+            StateHasChanged();
+        }
+    }
+}
