@@ -5,7 +5,7 @@ var e=!1;const t=async()=>WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,
   "mainAssemblyName": "PerfumeriaAnita.Client",
   "applicationEnvironment": "Development",
   "resources": {
-    "hash": "sha256-M316M9nMvV/soNlCRmQsguZPzKQVyEmXm7bOqww62Is=",
+    "hash": "sha256-3MpS+G/NB820Z3PhMmcWBxzMfwMTT/GrcIC8+UT7h44=",
     "jsModuleNative": [
       {
         "name": "dotnet.native.puryxhmhq9.js"
@@ -1254,8 +1254,8 @@ var e=!1;const t=async()=>WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,
       },
       {
         "virtualPath": "PerfumeriaAnita.Shared.wasm",
-        "name": "PerfumeriaAnita.Shared.dilmuvgl6u.wasm",
-        "hash": "sha256-m++aJuJdDqavEymYLZRjaBnKD9YBeWS7sU9ADgiSXSg=",
+        "name": "PerfumeriaAnita.Shared.xpcnhn4036.wasm",
+        "hash": "sha256-JU0Q0xtao+Q2ewf9uiXvsszHnPKWOpr9uPD5hy4sP1g=",
         "cache": "force-cache"
       },
       {
@@ -1266,22 +1266,22 @@ var e=!1;const t=async()=>WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,
       },
       {
         "virtualPath": "PerfumeriaAnita.Client.wasm",
-        "name": "PerfumeriaAnita.Client.fhervom1o3.wasm",
-        "hash": "sha256-EwHrIRc9soRc3zubgYpg+pcWz0KDFEUVmKqnbVRhP+A=",
+        "name": "PerfumeriaAnita.Client.vqheq1c6x2.wasm",
+        "hash": "sha256-V4/ya/CoyXsTMPUZzYfHfGRwa04XY7DIVTLKqzDCG70=",
         "cache": "force-cache"
       }
     ],
     "pdb": [
       {
         "virtualPath": "PerfumeriaAnita.Shared.pdb",
-        "name": "PerfumeriaAnita.Shared.59rvk8c62f.pdb",
-        "hash": "sha256-R3CbRjRgA1ySEt5EIzDWNr8TVw/zu1HGqSjtQzjodiw=",
+        "name": "PerfumeriaAnita.Shared.xz9vhj3zlb.pdb",
+        "hash": "sha256-o+5azqZHiI+Z4EtgIau+UBAg1/UoOcvsNQhwuQy2sxE=",
         "cache": "force-cache"
       },
       {
         "virtualPath": "PerfumeriaAnita.Client.pdb",
-        "name": "PerfumeriaAnita.Client.ji7hlvxi13.pdb",
-        "hash": "sha256-S+EOtRioJZZXv55KFsnCdpabxUykGFIPHFzIFuejTf0=",
+        "name": "PerfumeriaAnita.Client.g7px0grmyr.pdb",
+        "hash": "sha256-JJKf+IWh9WrsbF5iEQ1tROt1E9SVAliBKfoeTbJWgGo=",
         "cache": "force-cache"
       }
     ],

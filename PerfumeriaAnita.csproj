@@ -29,4 +29,20 @@
     <None Remove="Controllers\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Excluir la base de datos local SQLite del directorio de salida y de la publicación en Azure -->
+    <Content Update="PerfumeriaAnita.db">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </Content>
+    <Content Update="PerfumeriaAnita.db-shm">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </Content>
+    <Content Update="PerfumeriaAnita.db-wal">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
