@@ -32,10 +32,6 @@
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/Microsoft.Win32.Primitives.a6wlxiw6dn.wasm
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/Microsoft.Win32.Registry.xtuomdsw4o.wasm
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/MudBlazor.xcgdsu1w4u.wasm
-/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/PerfumeriaAnita.Client.5yqyj0uw6v.wasm
-/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/PerfumeriaAnita.Client.qkxa288o1r.pdb
-/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/PerfumeriaAnita.Shared.9e7xaz7bug.wasm
-/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/PerfumeriaAnita.Shared.p2a2l3akeb.pdb
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/System.5ajd4a5ecl.wasm
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/System.AppContext.p59shf3bvu.wasm
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/System.Buffers.6jrup0dkkj.wasm
@@ -265,7 +261,6 @@
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/Microsoft.JSInterop.h1b8h0vt7q.wasm.gz
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/System.Xml.Serialization.ujnf7akaps.wasm.gz
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/System.Reflection.Emit.ILGeneration.q60jv9nw7f.wasm.gz
-/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/PerfumeriaAnita.Shared.9e7xaz7bug.wasm.gz
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/System.IO.FileSystem.AccessControl.thnyyapm74.wasm.gz
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/System.Xml.XmlSerializer.aqtqtmr882.wasm.gz
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/System.Numerics.Vectors.hqybttxzwc.wasm.gz
@@ -327,7 +322,6 @@
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/System.Threading.Channels.0yw48lq387.wasm.gz
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/System.Text.RegularExpressions.mqtnlzjpq1.wasm.gz
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/System.Security.Cryptography.OpenSsl.tdntn0j61r.wasm.gz
-/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/PerfumeriaAnita.Shared.p2a2l3akeb.pdb.gz
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/System.Security.Principal.Windows.jn1vqrngvd.wasm.gz
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/System.Reflection.Metadata.hmounl016w.wasm.gz
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/System.Globalization.sq9t43sg8h.wasm.gz
@@ -369,7 +363,6 @@
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/System.IO.MemoryMappedFiles.17o26qci0h.wasm.gz
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/netstandard.am8d05lvha.wasm.gz
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/Microsoft.VisualBasic.Core.3avu158lma.wasm.gz
-/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/PerfumeriaAnita.Client.qkxa288o1r.pdb.gz
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/System.Diagnostics.FileVersionInfo.b811lq4n4h.wasm.gz
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/System.Formats.Asn1.cq4ng14xfj.wasm.gz
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/dotnet.runtime.7zon98f8ky.js.gz
@@ -422,7 +415,6 @@
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/System.Runtime.Handles.cdy1vmcqg1.wasm.gz
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/System.Reflection.DispatchProxy.n2y0nyyf3s.wasm.gz
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/System.Runtime.InteropServices.jgeg5wo4aw.wasm.gz
-/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/PerfumeriaAnita.Client.5yqyj0uw6v.wasm.gz
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/System.Reflection.TypeExtensions.q0xhy2cku7.wasm.gz
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/System.Security.Cryptography.Encoding.tvsebpabfg.wasm.gz
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/Microsoft.VisualBasic.ekupvqg8vk.wasm.gz
@@ -1119,11 +1111,6 @@
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/obj/Debug/net9.0/compressed/ntyyds7fmo-{0}-tptq2av103-tptq2av103.gz
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/obj/Debug/net9.0/compressed/rfb71qfa9u-{0}-lfu7j35m59-lfu7j35m59.gz
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/obj/Debug/net9.0/compressed/psebdr673d-{0}-ec9yy67949-ec9yy67949.gz
-/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/obj/Debug/net9.0/compressed/8yyxltcybc-{0}-9e7xaz7bug-9e7xaz7bug.gz
-/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/obj/Debug/net9.0/compressed/gwyrbmimq4-{0}-p2a2l3akeb-p2a2l3akeb.gz
-/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/obj/Debug/net9.0/compressed/zdzywcew4e-{0}-5yqyj0uw6v-5yqyj0uw6v.gz
-/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/obj/Debug/net9.0/compressed/pg1i0yaqeq-{0}-qkxa288o1r-qkxa288o1r.gz
-/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/obj/Debug/net9.0/compressed/shs799v862-{0}-mwsh9ijhwb-mwsh9ijhwb.gz
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/obj/Debug/net9.0/staticwebassets.build.json
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/obj/Debug/net9.0/staticwebassets.build.json.cache
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/obj/Debug/net9.0/staticwebassets.development.json
@@ -1134,3 +1121,16 @@
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/obj/Debug/net9.0/refint/PerfumeriaAnita.Client.dll
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/obj/Debug/net9.0/PerfumeriaAnita.Client.pdb
 /home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/obj/Debug/net9.0/ref/PerfumeriaAnita.Client.dll
+/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/PerfumeriaAnita.Client.3eg7nahoq3.wasm
+/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/PerfumeriaAnita.Client.acvnddll89.pdb
+/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/PerfumeriaAnita.Shared.c61mxdkdj8.pdb
+/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/PerfumeriaAnita.Shared.gwbk9m8knq.wasm
+/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/PerfumeriaAnita.Shared.gwbk9m8knq.wasm.gz
+/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/PerfumeriaAnita.Shared.c61mxdkdj8.pdb.gz
+/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/PerfumeriaAnita.Client.acvnddll89.pdb.gz
+/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Debug/net9.0/wwwroot/_framework/PerfumeriaAnita.Client.3eg7nahoq3.wasm.gz
+/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/obj/Debug/net9.0/compressed/8yyxltcybc-{0}-gwbk9m8knq-gwbk9m8knq.gz
+/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/obj/Debug/net9.0/compressed/gwyrbmimq4-{0}-c61mxdkdj8-c61mxdkdj8.gz
+/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/obj/Debug/net9.0/compressed/zdzywcew4e-{0}-3eg7nahoq3-3eg7nahoq3.gz
+/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/obj/Debug/net9.0/compressed/pg1i0yaqeq-{0}-acvnddll89-acvnddll89.gz
+/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/obj/Debug/net9.0/compressed/shs799v862-{0}-ai72zm7hup-ai72zm7hup.gz
