@@ -1,4 +1,4 @@
-/* _content/PerfumeriaAnita/Components/Layout/NavMenu.razor.rz.scp.css */
+/* /Components/Layout/NavMenu.razor.rz.scp.css */
 /* ═══════════════════════════════════════════════════
    NavMenu.razor.css
    ═══════════════════════════════════════════════════ */
@@ -93,7 +93,7 @@
     color: var(--color-principal, #D4537E);
     font-weight: 600;
 }
-/* _content/PerfumeriaAnita/Components/Pages/Configuraciones/Configuraciones.razor.rz.scp.css */
+/* /Components/Pages/Configuraciones/Configuraciones.razor.rz.scp.css */
 /* ═══════════════════════════════════════════════════
    Configuraciones.razor.css
    ═══════════════════════════════════════════════════ */
@@ -345,7 +345,7 @@
     font-weight: 500;
     margin-bottom: 4px;
 }
-/* _content/PerfumeriaAnita/Components/Pages/Productos/Index.razor.rz.scp.css */
+/* /Components/Pages/Productos/Index.razor.rz.scp.css */
  /* ═══════════════════════════════════════════════
    Inventario.razor.css  —  Perfumería Anita
    ═══════════════════════════════════════════════ */
@@ -756,7 +756,7 @@
     cursor: not-allowed;
     background: #fff;
 }
-/* _content/PerfumeriaAnita/Components/Pages/Ventas/Index.razor.rz.scp.css */
+/* /Components/Pages/Ventas/Index.razor.rz.scp.css */
 /* ─── Contenedor y Tipografía ─── */
 .ventas-container[b-qr4b9dph62] {
     font-family: 'Inter', 'Segoe UI', sans-serif;
@@ -880,7 +880,7 @@
 .summary-label[b-qr4b9dph62] { color: rgba(255, 255, 255, 0.6); font-size: 12px; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; margin: 0 0 4px 0; }
 .summary-amount[b-qr4b9dph62] { font-size: 24px; font-weight: 900; margin: 0; }
 .text-emerald[b-qr4b9dph62] { color: #6ee7b7; }
-/* _content/PerfumeriaAnita/Components/Pages/Ventas/TablaVentasModal.razor.rz.scp.css */
+/* /Components/Pages/Ventas/TablaVentasModal.razor.rz.scp.css */
 /* ═══════════════════════════════════════════════════
    TablaVentasModal.razor.css
    Estilos del modal de "Ver todos los productos vendidos"

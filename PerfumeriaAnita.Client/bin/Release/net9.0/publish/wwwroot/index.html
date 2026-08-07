@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="css/dashboard.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="manifest" href="manifest.json" />
+
+    <!-- PWA Configuration -->
+    <meta name="theme-color" content="#D4537E" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Perfumería Anita" />
+    <link rel="apple-touch-icon" href="/fav-192x192.png" />
+    <HeadOutlet />
+</head>
+
+<body>
+    <div id="app">Cargando...</div>
+    <div id="blazor-error-ui" style="display:none;">
+        <span>Error al cargar la aplicación.</span>
+        <a href="/">Recargar</a>
+    </div>
+
+    <script src="_framework/blazor.webassembly.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+    <script src="js/quagga-interop.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js')
+            .then(reg => console.log('SW registrado:', reg))
+            .catch(err => console.error('Error SW:', err));
+        });
+      }
+    </script>
+</body>
+
+</html>
