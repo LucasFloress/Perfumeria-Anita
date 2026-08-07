@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "PerfumeriaAnita.Client",
   "resources": {
-    "hash": "sha256-P9WOgB5+yM7+CUunBKEzmYqFi6ecE+u0HOKeomMvjLA=",
+    "hash": "sha256-u5nhIT+wt8JBDgToid6HZTW/ktR0mnQcXAIRywlQxpc=",
     "fingerprinting": {
       "Microsoft.AspNetCore.Authorization.n5pslkucsz.wasm": "Microsoft.AspNetCore.Authorization.wasm",
       "Microsoft.AspNetCore.Components.zuiq2k1loo.wasm": "Microsoft.AspNetCore.Components.wasm",
@@ -208,10 +208,10 @@
       "icudt_CJK.tjcz0u77k5.dat": "icudt_CJK.dat",
       "icudt_EFIGS.tptq2av103.dat": "icudt_EFIGS.dat",
       "icudt_no_CJK.lfu7j35m59.dat": "icudt_no_CJK.dat",
-      "PerfumeriaAnita.Shared.8xf42vqva9.wasm": "PerfumeriaAnita.Shared.wasm",
-      "PerfumeriaAnita.Shared.vnhqoosw20.pdb": "PerfumeriaAnita.Shared.pdb",
-      "PerfumeriaAnita.Client.ctg24turkb.wasm": "PerfumeriaAnita.Client.wasm",
-      "PerfumeriaAnita.Client.497ywunjel.pdb": "PerfumeriaAnita.Client.pdb"
+      "PerfumeriaAnita.Shared.xfrkhu9l0b.wasm": "PerfumeriaAnita.Shared.wasm",
+      "PerfumeriaAnita.Shared.e534qle0d1.pdb": "PerfumeriaAnita.Shared.pdb",
+      "PerfumeriaAnita.Client.tw8ah3t41u.wasm": "PerfumeriaAnita.Client.wasm",
+      "PerfumeriaAnita.Client.vhctvkm7lw.pdb": "PerfumeriaAnita.Client.pdb"
     },
     "jsModuleNative": {
       "dotnet.native.mf92lzu2d1.js": "sha256-vmIOX4PNMW/lZiY9EBf+azWnO+yM3bxQOPRybnvEG2o="
@@ -428,12 +428,12 @@
       "WindowsBase.9k5refbrps.wasm": "sha256-6S6Z83Orpy8o+Tpx2dnLJEAic/1ypZMf+8q3coyYmkw=",
       "mscorlib.1dt5vk8v77.wasm": "sha256-G02nbStpYTCDAiI7WnE0lu7+CYEkiJQvIdD9kUWp5Oc=",
       "netstandard.am8d05lvha.wasm": "sha256-Hk+SY8lRIFeOpZRok9kUsjyaQVFg2OUjPPrzEz2zlgk=",
-      "PerfumeriaAnita.Shared.8xf42vqva9.wasm": "sha256-ZFiw6m39+m2N2ED1nHUfQ4FKYKgpZQG5quFB/RfvXxA=",
-      "PerfumeriaAnita.Client.ctg24turkb.wasm": "sha256-YIZOawHebXPM4+3N1l+srOHJfhjABznOKup0oDfveKY="
+      "PerfumeriaAnita.Shared.xfrkhu9l0b.wasm": "sha256-E38PE8iHreP3OAHhHZM+Wi5LQLqRaxvuQxJAUBajTSE=",
+      "PerfumeriaAnita.Client.tw8ah3t41u.wasm": "sha256-nbghcBGiOjRtwwy0AVzMrzNCJYeXu2QcwajND7dhjmE="
     },
     "pdb": {
-      "PerfumeriaAnita.Shared.vnhqoosw20.pdb": "sha256-6xMpJoE6CNVJ7pJky3pAAsrqvyDNhnaCCQUPRmJbJf4=",
-      "PerfumeriaAnita.Client.497ywunjel.pdb": "sha256-OOFWNYWD3mkNqxrxzIb8KCxvj9MEqhQ+t7+SgCdUxWQ="
+      "PerfumeriaAnita.Shared.e534qle0d1.pdb": "sha256-8pYA+rOoLgIkWPqJIjQxlpdRJiraBEZC4N42pQgqYG0=",
+      "PerfumeriaAnita.Client.vhctvkm7lw.pdb": "sha256-fayH3EBZTXOtQgg4nFVD4RMpPvoF5N1G57DYYI2WOxE="
     }
   },
   "cacheBootResources": true,
