@@ -1,2 +1,0 @@
-/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Release/net9.0/publish/segmentation-rules.json
-/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Client/bin/Release/net9.0/publish/web.config

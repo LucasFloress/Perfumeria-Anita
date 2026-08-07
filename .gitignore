@@ -1,2 +1,13 @@
+# User settings
 *.db
 .aider*
+.vs/
+.idea/
+*.user
+
+# .NET Build artifacts
+[Bb]in/
+[Oo]bj/
+[Pp]ublish/
+publish_test/
+publish_single/
