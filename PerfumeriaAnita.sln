@@ -7,15 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerfumeriaAnita", "Perfumer
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerfumeriaAnita.Shared", "PerfumeriaAnita.Shared\PerfumeriaAnita.Shared.csproj", "{A680DC6E-7833-4376-8DD2-D2F492A4B3C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerfumeriaAnita.Client", "PerfumeriaAnita.Client\PerfumeriaAnita.Client.csproj", "{B070C493-3708-4053-AABD-37D92F1E4568}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{5940733C-DF4A-45B1-AB3B-8C9DD405FA85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -26,9 +21,8 @@ Global
 		{A680DC6E-7833-4376-8DD2-D2F492A4B3C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A680DC6E-7833-4376-8DD2-D2F492A4B3C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A680DC6E-7833-4376-8DD2-D2F492A4B3C3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B070C493-3708-4053-AABD-37D92F1E4568}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B070C493-3708-4053-AABD-37D92F1E4568}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B070C493-3708-4053-AABD-37D92F1E4568}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B070C493-3708-4053-AABD-37D92F1E4568}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal
