@@ -1,8 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "XwlvlyzsmsI=",
+  "dgSpecHash": "dMO+AtbaHGY=",
   "success": true,
   "projectFilePath": "/home/dellfi/Documentos/Perfumeria-Anita/PerfumeriaAnita.Shared/PerfumeriaAnita.Shared.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "/home/dellfi/.nuget/packages/microsoft.netcore.app.ref/9.0.18/microsoft.netcore.app.ref.9.0.18.nupkg.sha512",
+    "/home/dellfi/.nuget/packages/microsoft.aspnetcore.app.ref/9.0.18/microsoft.aspnetcore.app.ref.9.0.18.nupkg.sha512"
+  ],
   "logs": []
 }
